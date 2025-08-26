@@ -1,10 +1,10 @@
 <?php
-// Automatically Generated At: 2024-10-14 02:28:37
+// Automatically Generated At: 2025-08-26 08:31:06
 declare(strict_types=1);
 return array (
-  'cpu' => '953E941A05FBAD7F',
-  'mac' => '37-57-6F-17-3A-55',
-  'uni' => 'BCE752136D01B01835F274A152DB3DE1',
-  'php' => '/www/server/php/82/bin/php',
+  'cpu' => '2E8D74222F2BC59E',
+  'mac' => '4C-5C-36-6A-DD-53',
+  'uni' => '173D4E9D6321666389B8079166CA80AB',
+  'php' => '/opt/homebrew/Cellar/php/8.4.4/bin/php',
   'com' => '/usr/local/bin/composer',
 );

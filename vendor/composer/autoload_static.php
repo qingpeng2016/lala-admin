@@ -11,6 +11,7 @@ class ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '35fab96057f1bf5e7aba31a8a6d5fdde' => __DIR__ . '/..' . '/topthink/think-orm/stubs/load_stubs.php',
         '8dafcc6956460bc297e00381fed53e11' => __DIR__ . '/..' . '/zoujingli/think-library/src/common.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -66,6 +67,7 @@ class ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea
         ),
         'C' => 
         array (
+            'Composer\\Pcre\\' => 14,
             'Complex\\' => 8,
         ),
         'B' => 
@@ -175,6 +177,10 @@ class ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea
         array (
             0 => __DIR__ . '/..' . '/dasprid/enum/src',
         ),
+        'Composer\\Pcre\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/pcre/src',
+        ),
         'Complex\\' => 
         array (
             0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
@@ -186,6 +192,16 @@ class ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea
         'AliPay\\' => 
         array (
             0 => __DIR__ . '/..' . '/zoujingli/wechat-developer/AliPay',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'H' => 
+        array (
+            'HTMLPurifier' => 
+            array (
+                0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
+            ),
         ),
     );
 
@@ -210,6 +226,7 @@ class ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea::$prefixesPsr0;
             $loader->fallbackDirsPsr0 = ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea::$fallbackDirsPsr0;
             $loader->classMap = ComposerStaticInitaff0984d0fd16b4ae6f847bb2da385ea::$classMap;
 
