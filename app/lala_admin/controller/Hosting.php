@@ -120,6 +120,214 @@ class Hosting extends Controller
     }
     
     /**
+     * 创建付款链接
+     * @auth true
+     */
+    public function createPaymentLink()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            
+            $hostingIds = $post['hosting_ids'] ?? [];
+            $adjustAmount = floatval($post['adjust_amount'] ?? 0);
+            $paymentNote = $post['payment_note'] ?? '';
+            
+            if (empty($hostingIds)) {
+                return json(['code' => 0, 'msg' => '请选择要创建付款链接的商品']);
+            }
+            
+            // 检查所有商品是否存在且属于同一用户
+            $userIds = [];
+            $existingHostingIds = [];
+            foreach ($hostingIds as $hostingId) {
+                $hosting = Db::name('tblhosting')->where('id', $hostingId)->find();
+                if ($hosting) {
+                    $userIds[] = $hosting['userid'];
+                    $existingHostingIds[] = $hostingId;
+                }
+            }
+            
+            // 检查是否有不存在的商品
+            if (count($existingHostingIds) !== count($hostingIds)) {
+                $missingIds = array_diff($hostingIds, $existingHostingIds);
+                return json(['code' => 0, 'msg' => '以下商品ID不存在：' . implode(', ', $missingIds)]);
+            }
+            
+            $uniqueUserIds = array_unique($userIds);
+            if (count($uniqueUserIds) > 1) {
+                return json(['code' => 0, 'msg' => '选中的商品必须属于同一用户，当前包含多个用户：' . implode(', ', $uniqueUserIds)]);
+            }
+            
+            $results = [];
+            $successCount = 0;
+            $skipCount = 0;
+            $invoiceItems = []; // 存储所有需要创建发票项目的商品
+            $totalAmount = 0; // 总金额
+            $skippedItems = []; // 存储跳过的商品信息
+            
+            foreach ($hostingIds as $hostingId) {
+                // 查询该服务器的未付订单
+                $existingInvoice = Db::name('tblinvoiceitems')
+                    ->alias('ii')
+                    ->join('tblinvoices i', 'ii.invoiceid = i.id')
+                    ->where('ii.relid', $hostingId)
+                    ->where('ii.type', 'Hosting')
+                    ->where('i.status', 'Unpaid')
+                    ->find();
+                
+                if ($existingInvoice) {
+                    // 如果存在未付订单，记录信息用于后续更新
+                    $skippedItems[] = [
+                        'hosting_id' => $hostingId,
+                        'existing_invoice' => $existingInvoice
+                    ];
+                    $skipCount++;
+                } else {
+                    // 如果不存在未付订单，创建新的订单
+                    try {
+                        // 获取hosting信息
+                        $hosting = Db::name('tblhosting')->where('id', $hostingId)->find();
+                        if (!$hosting) {
+                            $results[] = [
+                                'hosting_id' => $hostingId,
+                                'status' => 'error',
+                                'message' => '商品信息不存在'
+                            ];
+                            continue;
+                        }
+                        
+                        // 计算最终金额（暂时不处理加减钱）
+                        $finalAmount = floatval($hosting['amount']);
+                        
+                        // 收集发票项目数据（暂不插入数据库）
+                        $invoiceItems[] = [
+                            'userid' => $hosting['userid'],
+                            'relid' => $hostingId,
+                            'type' => 'Hosting',
+                            'description' => '商品续费 - ' . ($hosting['domain'] ?? '未知域名'),
+                            'amount' => $finalAmount,
+                            'taxed' => 0,
+                            'duedate' => date('Y-m-d', strtotime('+7 days')),
+                            'paymentmethod' => 'coolpaybitocin',
+                            'notes' => ''
+                        ];
+                        
+                        $successCount++;
+                    } catch (\Exception $e) {
+                        $results[] = [
+                            'hosting_id' => $hostingId,
+                            'status' => 'error',
+                            'message' => '创建失败：' . $e->getMessage()
+                        ];
+                    }
+                }
+            }
+            
+            // 无论什么情况都要创建invoice表
+            // 开启事务
+            Db::startTrans();
+            try {
+                // 获取用户ID（已经确认是同一用户）
+                $userId = $uniqueUserIds[0];
+                
+                // 计算总金额（包括新创建和已有的发票项目）
+                $totalAmount = 0;
+                
+                // 添加新创建的发票项目金额
+                foreach ($invoiceItems as $item) {
+                    $totalAmount += $item['amount'];
+                }
+                
+                // 添加已有发票项目的金额
+                foreach ($skippedItems as $skippedItem) {
+                    $totalAmount += $skippedItem['existing_invoice']['amount'];
+                }
+                
+                // 创建汇总发票
+                $invoiceData = [
+                    'userid' => $userId,
+                    'invoicenum' => '', // 发票号码，可以为空
+                    'date' => date('Y-m-d'),
+                    'duedate' => date('Y-m-d', strtotime('+7 days')),
+                    'datepaid' => '0000-00-00 00:00:00',
+                    'last_capture_attempt' => '0000-00-00 00:00:00',
+                    'date_refunded' => '0000-00-00 00:00:00',
+                    'date_cancelled' => '0000-00-00 00:00:00',
+                    'subtotal' => $totalAmount,
+                    'credit' => 0.00,
+                    'tax' => 0.00,
+                    'tax2' => 0.00,
+                    'total' => $totalAmount,
+                    'taxrate' => 0.000,
+                    'taxrate2' => 0.000,
+                    'status' => 'Unpaid',
+                    'paymentmethod' => 'coolpaybitocin',
+                    'paymethodid' => null,
+                    'notes' => $paymentNote,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ];
+                
+                $invoiceId = Db::name('tblinvoices')->insertGetId($invoiceData);
+                
+                // 创建新的发票项目
+                foreach ($invoiceItems as $item) {
+                    $item['invoiceid'] = $invoiceId;
+                    
+                    $invoiceItemId = Db::name('tblinvoiceitems')->insertGetId($item);
+                    
+                    $results[] = [
+                        'hosting_id' => $item['relid'],
+                        'status' => 'success',
+                        'message' => '付款链接创建成功',
+                        'invoice_id' => $invoiceId,
+                        'invoice_item_id' => $invoiceItemId,
+                        'amount' => $item['amount']
+                    ];
+                }
+                
+                // 更新已有发票项目的invoiceid（如果有跳过的商品）
+                if ($skipCount > 0) {
+                    foreach ($skippedItems as $skippedItem) {
+                        $hostingId = $skippedItem['hosting_id'];
+                        $existingItem = $skippedItem['existing_invoice'];
+                        
+                        // 更新发票项目的invoiceid
+                        Db::name('tblinvoiceitems')
+                            ->where('id', $existingItem['id'])
+                            ->update(['invoiceid' => $invoiceId]);
+                        
+                        $results[] = [
+                            'hosting_id' => $hostingId,
+                            'status' => 'updated',
+                            'message' => '已更新到汇总发票',
+                            'invoice_id' => $invoiceId,
+                            'invoice_item_id' => $existingItem['id'],
+                            'amount' => $existingItem['amount']
+                        ];
+                    }
+                }
+                
+                // 提交事务
+                Db::commit();
+                
+            } catch (\Exception $e) {
+                // 回滚事务
+                Db::rollback();
+                return json(['code' => 0, 'msg' => '创建汇总发票失败：' . $e->getMessage()]);
+            }
+            
+            return json([
+                'code' => 1,
+                'msg' => "处理完成：成功创建 {$successCount} 个，跳过 {$skipCount} 个，汇总发票ID: " . ($invoiceId ?? '无'),
+                'data' => $results
+            ]);
+        }
+        
+        return json(['code' => 0, 'msg' => '请求方式错误']);
+    }
+    
+    /**
      * 获取域名状态文本
      * @param string $status
      * @return string
