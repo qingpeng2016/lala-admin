@@ -13,6 +13,9 @@
             <table class="layui-table" lay-skin="line">
                 <thead>
                     <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" lay-skin="primary" lay-filter="selectAll">
+                        </th>
                         <th style="width: 60px;">ID</th>
                         <th style="width: 120px;">产品</th>
                         <th style="width: 80px;">用户ID</th>
@@ -29,6 +32,9 @@
                 <tbody>
                     {foreach $list as $vo}
                     <tr>
+                        <td>
+                            <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox" data-product="{$vo.product_name|default='-'}" data-billingcycle="{$vo.billingcycle}" data-amount="{$vo.amount_formatted}" data-nextduedate="{$vo.nextduedate|default='-'}">
+                        </td>
                         <td>{$vo.id}</td>
                         <td>{$vo.product_name|default='-'}</td>
                         <td>{$vo.userid}</td>
@@ -76,11 +82,21 @@
 
 {block name="script"}
 <script>
-layui.use(['layer'], function(){
+layui.use(['layer', 'form'], function(){
     var layer = layui.layer;
+    var form = layui.form;
     
     // 页面加载完成后的初始化
     layer.msg('持有商品管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 全选功能
+    form.on('checkbox(selectAll)', function(data){
+        var checked = data.elem.checked;
+        $('.item-checkbox').each(function(){
+            this.checked = checked;
+        });
+        form.render('checkbox');
+    });
     
     // 分页按钮点击优化
     $(document).ready(function() {
@@ -95,6 +111,75 @@ layui.use(['layer'], function(){
         });
     });
 });
+
+// 创建付款链接
+function createPaymentLink() {
+    var selectedItems = [];
+    $('.item-checkbox:checked').each(function(){
+        selectedItems.push({
+            id: $(this).val(),
+            product: $(this).data('product'),
+            billingcycle: $(this).data('billingcycle'),
+            amount: $(this).data('amount'),
+            nextduedate: $(this).data('nextduedate')
+        });
+    });
+    
+    if (selectedItems.length === 0) {
+        layer.msg('请先选择要创建付款链接的商品', {icon: 2, time: 2000});
+        return;
+    }
+    
+    // 构建弹窗内容
+    var content = '<div class="layui-form" style="padding: 20px;">';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">加减钱</label>';
+    content += '<div class="layui-input-block">';
+    content += '<input type="number" id="adjustAmount" class="layui-input" placeholder="请输入加减金额（正数为加钱，负数为减钱）" value="0" step="0.01">';
+    content += '</div>';
+    content += '</div>';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">备注</label>';
+    content += '<div class="layui-input-block">';
+    content += '<input type="text" id="paymentNote" class="layui-input" placeholder="请输入付款备注">';
+    content += '</div>';
+    content += '</div>';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">选中商品</label>';
+    content += '<div class="layui-input-block">';
+    content += '<div style="max-height: 300px; overflow-y: auto; border: 1px solid #e6e6e6; padding: 10px; background: #f8f8f8;">';
+    
+    selectedItems.forEach(function(item, index) {
+        content += '<div style="margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #ddd; background: white;">';
+        content += '<div><strong>商品 ' + (index + 1) + ':</strong></div>';
+        content += '<div>产品: ' + item.product + '</div>';
+        content += '<div>计费周期: ' + item.billingcycle + '</div>';
+        content += '<div>总金额: ' + item.amount + '</div>';
+        content += '<div>下次到期: ' + item.nextduedate + '</div>';
+        content += '</div>';
+    });
+    
+    content += '</div>';
+    content += '</div>';
+    content += '</div>';
+    
+    // 显示弹窗
+    layer.open({
+        type: 1,
+        title: '创建付款链接',
+        area: ['600px', '500px'],
+        content: content,
+        btn: ['确认创建', '取消'],
+        yes: function(index, layero) {
+            var adjustAmount = $('#adjustAmount').val();
+            var paymentNote = $('#paymentNote').val();
+            
+            // 这里可以添加创建付款链接的逻辑
+            layer.msg('付款链接创建成功！', {icon: 1, time: 2000});
+            layer.close(index);
+        }
+    });
+}
 </script>
 
 <style>
