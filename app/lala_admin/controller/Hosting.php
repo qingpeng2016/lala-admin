@@ -46,7 +46,7 @@ class Hosting extends Controller
         }
         
         // 执行分页查询
-        $result = $query->order('id desc')->paginate([
+        $result = $query->order('tblhosting.id desc')->paginate([
             'list_rows' => 20,
             'page' => $get['page'] ?? 1,
             'query' => $get, // 传递所有查询参数，确保分页链接包含搜索条件
