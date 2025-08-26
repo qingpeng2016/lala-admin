@@ -1,7 +1,7 @@
 <?php
 declare (strict_types = 1);
 
-namespace app\lala\model;
+namespace app\lala_admin\model;
 
 use think\admin\Model;
 

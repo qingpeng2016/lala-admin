@@ -1,7 +1,7 @@
 <?php
 declare (strict_types = 1);
 
-namespace app\lala\controller;
+namespace app\lala_admin\controller;
 
 use think\admin\Controller;
 use think\facade\Db;

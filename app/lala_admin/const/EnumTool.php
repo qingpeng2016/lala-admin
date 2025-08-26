@@ -1,7 +1,7 @@
 <?php
 declare (strict_types=1);
 
-namespace app\lala\const;
+namespace app\lala_admin\const;
 
 /**
  * 枚举工具类
