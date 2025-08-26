@@ -1,0 +1,50 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body padding-left-40">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">姓名</label>
+                <div class="layui-input-inline">
+                    <input name="firstname" value="{$get.firstname|default=''}" placeholder="请输入姓名" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">公司名称</label>
+                <div class="layui-input-inline">
+                    <input name="companyname" value="{$get.companyname|default=''}" placeholder="请输入公司名称" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">邮箱</label>
+                <div class="layui-input-inline">
+                    <input name="email" value="{$get.email|default=''}" placeholder="请输入邮箱" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">电话</label>
+                <div class="layui-input-inline">
+                    <input name="phonenumber" value="{$get.phonenumber|default=''}" placeholder="请输入电话" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <select name="status" class="layui-select">
+                        <option value="">所有状态</option>
+                        {foreach $status_list as $key=>$value}
+                        <option value="{$key}" {if isset($get.status) and $get.status eq $key}selected{/if}>{$value}</option>
+                        {/foreach}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">国家</label>
+                <div class="layui-input-inline">
+                    <input name="country" value="{$get.country|default=''}" placeholder="请输入国家" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i>搜 索</button>
+            </div>
+        </div>
+    </div>
+</form>

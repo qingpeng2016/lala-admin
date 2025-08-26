@@ -1,0 +1,69 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="think-box-shadow">
+    {include file='client/index_search' /}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        {notempty name='list'}
+        <thead>
+        <tr>
+            <th class='list-table-check-td think-checkbox'>
+                <input data-auto-none data-check-target='.list-check-box' type='checkbox'>
+            </th>
+            <th class='text-left nowrap'>ID</th>
+            <th class='text-left nowrap'>姓名</th>
+            <th class='text-left nowrap'>公司名称</th>
+            <th class='text-left nowrap'>邮箱</th>
+            <th class='text-left nowrap'>电话</th>
+            <th class='text-left nowrap'>地址</th>
+            <th class='text-left nowrap'>国家</th>
+            <th class='text-left nowrap'>信用额度</th>
+            <th class='text-left nowrap'>状态</th>
+            <th class='text-left nowrap'>注册日期</th>
+            <th class='text-left nowrap'>最后登录时间</th>
+            <th class='text-left nowrap'>最后登录IP</th>
+            <th class='text-left nowrap'>创建时间</th>
+            <th class='text-left nowrap'></th>
+        </tr>
+        </thead>
+        {/notempty}
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td class='list-table-check-td think-checkbox'>
+                <input class="list-check-box" value='{$vo.id}' type='checkbox'>
+            </td>
+            <td class='text-left nowrap'>{$vo.id}</td>
+            <td class='text-left nowrap'>{$vo.fullname}</td>
+            <td class='text-left nowrap'>{$vo.companyname|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.email|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.phonenumber|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.full_address|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.country|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.credit_formatted}</td>
+            <td class='text-left nowrap'>
+                {if $vo.status eq 'Active'}
+                <span class="color-green">活跃</span>
+                {elseif $vo.status eq 'Inactive'}
+                <span class="color-orange">非活跃</span>
+                {else}
+                <span class="color-red">已关闭</span>
+                {/if}
+            </td>
+            <td class='text-left nowrap'>{$vo.datecreated|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.lastlogin|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.ip|default='-'}</td>
+            <td class='text-left nowrap'>{$vo.created_at|default='-'}</td>
+            <td class='text-left nowrap'>
+                <div class="nowrap margin-bottom-5">
+                    <a class="layui-btn layui-btn-sm" data-open="{:url('edit')}?id={$vo.id}" data-title="编辑客户">编辑</a>
+                    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除这个客户吗？" data-action="{:url('remove')}" data-value="id#{$vo.id}">删除</a>
+                </div>
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
+</div>
+{/block}
