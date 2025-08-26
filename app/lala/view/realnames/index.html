@@ -1,0 +1,358 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+        </div>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            {include file="realnames/index_search" /}
+            
+            <!-- 数据列表 -->
+            
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">用户ID</th>
+                        <th style="width: 100px;">真实姓名</th>
+                        <th style="width: 150px;">邮箱</th>
+                        <th style="width: 120px;">手机号码</th>
+                        <th style="width: 150px;">身份证号码</th>
+                        <th style="width: 160px;">正面图片</th>
+                        <th style="width: 160px;">背面图片</th>
+                        <th style="width: 200px;">浏览器指纹</th>
+                        <th style="width: 120px;">状态</th>
+                        <th style="width: 120px;">认证时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>{$vo.auth_user_id}</td>
+                        <td>{$vo.auth_real_name}</td>
+                        <td>{$vo.email}</td>
+                        <td>{$vo.mobile}</td>
+                        <td>{$vo.auth_card_number}</td>
+                        <td style="min-width: 143px;">
+                            {if $vo.img_one}
+                                <img src="{$vo.img_one}" alt="正面图片" class="blur-image" style="width: 130px !important; height: 78px !important; cursor: pointer;" 
+                                     onclick="showImage('{$vo.img_one}', '正面图片')">
+                            {else}
+                                <span class="layui-badge layui-bg-gray">无图片</span>
+                            {/if}
+                        </td>
+                        <td style="min-width: 143px;">
+                            {if $vo.img_two}
+                                <img src="{$vo.img_two}" alt="背面图片" class="blur-image" style="width: 130px !important; height: 78px !important; cursor: pointer;" 
+                                     onclick="showImage('{$vo.img_two}', '背面图片')">
+                            {else}
+                                <span class="layui-badge layui-bg-gray">无图片</span>
+                            {/if}
+                        </td>
+                        <td>
+                            {if $vo.browser_fingerprint}
+                                <div title="指纹: {$vo.browser_fingerprint} | 原始UA: {$vo.user_agent}">
+                                    {$vo.browser_fingerprint}
+                                </div>
+                            {/if}
+                        </td>
+                        <td>
+                            {if $vo.status eq 0}
+                                <span class="layui-badge layui-bg-orange">待审核</span>
+                            {elseif $vo.status eq 1}
+                                <span class="layui-badge layui-bg-green">已通过</span>
+                            {elseif $vo.status eq 2}
+                                <span class="layui-badge layui-bg-red">已拒绝</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">未知</span>
+                            {/if}
+                        </td>
+                        <td>{$vo.create_time}</td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
+</div>
+
+<!-- 图片预览模态框 -->
+<div id="imageModal" class="image-modal" style="display: none;">
+    <div class="image-modal-content">
+        <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+        <img id="modalImage" src="" alt="">
+        <div id="modalTitle" class="image-modal-title"></div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('实名认证管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                // 检查是否是iframe页面，如果是则使用parent的导航
+                if (window.parent !== window) {
+                    // 在iframe中，使用parent的导航
+                    window.parent.location.href = href;
+                } else {
+                    window.location.href = href;
+                }
+            }
+        });
+        
+        // 调试：输出分页链接
+        console.log('分页链接:', $('.pagination li a').map(function() {
+            return $(this).attr('href');
+        }).get());
+    });
+});
+
+// 显示图片预览
+function showImage(src, title) {
+    document.getElementById('modalImage').src = src;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('imageModal').style.display = 'block';
+}
+
+// 关闭图片预览
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// 点击模态框外部关闭
+window.onclick = function(event) {
+    var modal = document.getElementById('imageModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 下载数据
+function downloadData() {
+    // 获取当前搜索条件
+    var searchParams = {};
+    $('.form-search input, .form-search select').each(function() {
+        var name = $(this).attr('name');
+        var value = $(this).val();
+        if (name && value !== '') {
+            searchParams[name] = value;
+        }
+    });
+    
+    // 显示加载提示
+    var loading = layer.load(1, {shade: [0.1, '#fff']});
+    
+    // 构建查询字符串
+    var queryString = Object.keys(searchParams).map(function(key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(searchParams[key]);
+    }).join('&');
+    
+    // 使用原生XMLHttpRequest下载文件
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '{:url("download")}' + (queryString ? '?' + queryString : ''), true);
+    xhr.responseType = 'blob';
+    
+    xhr.onload = function() {
+        layer.close(loading);
+        
+        if (xhr.status === 200) {
+            // 创建blob URL
+            var blob = new Blob([xhr.response], {type: 'application/zip'});
+            var url = window.URL.createObjectURL(blob);
+            
+            // 创建下载链接
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = '实名认证数据_' + new Date().toISOString().slice(0, 10) + '.zip';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 释放blob URL
+            window.URL.revokeObjectURL(url);
+            
+            layer.msg('下载成功', {icon: 1, time: 2000});
+        } else {
+            layer.msg('下载失败：服务器错误', {icon: 2, time: 3000});
+        }
+    };
+    
+    xhr.onerror = function() {
+        layer.close(loading);
+        layer.msg('下载失败：网络错误', {icon: 2, time: 3000});
+    };
+    
+    xhr.send();
+}
+</script>
+
+<style>
+/* 图片预览模态框样式 */
+.image-modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.image-modal-content {
+    position: relative;
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+}
+
+.image-modal-close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.image-modal-close:hover {
+    color: #ddd;
+}
+
+#modalImage {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+}
+
+.image-modal-title {
+    color: #fff;
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 强制设置图片尺寸 */
+.layui-table img {
+    width: 130px !important;
+    height: 78px !important;
+    max-width: 130px !important;
+    max-height: 78px !important;
+}
+
+/* 身份证图片模糊效果 */
+.blur-image {
+    filter: blur(1.5px);
+    transition: filter 0.3s ease;
+}
+
+/* 鼠标悬停时显示清晰图片 */
+.blur-image:hover {
+    filter: blur(0px);
+}
+
+/* 分页样式修复 */
+.layui-card-body .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.layui-card-body .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+/* 分页按钮基础样式 */
+.layui-card-body .pagination li a,
+.layui-card-body .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.layui-card-body .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.layui-card-body .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.layui-card-body .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 确保分页按钮有足够的点击区域 */
+.layui-card-body .pagination li a {
+    /* 确保整个按钮都可以点击 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 当前页码样式增强 */
+.layui-card-body .pagination li.active {
+    position: relative;
+}
+
+.layui-card-body .pagination li.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #009688;
+    border-radius: 4px;
+    z-index: -1;
+}
+</style>
+{/block} 

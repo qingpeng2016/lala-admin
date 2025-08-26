@@ -1,0 +1,37 @@
+# 使用PHP 7.4-FPM作为基础镜像
+FROM php:7.4-fpm
+
+LABEL maintainer="zhangjunweitony@gmail.com"
+LABEL description="PHP 7.4 with Nginx base image for ThinkPHP applications"
+
+# 安装Nginx和系统依赖
+RUN apt-get update && apt-get install -y \
+    nginx \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \ 
+    zip \
+    unzip \
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install mbstring \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install gd \
+    && docker-php-source delete \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 创建工作目录
+RUN mkdir -p /var/www/html
+
+# 设置默认的nginx配置
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# 创建启动脚本
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
