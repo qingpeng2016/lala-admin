@@ -1,67 +1,67 @@
 {extend name="../../admin/view/main"}
 
 {block name="content"}
-<div class="think-box-shadow">
-    {include file='employee/index_search' /}
-    <table class="layui-table margin-top-10" lay-skin="line">
-        {notempty name='list'}
-        <thead>
-        <tr>
-            <th class='list-table-check-td think-checkbox'>
-                <input data-auto-none data-check-target='.list-check-box' type='checkbox'>
-            </th>
-            <th class='text-left nowrap'>ID</th>
-            <th class='text-left nowrap'>头像</th>
-            <th class='text-left nowrap'>用户名</th>
-            <th class='text-left nowrap'>昵称</th>
-            <th class='text-left nowrap'>用户类型</th>
-            <th class='text-left nowrap'>手机号</th>
-            <th class='text-left nowrap'>邮箱</th>
-            <th class='text-left nowrap'>状态</th>
-            <th class='text-left nowrap'>登录次数</th>
-            <th class='text-left nowrap'>最后登录IP</th>
-            <th class='text-left nowrap'>最后登录时间</th>
-            <th class='text-left nowrap'>创建时间</th>
-            <th class='text-left nowrap'></th>
-        </tr>
-        </thead>
-        {/notempty}
-        <tbody>
-        {foreach $list as $key=>$vo}
-        <tr>
-            <td class='list-table-check-td think-checkbox'>
-                <input class="list-check-box" value='{$vo.id}' type='checkbox'>
-            </td>
-            <td class='text-left nowrap'>{$vo.id}</td>
-            <td class='text-left nowrap'>
-                <img data-tips-image style="height:32px;width:32px" src="{$vo.headimg_url}" alt="头像">
-            </td>
-            <td class='text-left nowrap'>{$vo.username}</td>
-            <td class='text-left nowrap'>{$vo.nickname}</td>
-            <td class='text-left nowrap'>{$vo.usertype_text}</td>
-            <td class='text-left nowrap'>{$vo.contact_phone|default='-'}</td>
-            <td class='text-left nowrap'>{$vo.contact_mail|default='-'}</td>
-            <td class='text-left nowrap'>
-                {if $vo.status eq 1}
-                <span class="color-green">启用</span>
-                {else}
-                <span class="color-red">禁用</span>
-                {/if}
-            </td>
-            <td class='text-left nowrap'>{$vo.login_num|default='0'}</td>
-            <td class='text-left nowrap'>{$vo.login_ip|default='-'}</td>
-            <td class='text-left nowrap'>{$vo.login_at|default='-'}</td>
-            <td class='text-left nowrap'>{$vo.create_at|default='-'}</td>
-            <td class='text-left nowrap'>
-                <div class="nowrap margin-bottom-5">
-                    <a class="layui-btn layui-btn-sm" data-open="{:url('edit')}?id={$vo.id}" data-title="编辑员工">编辑</a>
-                    <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除这个员工吗？" data-action="{:url('remove')}" data-value="id#{$vo.id}">删除</a>
-                </div>
-            </td>
-        </tr>
-        {/foreach}
-        </tbody>
-    </table>
-    {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+        </div>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            {include file="employee/index_search" /}
+            
+            <!-- 数据列表 -->
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 80px;">头像</th>
+                        <th style="width: 120px;">用户名</th>
+                        <th style="width: 120px;">昵称</th>
+                        <th style="width: 100px;">用户类型</th>
+                        <th style="width: 120px;">手机号</th>
+                        <th style="width: 150px;">邮箱</th>
+                        <th style="width: 80px;">状态</th>
+                        <th style="width: 80px;">登录次数</th>
+                        <th style="width: 120px;">最后登录IP</th>
+                        <th style="width: 150px;">最后登录时间</th>
+                        <th style="width: 150px;">创建时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>{$vo.id}</td>
+                        <td>
+                            <img data-tips-image style="height:32px;width:32px" src="{$vo.headimg_url}" alt="头像">
+                        </td>
+                        <td>{$vo.username}</td>
+                        <td>{$vo.nickname}</td>
+                        <td>{$vo.usertype_text}</td>
+                        <td>{$vo.contact_phone|default='-'}</td>
+                        <td>{$vo.contact_mail|default='-'}</td>
+                        <td>
+                            {if $vo.status eq 1}
+                                <span class="layui-badge layui-bg-green">启用</span>
+                            {else}
+                                <span class="layui-badge layui-bg-red">禁用</span>
+                            {/if}
+                        </td>
+                        <td>{$vo.login_num|default='0'}</td>
+                        <td>{$vo.login_ip|default='-'}</td>
+                        <td>{$vo.login_at|default='-'}</td>
+                        <td>{$vo.create_at|default='-'}</td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
 </div>
 {/block}
