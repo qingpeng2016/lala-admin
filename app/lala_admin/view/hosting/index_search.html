@@ -1,0 +1,40 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="id" placeholder="请输入ID" value="{$get.id|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">用户ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="userid" placeholder="请输入用户ID" value="{$get.userid|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">域名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="domain" placeholder="请输入域名" value="{$get.domain|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline">
+            <select name="domainstatus" class="layui-select">
+                <option value="">-- 全部状态 --</option>
+                {foreach $domainstatus_list as $key=>$value}
+                <option value="{$key}" {if input('get.domainstatus') eq $key}selected{/if}>{$value}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="username" placeholder="请输入用户名" value="{$get.username|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+</form>
