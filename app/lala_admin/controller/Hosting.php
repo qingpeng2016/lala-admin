@@ -27,7 +27,7 @@ class Hosting extends Controller
         $get = $this->request->get();
         
         // 创建查询对象
-        $query = Db::name('tblhosting');
+        $query = Db::name('tblhosting')->field('tblhosting.*');
         
         // 添加搜索条件
         if (isset($get['id']) && $get['id'] !== '') {
@@ -39,6 +39,7 @@ class Hosting extends Controller
         if (isset($get['email']) && $get['email'] !== '') {
             // 通过邮箱关联查询tblclients表
             $query->join('tblclients c', 'tblhosting.userid = c.id')
+                  ->field('tblhosting.*, c.email')
                   ->where('c.email', 'like', "%{$get['email']}%");
         }
         if (isset($get['domainstatus']) && $get['domainstatus'] !== '') {
