@@ -36,19 +36,13 @@ class Hosting extends Controller
         if (isset($get['userid']) && $get['userid'] !== '') {
             $query->where('userid', $get['userid']);
         }
-        if (isset($get['domain']) && $get['domain'] !== '') {
-            $query->where('domain', 'like', "%{$get['domain']}%");
-        }
-        if (isset($get['domainstatus']) && $get['domainstatus'] !== '') {
-            $query->where('domainstatus', $get['domainstatus']);
-        }
-        if (isset($get['username']) && $get['username'] !== '') {
-            $query->where('username', 'like', "%{$get['username']}%");
-        }
         if (isset($get['email']) && $get['email'] !== '') {
             // 通过邮箱关联查询tblclients表
             $query->join('tblclients c', 'tblhosting.userid = c.id')
                   ->where('c.email', 'like', "%{$get['email']}%");
+        }
+        if (isset($get['domainstatus']) && $get['domainstatus'] !== '') {
+            $query->where('domainstatus', $get['domainstatus']);
         }
         
         // 执行分页查询
