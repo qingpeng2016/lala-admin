@@ -54,7 +54,7 @@ class Employee extends Controller
             'list_rows' => 20,
             'page' => $get['page'] ?? 1,
             'query' => $get, // 传递所有查询参数，确保分页链接包含搜索条件
-            'path' => '/admin.html#/lala/employee/index.html', // 使用正确的路径
+            'path' => '/admin.html#/lala_admin/employee/index.html', // 使用正确的路径
         ], false);
         
         // 格式化数据
