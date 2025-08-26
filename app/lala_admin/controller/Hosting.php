@@ -45,6 +45,11 @@ class Hosting extends Controller
         if (isset($get['username']) && $get['username'] !== '') {
             $query->where('username', 'like', "%{$get['username']}%");
         }
+        if (isset($get['email']) && $get['email'] !== '') {
+            // 通过邮箱关联查询tblclients表
+            $query->join('tblclients c', 'tblhosting.userid = c.id')
+                  ->where('c.email', 'like', "%{$get['email']}%");
+        }
         
         // 执行分页查询
         $result = $query->order('id desc')->paginate([
