@@ -30,26 +30,11 @@ class Client extends Controller
         $query = Db::name('tblclients');
         
         // 添加搜索条件
-        if (isset($get['firstname']) && $get['firstname'] !== '') {
-            $query->where('firstname', 'like', "%{$get['firstname']}%");
-        }
-        if (isset($get['lastname']) && $get['lastname'] !== '') {
-            $query->where('lastname', 'like', "%{$get['lastname']}%");
-        }
-        if (isset($get['companyname']) && $get['companyname'] !== '') {
-            $query->where('companyname', 'like', "%{$get['companyname']}%");
+        if (isset($get['id']) && $get['id'] !== '') {
+            $query->where('id', $get['id']);
         }
         if (isset($get['email']) && $get['email'] !== '') {
             $query->where('email', 'like', "%{$get['email']}%");
-        }
-        if (isset($get['phonenumber']) && $get['phonenumber'] !== '') {
-            $query->where('phonenumber', 'like', "%{$get['phonenumber']}%");
-        }
-        if (isset($get['status']) && $get['status'] !== '') {
-            $query->where('status', $get['status']);
-        }
-        if (isset($get['country']) && $get['country'] !== '') {
-            $query->where('country', 'like', "%{$get['country']}%");
         }
         
         // 执行分页查询
