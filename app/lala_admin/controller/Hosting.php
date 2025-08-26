@@ -68,14 +68,8 @@ class Hosting extends Controller
             if (!empty($item['nextinvoicedate'])) {
                 $item['nextinvoicedate'] = date('Y-m-d', strtotime($item['nextinvoicedate']));
             }
-            if (!empty($item['lastupdate'])) {
-                $item['lastupdate'] = date('Y-m-d H:i:s', strtotime($item['lastupdate']));
-            }
             if (!empty($item['created_at'])) {
                 $item['created_at'] = date('Y-m-d H:i:s', strtotime($item['created_at']));
-            }
-            if (!empty($item['updated_at'])) {
-                $item['updated_at'] = date('Y-m-d H:i:s', strtotime($item['updated_at']));
             }
             
             // 格式化状态

@@ -15,6 +15,7 @@
                     <tr>
                         <th style="width: 60px;">ID</th>
                         <th style="width: 80px;">用户ID</th>
+                        <th style="width: 200px;">邮箱</th>
                         <th style="width: 150px;">域名</th>
                         <th style="width: 120px;">用户名</th>
                         <th style="width: 80px;">状态</th>
@@ -25,7 +26,6 @@
                         <th style="width: 120px;">下次到期</th>
                         <th style="width: 80px;">磁盘使用</th>
                         <th style="width: 80px;">带宽使用</th>
-                        <th style="width: 150px;">最后更新</th>
                         <th style="width: 150px;">创建时间</th>
                     </tr>
                 </thead>
@@ -34,6 +34,7 @@
                     <tr>
                         <td>{$vo.id}</td>
                         <td>{$vo.userid}</td>
+                        <td>{$vo.email|default='-'}</td>
                         <td>{$vo.domain}</td>
                         <td>{$vo.username}</td>
                         <td>
@@ -70,7 +71,6 @@
                                 {$vo.bw_usage_percent}%
                             </div>
                         </td>
-                        <td>{$vo.lastupdate|default='-'}</td>
                         <td>{$vo.created_at|default='-'}</td>
                     </tr>
                     {/foreach}
