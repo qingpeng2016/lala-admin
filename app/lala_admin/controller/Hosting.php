@@ -40,9 +40,10 @@ class Hosting extends Controller
             $query->where('domainstatus', $get['domainstatus']);
         }
         
-        // 始终关联tblclients表获取邮箱信息
+        // 始终关联tblclients表获取邮箱信息，同时关联tblproducts表获取产品名称
         $query->join('tblclients c', 'tblhosting.userid = c.id', 'LEFT')
-              ->field('tblhosting.*, c.email');
+              ->join('tblproducts p', 'tblhosting.packageid = p.id', 'LEFT')
+              ->field('tblhosting.*, c.email, p.name as product_name');
         
         // 邮箱搜索条件
         if (isset($get['email']) && $get['email'] !== '') {

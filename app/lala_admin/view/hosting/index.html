@@ -14,10 +14,9 @@
                 <thead>
                     <tr>
                         <th style="width: 60px;">ID</th>
+                        <th style="width: 120px;">产品</th>
                         <th style="width: 80px;">用户ID</th>
                         <th style="width: 200px;">邮箱</th>
-                        <th style="width: 150px;">域名</th>
-                        <th style="width: 120px;">用户名</th>
                         <th style="width: 100px;">首付金额</th>
                         <th style="width: 100px;">总金额</th>
                         <th style="width: 100px;">计费周期</th>
@@ -31,10 +30,9 @@
                     {foreach $list as $vo}
                     <tr>
                         <td>{$vo.id}</td>
+                        <td>{$vo.product_name|default='-'}</td>
                         <td>{$vo.userid}</td>
                         <td>{$vo.email|default='-'}</td>
-                        <td>{$vo.domain}</td>
-                        <td>{$vo.username}</td>
                         <td>{$vo.firstpaymentamount_formatted}</td>
                         <td>{$vo.amount_formatted}</td>
                         <td>{$vo.billingcycle}</td>
