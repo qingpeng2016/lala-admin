@@ -18,15 +18,13 @@
                         <th style="width: 200px;">邮箱</th>
                         <th style="width: 150px;">域名</th>
                         <th style="width: 120px;">用户名</th>
-                        <th style="width: 80px;">状态</th>
                         <th style="width: 100px;">首付金额</th>
                         <th style="width: 100px;">总金额</th>
                         <th style="width: 100px;">计费周期</th>
                         <th style="width: 120px;">注册日期</th>
                         <th style="width: 120px;">下次到期</th>
-                        <th style="width: 80px;">磁盘使用</th>
-                        <th style="width: 80px;">带宽使用</th>
                         <th style="width: 150px;">创建时间</th>
+                        <th style="width: 80px;">状态</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,6 +35,12 @@
                         <td>{$vo.email|default='-'}</td>
                         <td>{$vo.domain}</td>
                         <td>{$vo.username}</td>
+                        <td>{$vo.firstpaymentamount_formatted}</td>
+                        <td>{$vo.amount_formatted}</td>
+                        <td>{$vo.billingcycle}</td>
+                        <td>{$vo.regdate|default='-'}</td>
+                        <td>{$vo.nextduedate|default='-'}</td>
+                        <td>{$vo.created_at|default='-'}</td>
                         <td>
                             {if $vo.domainstatus eq 'Active'}
                                 <span class="layui-badge layui-bg-green">活跃</span>
@@ -56,22 +60,6 @@
                                 <span class="layui-badge layui-bg-gray">{$vo.domainstatus_text}</span>
                             {/if}
                         </td>
-                        <td>{$vo.firstpaymentamount_formatted}</td>
-                        <td>{$vo.amount_formatted}</td>
-                        <td>{$vo.billingcycle}</td>
-                        <td>{$vo.regdate|default='-'}</td>
-                        <td>{$vo.nextduedate|default='-'}</td>
-                        <td>
-                            <div title="{$vo.diskusage}MB / {$vo.disklimit}MB">
-                                {$vo.disk_usage_percent}%
-                            </div>
-                        </td>
-                        <td>
-                            <div title="{$vo.bwusage}MB / {$vo.bwlimit}MB">
-                                {$vo.bw_usage_percent}%
-                            </div>
-                        </td>
-                        <td>{$vo.created_at|default='-'}</td>
                     </tr>
                     {/foreach}
                 </tbody>
