@@ -96,7 +96,7 @@ class Client extends Controller
             $item['full_address'] = implode(', ', $address_parts);
             
             // 格式化信用额度
-            $item['credit_formatted'] = number_format($item['credit'], 2);
+            $item['credit_formatted'] = number_format(floatval($item['credit'] ?? 0), 2);
         }
         
         // 分配变量到视图
