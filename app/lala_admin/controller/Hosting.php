@@ -27,7 +27,7 @@ class Hosting extends Controller
         $get = $this->request->get();
         
         // 创建查询对象
-        $query = Db::name('tblhosting')->field('tblhosting.*');
+        $query = Db::name('tblhosting');
         
         // 添加搜索条件
         if (isset($get['id']) && $get['id'] !== '') {
@@ -36,14 +36,17 @@ class Hosting extends Controller
         if (isset($get['userid']) && $get['userid'] !== '') {
             $query->where('userid', $get['userid']);
         }
-        if (isset($get['email']) && $get['email'] !== '') {
-            // 通过邮箱关联查询tblclients表
-            $query->join('tblclients c', 'tblhosting.userid = c.id')
-                  ->field('tblhosting.*, c.email')
-                  ->where('c.email', 'like', "%{$get['email']}%");
-        }
         if (isset($get['domainstatus']) && $get['domainstatus'] !== '') {
             $query->where('domainstatus', $get['domainstatus']);
+        }
+        
+        // 始终关联tblclients表获取邮箱信息
+        $query->join('tblclients c', 'tblhosting.userid = c.id', 'LEFT')
+              ->field('tblhosting.*, c.email');
+        
+        // 邮箱搜索条件
+        if (isset($get['email']) && $get['email'] !== '') {
+            $query->where('c.email', 'like', "%{$get['email']}%");
         }
         
         // 执行分页查询
