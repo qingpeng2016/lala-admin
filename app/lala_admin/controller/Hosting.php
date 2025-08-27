@@ -337,14 +337,21 @@ class Hosting extends Controller
                                 $remainingAmount += $item['amount'];
                             }
                             
-                            // 更新发票金额为剩余发票项目的总金额
-                            Db::name('tblinvoices')
-                                ->where('id', $oldInvoiceId)
-                                ->update([
-                                    'subtotal' => $remainingAmount,
-                                    'total' => $remainingAmount,
-                                    'updated_at' => date('Y-m-d H:i:s')
-                                ]);
+                            if ($remainingAmount > 0) {
+                                // 更新发票金额为剩余发票项目的总金额
+                                Db::name('tblinvoices')
+                                    ->where('id', $oldInvoiceId)
+                                    ->update([
+                                        'subtotal' => $remainingAmount,
+                                        'total' => $remainingAmount,
+                                        'updated_at' => date('Y-m-d H:i:s')
+                                    ]);
+                            } else {
+                                // 如果剩余金额为0，删除发票记录
+                                Db::name('tblinvoices')
+                                    ->where('id', $oldInvoiceId)
+                                    ->delete();
+                            }
                         } else {
                             // 如果没有其他发票项目，删除发票记录
                             Db::name('tblinvoices')
