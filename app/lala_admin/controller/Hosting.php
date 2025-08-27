@@ -170,6 +170,7 @@ class Hosting extends Controller
                 $existingInvoice = Db::name('tblinvoiceitems')
                     ->alias('ii')
                     ->join('tblinvoices i', 'ii.invoiceid = i.id')
+                    ->field('ii.*, i.id as invoice_id')
                     ->where('ii.relid', $hostingId)
                     ->where('ii.type', 'Hosting')
                     ->where('i.status', 'Unpaid')
