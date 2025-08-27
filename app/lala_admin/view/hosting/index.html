@@ -151,11 +151,7 @@ function createPaymentLink() {
     
     selectedItems.forEach(function(item, index) {
         content += '<div style="margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #ddd; background: white;">';
-        content += '<div><strong>商品 ' + (index + 1) + ':</strong></div>';
-        content += '<div>产品: ' + item.product + '</div>';
-        content += '<div>计费周期: ' + item.billingcycle + '</div>';
-        content += '<div>总金额: ' + item.amount + '</div>';
-        content += '<div>下次到期: ' + item.nextduedate + '</div>';
+        content += '<div><strong>商品 ' + (index + 1) + ':</strong> 产品: ' + item.product + '、计费周期: ' + item.billingcycle + '、总金额: ' + item.amount + '、下次到期: ' + item.nextduedate + '</div>';
         content += '</div>';
     });
     
@@ -167,7 +163,7 @@ function createPaymentLink() {
     layer.open({
         type: 1,
         title: '创建付款链接',
-        area: ['600px', '500px'],
+        area: ['800px', '500px'],
         content: content,
         btn: ['确认创建', '取消'],
         yes: function(index, layero) {
