@@ -237,11 +237,9 @@ function createPaymentLink() {
                                 if (res.data && res.data.length > 0) {
                                     var resultContent = '<div style="max-height: 300px; overflow-y: auto;">';
                                     res.data.forEach(function(item) {
-                                        var statusIcon = item.status === 'success' ? '✅' : 
-                                                       item.status === 'skipped' ? '⏭️' : '❌';
                                         resultContent += '<div style="margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #eee;">';
                                         resultContent += '<strong>商品ID: ' + item.hosting_id + '</strong> ';
-                                        resultContent += statusIcon + ' ' + item.message;
+                                        resultContent += item.message;
                                         if (item.invoice_id) {
                                             resultContent += ' (发票ID: ' + item.invoice_id + ')';
                                         }
