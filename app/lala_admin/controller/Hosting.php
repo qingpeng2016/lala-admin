@@ -289,9 +289,17 @@ class Hosting extends Controller
                 
                 // 更新已有发票项目的invoiceid（如果有跳过的商品）
                 if ($skipCount > 0) {
+                    // 收集需要删除的老发票ID
+                    $oldInvoiceIds = [];
+                    
                     foreach ($skippedItems as $skippedItem) {
                         $hostingId = $skippedItem['hosting_id'];
                         $existingItem = $skippedItem['existing_invoice'];
+                        
+                        // 收集老发票ID（避免重复）
+                        if (!in_array($existingItem['invoice_id'], $oldInvoiceIds)) {
+                            $oldInvoiceIds[] = $existingItem['invoice_id'];
+                        }
                         
                         // 更新发票项目的invoiceid
                         Db::name('tblinvoiceitems')
@@ -306,6 +314,13 @@ class Hosting extends Controller
                             'invoice_item_id' => $existingItem['id'],
                             'amount' => $existingItem['amount']
                         ];
+                    }
+                    
+                    // 删除老的未付发票记录
+                    foreach ($oldInvoiceIds as $oldInvoiceId) {
+                        Db::name('tblinvoices')
+                            ->where('id', $oldInvoiceId)
+                            ->delete();
                     }
                 }
                 
