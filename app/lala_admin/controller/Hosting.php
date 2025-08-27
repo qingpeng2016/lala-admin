@@ -322,7 +322,7 @@ class Hosting extends Controller
                         Db::name('system_new_tblhosting_notes')
                             ->where('invoice_id', $oldInvoiceId)
                             ->delete();
-                        
+
                         // 再删除发票记录
                         Db::name('tblinvoices')
                             ->where('id', $oldInvoiceId)
@@ -362,6 +362,7 @@ class Hosting extends Controller
                             'content' => $paymentNote,
                             'invoice_id' => $invoiceId,
                             'adjust_amount' => $adjustAmount,
+                            'status' => 'Wait',
                             'created_at' => date('Y-m-d H:i:s'),
                             'updated_at' => date('Y-m-d H:i:s')
                         ];
