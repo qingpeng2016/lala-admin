@@ -167,6 +167,10 @@ function createPaymentLink() {
         area: ['800px', '600px'],
         content: content,
         btn: ['确认创建', '取消'],
+        success: function(layero, index) {
+            // 重新渲染表单，确保下拉菜单正常显示
+            layui.form.render('select');
+        },
         yes: function(index, layero) {
             var paymentMethod = $('#paymentMethod').val();
             var adjustAmount = $('#adjustAmount').val();
