@@ -13,9 +13,7 @@
             <table class="layui-table" lay-skin="line">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">
-                            <input type="checkbox" id="selectAll" lay-skin="primary" lay-filter="selectAll">
-                        </th>
+                        <th style="width: 40px;">选择</th>
                         <th style="width: 60px;">ID</th>
                         <th style="width: 120px;">产品</th>
                         <th style="width: 80px;">用户ID</th>
@@ -33,7 +31,11 @@
                     {foreach $list as $vo}
                     <tr>
                         <td>
-                            <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox" data-product="{$vo.product_name|default='-'}" data-billingcycle="{$vo.billingcycle}" data-amount="{$vo.amount_formatted}" data-nextduedate="{$vo.nextduedate|default='-'}">
+                            {if $vo.domainstatus eq 'Active'}
+                                <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox" data-product="{$vo.product_name|default='-'}" data-billingcycle="{$vo.billingcycle}" data-amount="{$vo.amount_formatted}" data-nextduedate="{$vo.nextduedate|default='-'}">
+                            {else}
+                                <span style="color: #ccc; font-size: 12px;">不可选</span>
+                            {/if}
                         </td>
                         <td>{$vo.id}</td>
                         <td>{$vo.product_name|default='-'}</td>
@@ -88,15 +90,6 @@ layui.use(['layer', 'form'], function(){
     
     // 页面加载完成后的初始化
     layer.msg('持有商品管理页面加载完成', {icon: 1, time: 2000});
-    
-    // 全选功能
-    form.on('checkbox(selectAll)', function(data){
-        var checked = data.elem.checked;
-        $('.item-checkbox').each(function(){
-            this.checked = checked;
-        });
-        form.render('checkbox');
-    });
     
     // 分页按钮点击优化
     $(document).ready(function() {
