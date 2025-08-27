@@ -33,8 +33,6 @@
                         <td>
                             {if $vo.domainstatus eq 'Active'}
                                 <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox" data-product="{$vo.product_name|default='-'}" data-billingcycle="{$vo.billingcycle}" data-amount="{$vo.amount_formatted}" data-nextduedate="{$vo.nextduedate|default='-'}">
-                            {else}
-                                <span style="color: #ccc; font-size: 12px;">不可选</span>
                             {/if}
                         </td>
                         <td>{$vo.id}</td>
