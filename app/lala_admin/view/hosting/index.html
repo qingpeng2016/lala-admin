@@ -134,9 +134,9 @@ function createPaymentLink() {
     content += '</div>';
     content += '</div>';
     content += '<div class="layui-form-item">';
-    content += '<label class="layui-form-label">加减钱</label>';
+    content += '<label class="layui-form-label">调整金额</label>';
     content += '<div class="layui-input-block">';
-    content += '<input type="number" id="adjustAmount" class="layui-input" placeholder="暂时禁用" value="0" step="0.01" disabled>';
+    content += '<input type="number" id="adjustAmount" class="layui-input" placeholder="请输入调整金额，正数为加钱，负数为减钱" value="0" step="0.01">';
     content += '</div>';
     content += '</div>';
     content += '<div class="layui-form-item">';
@@ -188,15 +188,22 @@ function createPaymentLink() {
                 totalAmount += parseFloat(item.amount);
             });
             
+            // 如果调整金额不为0，则加到总金额中
+            var finalAmount = totalAmount;
+            if (adjustAmount && adjustAmount != '0') {
+                finalAmount = totalAmount + parseFloat(adjustAmount);
+            }
+            
             // 构建确认信息
             var confirmContent = '<div style="padding: 20px;">';
             confirmContent += '<p style="margin-bottom: 15px; font-size: 14px;">请确认以下信息：</p>';
             confirmContent += '<div style="background: #f8f8f8; padding: 15px; border-radius: 4px; margin-bottom: 15px;">';
             confirmContent += '<p><strong>选中商品数量：</strong>' + selectedIds.length + ' 个</p>';
             confirmContent += '<p><strong>商品ID：</strong>' + selectedIds.join(', ') + '</p>';
-            confirmContent += '<p><strong>总金额：</strong>' + totalAmount.toFixed(2) + '</p>';
+            confirmContent += '<p><strong>商品总金额：</strong>' + totalAmount.toFixed(2) + '</p>';
             if (adjustAmount && adjustAmount != '0') {
                 confirmContent += '<p><strong>调整金额：</strong>' + adjustAmount + '</p>';
+                confirmContent += '<p><strong>最终金额：</strong>' + finalAmount.toFixed(2) + '</p>';
             }
             if (paymentNote) {
                 confirmContent += '<p><strong>备注：</strong>' + paymentNote + '</p>';

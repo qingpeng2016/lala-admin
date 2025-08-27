@@ -244,6 +244,11 @@ class Hosting extends Controller
                 foreach ($skippedItems as $skippedItem) {
                     $totalAmount += $skippedItem['existing_invoice']['amount'];
                 }
+                
+                // 如果调整金额不为0，则加到总金额中
+                if ($adjustAmount != 0) {
+                    $totalAmount += $adjustAmount;
+                }
 
                 // 创建汇总发票
                 $invoiceData = [
