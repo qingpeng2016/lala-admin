@@ -319,6 +319,19 @@ class Hosting extends Controller
 
                     // 删除老的未付发票记录
                     foreach ($oldInvoiceIds as $oldInvoiceId) {
+                        // 检查该发票是否还有其他不属于本次hostingIds的发票项目
+                        $otherInvoiceItems = Db::name('tblinvoiceitems')
+                            ->where('invoiceid', $oldInvoiceId)
+                            ->where('type', 'Hosting')
+                            ->whereNotIn('relid', $hostingIds)
+                            ->find();
+                        
+                        if ($otherInvoiceItems) {
+                            // 如果存在其他发票项目，回滚事务并报错
+                            Db::rollback();
+                            return json(['code' => 0, 'msg' => '发票ID ' . $oldInvoiceId . ' 还包含其他商品，无法删除']);
+                        }
+                        
                         // 先删除对应的账单提醒记录
                         Db::name('system_new_tblhosting_notes')
                             ->where('invoice_id', $oldInvoiceId)
