@@ -1,0 +1,316 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            账单提醒管理
+        </div>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">用户ID</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="userid" placeholder="请输入用户ID" value="{$get.userid|default=''}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">邮箱</label>
+                    <div class="layui-input-inline" style="width: 250px;">
+                        <input type="text" name="email" placeholder="请输入邮箱" value="{$get.email|default=''}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">员工姓名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="employee_name" placeholder="请输入员工姓名" value="{$get.employee_name|default=''}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">发票ID</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="invoice_id" placeholder="请输入发票ID" value="{$get.invoice_id|default=''}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">开始日期</label>
+                    <div class="layui-input-inline">
+                        <input type="date" name="start_date" value="{$get.start_date|default=''}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">结束日期</label>
+                    <div class="layui-input-inline">
+                        <input type="date" name="end_date" value="{$get.end_date|default=''}" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button type="button" class="layui-btn layui-btn-danger" onclick="batchDelete()"><i class="layui-icon">&#xe640;</i> 批量删除</button>
+                </div>
+            </form>
+            
+            <!-- 数据列表 -->
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="selectAll" lay-skin="primary" lay-filter="selectAll">
+                        </th>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 80px;">用户ID</th>
+                        <th style="width: 200px;">邮箱</th>
+                        <th style="width: 100px;">员工姓名</th>
+                        <th style="width: 100px;">发票ID</th>
+                        <th style="width: 100px;">发票状态</th>
+                        <th style="width: 100px;">发票金额</th>
+                        <th style="width: 100px;">调整金额</th>
+                        <th style="width: 200px;">商品信息</th>
+                        <th style="width: 200px;">备注内容</th>
+                        <th style="width: 150px;">创建时间</th>
+                        <th style="width: 80px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox">
+                        </td>
+                        <td>{$vo.id}</td>
+                        <td>{$vo.userid}</td>
+                        <td>{$vo.email|default='-'}</td>
+                        <td>{$vo.employee_name|default='-'}</td>
+                        <td>{$vo.invoice_id|default='-'}</td>
+                        <td>
+                            {if $vo.invoice_status eq 'Unpaid'}
+                                <span class="layui-badge layui-bg-orange">未付款</span>
+                            {elseif $vo.invoice_status eq 'Paid'}
+                                <span class="layui-badge layui-bg-green">已付款</span>
+                            {elseif $vo.invoice_status eq 'Cancelled'}
+                                <span class="layui-badge layui-bg-gray">已取消</span>
+                            {elseif $vo.invoice_status eq 'Refunded'}
+                                <span class="layui-badge layui-bg-red">已退款</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">{$vo.invoice_status}</span>
+                            {/if}
+                        </td>
+                        <td>{$vo.invoice_total}</td>
+                        <td>{$vo.adjust_amount|default='0'}</td>
+                        <td>
+                            <div style="max-height: 100px; overflow-y: auto; font-size: 12px;">
+                                {$vo.product_info_formatted|default='-'}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="max-height: 100px; overflow-y: auto; font-size: 12px;">
+                                {$vo.content_formatted|default='-'}
+                            </div>
+                        </td>
+                        <td>{$vo.created_at_formatted|default='-'}</td>
+                        <td>
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-danger" onclick="deleteItem({$vo.id})">
+                                <i class="layui-icon">&#xe640;</i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer', 'form'], function(){
+    var layer = layui.layer;
+    var form = layui.form;
+    
+    // 页面加载完成后的初始化
+    layer.msg('账单提醒管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 全选功能
+    form.on('checkbox(selectAll)', function(data){
+        var checked = data.elem.checked;
+        $('.item-checkbox').each(function(){
+            this.checked = checked;
+        });
+        form.render('checkbox');
+    });
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+});
+
+// 删除单个项目
+function deleteItem(id) {
+    layer.confirm('确定要删除这条记录吗？', {
+        title: '确认删除',
+        btn: ['确定', '取消']
+    }, function(index) {
+        layer.close(index);
+        
+        $.ajax({
+            url: '{:url("delete")}',
+            type: 'POST',
+            data: {id: id},
+            dataType: 'json',
+            success: function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.msg, {icon: 1, time: 2000}, function() {
+                        location.reload();
+                    });
+                } else {
+                    layer.msg(res.msg, {icon: 2, time: 3000});
+                }
+            },
+            error: function() {
+                layer.msg('网络错误，请重试', {icon: 2, time: 3000});
+            }
+        });
+    });
+}
+
+// 批量删除
+function batchDelete() {
+    var selectedIds = [];
+    $('.item-checkbox:checked').each(function(){
+        selectedIds.push($(this).val());
+    });
+    
+    if (selectedIds.length === 0) {
+        layer.msg('请先选择要删除的记录', {icon: 2, time: 2000});
+        return;
+    }
+    
+    layer.confirm('确定要删除选中的 ' + selectedIds.length + ' 条记录吗？', {
+        title: '确认批量删除',
+        btn: ['确定', '取消']
+    }, function(index) {
+        layer.close(index);
+        
+        $.ajax({
+            url: '{:url("batchDelete")}',
+            type: 'POST',
+            data: {ids: selectedIds},
+            dataType: 'json',
+            success: function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.msg, {icon: 1, time: 2000}, function() {
+                        location.reload();
+                    });
+                } else {
+                    layer.msg(res.msg, {icon: 2, time: 3000});
+                }
+            },
+            error: function() {
+                layer.msg('网络错误，请重试', {icon: 2, time: 3000});
+            }
+        });
+    });
+}
+</script>
+
+<style>
+/* 分页样式修复 */
+.layui-card-body .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.layui-card-body .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+/* 分页按钮基础样式 */
+.layui-card-body .pagination li a,
+.layui-card-body .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.layui-card-body .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.layui-card-body .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.layui-card-body .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 强制设置状态标签样式 */
+.layui-badge.layui-bg-green {
+    background-color: #5FB878 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-orange {
+    background-color: #FFB800 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-red {
+    background-color: #FF5722 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-gray {
+    background-color: #999 !important;
+    color: #fff !important;
+}
+</style>
+{/block}
