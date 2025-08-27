@@ -163,7 +163,7 @@ function createPaymentLink() {
     layer.open({
         type: 1,
         title: '创建付款链接',
-        area: ['800px', '500px'],
+        area: ['800px', '600px'],
         content: content,
         btn: ['确认创建', '取消'],
         yes: function(index, layero) {
@@ -238,6 +238,19 @@ function createPaymentLink() {
 /* 弹框关闭按钮位置调整 */
 .layui-layer-setwin .layui-layer-close2 {
     top: -35px !important;
+}
+
+/* 确保弹框按钮区域显示 */
+.layui-layer-btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.layui-layer-btn a {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* 分页样式修复 */
