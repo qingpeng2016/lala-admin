@@ -151,7 +151,7 @@ function createPaymentLink() {
     
     selectedItems.forEach(function(item, index) {
         content += '<div style="margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #ddd; background: white;">';
-        content += '<div><strong>商品 ' + (index + 1) + ':</strong> 产品: ' + item.product + '、计费周期: ' + item.billingcycle + '、总金额: ' + item.amount + '、下次到期: ' + item.nextduedate + '</div>';
+        content += '<div><strong>商品 ' + (index + 1) + ' (ID: ' + item.id + '):</strong> 产品: ' + item.product + '、计费周期: ' + item.billingcycle + '、总金额: ' + item.amount + '、下次到期: ' + item.nextduedate + '</div>';
         content += '</div>';
     });
     
