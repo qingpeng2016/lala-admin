@@ -129,6 +129,7 @@ class Hosting extends Controller
             $post = $this->request->post();
 
             $hostingIds = $post['hosting_ids'] ?? [];
+            $paymentMethod = $post['payment_method'] ?? 'coolpaybitocin';
             $adjustAmount = floatval($post['adjust_amount'] ?? 0);
             $paymentNote = $post['payment_note'] ?? '';
 
@@ -209,7 +210,7 @@ class Hosting extends Controller
                             'amount' => $finalAmount,
                             'taxed' => 0,
                             'duedate' => date('Y-m-d', strtotime('+7 days')),
-                            'paymentmethod' => 'coolpaybitocin',
+                            'paymentmethod' => $paymentMethod,
                             'notes' => ''
                         ];
 
@@ -262,7 +263,7 @@ class Hosting extends Controller
                     'taxrate' => 0.000,
                     'taxrate2' => 0.000,
                     'status' => 'Unpaid',
-                    'paymentmethod' => 'coolpaybitocin',
+                    'paymentmethod' => $paymentMethod,
                     'paymethodid' => null,
                     'notes' => $paymentNote,
                     'created_at' => date('Y-m-d H:i:s'),
