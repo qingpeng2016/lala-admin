@@ -131,7 +131,7 @@ function createPaymentLink() {
     }
     
     // 构建弹窗内容
-    var content = '<div class="layui-form" style="padding: 20px;">';
+    var content = '<div class="layui-form" style="padding: 20px 40px 20px 20px;">';
     content += '<div class="layui-form-item">';
     content += '<label class="layui-form-label">加减钱</label>';
     content += '<div class="layui-input-block">';
@@ -235,6 +235,11 @@ function createPaymentLink() {
 </script>
 
 <style>
+/* 弹框关闭按钮位置调整 */
+.layui-layer-setwin .layui-layer-close2 {
+    top: -35px !important;
+}
+
 /* 分页样式修复 */
 .layui-card-body .pagination {
     display: flex;
