@@ -348,7 +348,7 @@ class Hosting extends Controller
                                 $product = Db::name('tblproducts')->where('id', $hosting['packageid'])->find();
                                 $productName = $product['name'] ?? '未知产品';
 
-                                $productInfoLines[] = $hostingId . ' ' . $productName;
+                                $productInfoLines[] ='hostingId:' . $hostingId . ', 商品名称:' . $productName;
                             }
                         }
                         $productInfo = implode("\n", $productInfoLines);

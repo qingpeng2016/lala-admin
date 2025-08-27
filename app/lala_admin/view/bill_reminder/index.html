@@ -70,13 +70,13 @@
                         <td>{$vo.invoice_total}</td>
                         <td>{$vo.adjust_amount|default='0'}</td>
                         <td>
-                            <div style="max-height: 100px; overflow-y: auto; font-size: 12px;">
-                                {$vo.product_info_formatted|default='-'}
+                            <div style="max-height: 100px; overflow-y: auto; font-size: 12px; white-space: pre-line;">
+                                {$vo.product_info|default='-'}
                             </div>
                         </td>
                         <td>
-                            <div style="max-height: 100px; overflow-y: auto; font-size: 12px;">
-                                {$vo.content_formatted|default='-'}
+                            <div style="max-height: 100px; overflow-y: auto; font-size: 12px; white-space: pre-line;">
+                                {$vo.content|default='-'}
                             </div>
                         </td>
                         <td>{$vo.created_at_formatted|default='-'}</td>
