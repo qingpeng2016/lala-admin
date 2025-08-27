@@ -323,10 +323,7 @@ class Hosting extends Controller
                             ->delete();
                     }
                 }
-                
-                // 故意抛出异常测试事务
-                throw new \Exception('测试事务回滚 - 在提交前故意抛出的异常');
-                
+
                 // 提交事务
                 Db::commit();
                 
