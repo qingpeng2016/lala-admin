@@ -349,7 +349,7 @@ class Hosting extends Controller
 
                         // 插入备注记录
                         $noteData = [
-                            'employee_name' => '系统',
+                            'employee_name' => 'admin',
                             'userid' => $firstHosting['userid'],
                             'email' => $email,
                             'product_info' => $productInfo,
