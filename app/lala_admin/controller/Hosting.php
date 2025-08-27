@@ -318,6 +318,12 @@ class Hosting extends Controller
 
                     // 删除老的未付发票记录
                     foreach ($oldInvoiceIds as $oldInvoiceId) {
+                        // 先删除对应的账单提醒记录
+                        Db::name('system_new_tblhosting_notes')
+                            ->where('invoice_id', $oldInvoiceId)
+                            ->delete();
+                        
+                        // 再删除发票记录
                         Db::name('tblinvoices')
                             ->where('id', $oldInvoiceId)
                             ->delete();
