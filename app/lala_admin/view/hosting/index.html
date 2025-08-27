@@ -176,12 +176,19 @@ function createPaymentLink() {
                 selectedIds.push($(this).val());
             });
             
+            // 计算总金额
+            var totalAmount = 0;
+            selectedItems.forEach(function(item) {
+                totalAmount += parseFloat(item.amount);
+            });
+            
             // 构建确认信息
             var confirmContent = '<div style="padding: 20px;">';
             confirmContent += '<p style="margin-bottom: 15px; font-size: 14px;">请确认以下信息：</p>';
             confirmContent += '<div style="background: #f8f8f8; padding: 15px; border-radius: 4px; margin-bottom: 15px;">';
             confirmContent += '<p><strong>选中商品数量：</strong>' + selectedIds.length + ' 个</p>';
             confirmContent += '<p><strong>商品ID：</strong>' + selectedIds.join(', ') + '</p>';
+            confirmContent += '<p><strong>总金额：</strong>' + totalAmount.toFixed(2) + '</p>';
             if (adjustAmount && adjustAmount != '0') {
                 confirmContent += '<p><strong>调整金额：</strong>' + adjustAmount + '</p>';
             }
