@@ -322,8 +322,47 @@ class Hosting extends Controller
                             ->where('id', $oldInvoiceId)
                             ->delete();
                     }
+                                }
+                
+                // 写入商品备注表（只记录一条，包含所有商品信息）
+                if (!empty($hostingIds) && !empty($paymentNote)) {
+                    // 获取第一个商品的信息来获取用户ID和邮箱
+                    $firstHosting = Db::name('tblhosting')->where('id', $hostingIds[0])->find();
+                    if ($firstHosting) {
+                        // 获取用户邮箱
+                        $client = Db::name('tblclients')->where('id', $firstHosting['userid'])->find();
+                        $email = $client['email'] ?? '';
+                        
+                        // 构建商品信息字符串
+                        $productInfoLines = [];
+                        foreach ($hostingIds as $hostingId) {
+                            $hosting = Db::name('tblhosting')->where('id', $hostingId)->find();
+                            if ($hosting) {
+                                // 获取产品名称
+                                $product = Db::name('tblproducts')->where('id', $hosting['packageid'])->find();
+                                $productName = $product['name'] ?? '未知产品';
+                                
+                                $productInfoLines[] = $hostingId . ' ' . $productName;
+                            }
+                        }
+                        $productInfo = implode("\n", $productInfoLines);
+                        
+                        // 插入备注记录
+                        $noteData = [
+                            'employee_name' => '系统',
+                            'userid' => $firstHosting['userid'],
+                            'email' => $email,
+                            'product_info' => $productInfo,
+                            'content' => $paymentNote,
+                            'invoice_id' => $invoiceId,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ];
+                        
+                        Db::name('system_new_tblhosting_notes')->insert($noteData);
+                    }
                 }
-
+                
                 // 提交事务
                 Db::commit();
                 
