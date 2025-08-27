@@ -36,20 +36,6 @@ class BillReminder extends Controller
         if (isset($get['email']) && $get['email'] !== '') {
             $query->where('email', 'like', "%{$get['email']}%");
         }
-        if (isset($get['employee_name']) && $get['employee_name'] !== '') {
-            $query->where('employee_name', 'like', "%{$get['employee_name']}%");
-        }
-        if (isset($get['invoice_id']) && $get['invoice_id'] !== '') {
-            $query->where('invoice_id', $get['invoice_id']);
-        }
-        
-        // 日期范围搜索
-        if (isset($get['start_date']) && $get['start_date'] !== '') {
-            $query->where('created_at', '>=', $get['start_date'] . ' 00:00:00');
-        }
-        if (isset($get['end_date']) && $get['end_date'] !== '') {
-            $query->where('created_at', '<=', $get['end_date'] . ' 23:59:59');
-        }
         
         // 执行分页查询
         $result = $query->order('id desc')->paginate([
@@ -156,6 +142,48 @@ class BillReminder extends Controller
                 }
             } catch (\Exception $e) {
                 return json(['code' => 0, 'msg' => '删除失败：' . $e->getMessage()]);
+            }
+        }
+        
+        return json(['code' => 0, 'msg' => '请求方式错误']);
+    }
+    
+    /**
+     * 切换状态
+     * @auth true
+     */
+    public function toggleStatus()
+    {
+        if ($this->request->isPost()) {
+            $id = $this->request->post('id');
+            
+            if (empty($id)) {
+                return json(['code' => 0, 'msg' => '参数错误']);
+            }
+            
+            try {
+                // 获取当前记录
+                $record = Db::name('system_new_tblhosting_notes')->where('id', $id)->find();
+                
+                if (!$record) {
+                    return json(['code' => 0, 'msg' => '记录不存在']);
+                }
+                
+                // 切换状态
+                $newStatus = ($record['status'] === 'Wait') ? 'Deal' : 'Wait';
+                
+                $result = Db::name('system_new_tblhosting_notes')
+                    ->where('id', $id)
+                    ->update(['status' => $newStatus]);
+                
+                if ($result) {
+                    $statusText = ($newStatus === 'Wait') ? '待处理' : '已处理';
+                    return json(['code' => 1, 'msg' => "状态已更新为：{$statusText}", 'status' => $newStatus]);
+                } else {
+                    return json(['code' => 0, 'msg' => '状态更新失败']);
+                }
+            } catch (\Exception $e) {
+                return json(['code' => 0, 'msg' => '状态更新失败：' . $e->getMessage()]);
             }
         }
         

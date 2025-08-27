@@ -22,6 +22,7 @@ class BillReminder extends Model
         'email' => 'string',
         'product_info' => 'text',
         'adjust_amount' => 'string',
+        'status' => 'string',
         'content' => 'text',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

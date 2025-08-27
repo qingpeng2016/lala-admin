@@ -21,35 +21,9 @@
                         <input type="text" name="email" placeholder="请输入邮箱" value="{$get.email|default=''}" class="layui-input">
                     </div>
                 </div>
-                <div class="layui-form-item layui-inline">
-                    <label class="layui-form-label">员工姓名</label>
-                    <div class="layui-input-inline">
-                        <input type="text" name="employee_name" placeholder="请输入员工姓名" value="{$get.employee_name|default=''}" class="layui-input">
-                    </div>
-                </div>
-                <div class="layui-form-item layui-inline">
-                    <label class="layui-form-label">发票ID</label>
-                    <div class="layui-input-inline">
-                        <input type="text" name="invoice_id" placeholder="请输入发票ID" value="{$get.invoice_id|default=''}" class="layui-input">
-                    </div>
-                </div>
-                <div class="layui-form-item layui-inline">
-                    <label class="layui-form-label">开始日期</label>
-                    <div class="layui-input-inline">
-                        <input type="date" name="start_date" value="{$get.start_date|default=''}" class="layui-input">
-                    </div>
-                </div>
-                <div class="layui-form-item layui-inline">
-                    <label class="layui-form-label">结束日期</label>
-                    <div class="layui-input-inline">
-                        <input type="date" name="end_date" value="{$get.end_date|default=''}" class="layui-input">
-                    </div>
-                </div>
+
                 <div class="layui-form-item layui-inline">
                     <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
-                </div>
-                <div class="layui-form-item layui-inline">
-                    <button type="button" class="layui-btn layui-btn-danger" onclick="batchDelete()"><i class="layui-icon">&#xe640;</i> 批量删除</button>
                 </div>
             </form>
             
@@ -57,9 +31,6 @@
             <table class="layui-table" lay-skin="line">
                 <thead>
                     <tr>
-                        <th style="width: 40px;">
-                            <input type="checkbox" id="selectAll" lay-skin="primary" lay-filter="selectAll">
-                        </th>
                         <th style="width: 60px;">ID</th>
                         <th style="width: 80px;">用户ID</th>
                         <th style="width: 200px;">邮箱</th>
@@ -68,6 +39,7 @@
                         <th style="width: 100px;">发票状态</th>
                         <th style="width: 100px;">发票金额</th>
                         <th style="width: 100px;">调整金额</th>
+                        <th style="width: 100px;">状态</th>
                         <th style="width: 200px;">商品信息</th>
                         <th style="width: 200px;">备注内容</th>
                         <th style="width: 150px;">创建时间</th>
@@ -77,9 +49,6 @@
                 <tbody>
                     {foreach $list as $vo}
                     <tr>
-                        <td>
-                            <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox">
-                        </td>
                         <td>{$vo.id}</td>
                         <td>{$vo.userid}</td>
                         <td>{$vo.email|default='-'}</td>
@@ -101,6 +70,15 @@
                         <td>{$vo.invoice_total}</td>
                         <td>{$vo.adjust_amount|default='0'}</td>
                         <td>
+                            {if $vo.status eq 'Wait'}
+                                <span class="layui-badge layui-bg-red">待处理</span>
+                            {elseif $vo.status eq 'Deal'}
+                                <span class="layui-badge layui-bg-green">已处理</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">未知</span>
+                            {/if}
+                        </td>
+                        <td>
                             <div style="max-height: 100px; overflow-y: auto; font-size: 12px;">
                                 {$vo.product_info_formatted|default='-'}
                             </div>
@@ -112,6 +90,9 @@
                         </td>
                         <td>{$vo.created_at_formatted|default='-'}</td>
                         <td>
+                            <button type="button" class="layui-btn layui-btn-xs layui-btn-normal" onclick="toggleStatus({$vo.id})">
+                                <i class="layui-icon">&#xe857;</i> 更改状态
+                            </button>
                             <button type="button" class="layui-btn layui-btn-xs layui-btn-danger" onclick="deleteItem({$vo.id})">
                                 <i class="layui-icon">&#xe640;</i> 删除
                             </button>
@@ -140,15 +121,6 @@ layui.use(['layer', 'form'], function(){
     
     // 页面加载完成后的初始化
     layer.msg('账单提醒管理页面加载完成', {icon: 1, time: 2000});
-    
-    // 全选功能
-    form.on('checkbox(selectAll)', function(data){
-        var checked = data.elem.checked;
-        $('.item-checkbox').each(function(){
-            this.checked = checked;
-        });
-        form.render('checkbox');
-    });
     
     // 分页按钮点击优化
     $(document).ready(function() {
@@ -193,44 +165,29 @@ function deleteItem(id) {
     });
 }
 
-// 批量删除
-function batchDelete() {
-    var selectedIds = [];
-    $('.item-checkbox:checked').each(function(){
-        selectedIds.push($(this).val());
-    });
-    
-    if (selectedIds.length === 0) {
-        layer.msg('请先选择要删除的记录', {icon: 2, time: 2000});
-        return;
-    }
-    
-    layer.confirm('确定要删除选中的 ' + selectedIds.length + ' 条记录吗？', {
-        title: '确认批量删除',
-        btn: ['确定', '取消']
-    }, function(index) {
-        layer.close(index);
-        
-        $.ajax({
-            url: '{:url("batchDelete")}',
-            type: 'POST',
-            data: {ids: selectedIds},
-            dataType: 'json',
-            success: function(res) {
-                if (res.code === 1) {
-                    layer.msg(res.msg, {icon: 1, time: 2000}, function() {
-                        location.reload();
-                    });
-                } else {
-                    layer.msg(res.msg, {icon: 2, time: 3000});
-                }
-            },
-            error: function() {
-                layer.msg('网络错误，请重试', {icon: 2, time: 3000});
+// 切换状态
+function toggleStatus(id) {
+    $.ajax({
+        url: '{:url("toggleStatus")}',
+        type: 'POST',
+        data: {id: id},
+        dataType: 'json',
+        success: function(res) {
+            if (res.code === 1) {
+                layer.msg(res.msg, {icon: 1, time: 2000}, function() {
+                    location.reload();
+                });
+            } else {
+                layer.msg(res.msg, {icon: 2, time: 3000});
             }
-        });
+        },
+        error: function() {
+            layer.msg('网络错误，请重试', {icon: 2, time: 3000});
+        }
     });
 }
+
+
 </script>
 
 <style>
