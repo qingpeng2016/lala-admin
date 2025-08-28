@@ -39,58 +39,8 @@ class TelegramBot {
     
     // 处理消息
     private function handleMessage($message) {
-        $chat_id = $message['chat']['id'];
-        $text = $message['text'] ?? '';
-        $user = $message['from'];
-        
-        // 检测是否是广告消息（包含特定关键词）
-        if ($this->isAdMessage($text)) {
-            $this->sendAdButtons($chat_id, $message['message_id']);
-        }
-    }
-    
-    // 检测是否是广告消息
-    private function isAdMessage($text) {
-        $ad_keywords = [
-            '想联系客服？点下面按钮',
-            '想体验请点下面按钮',
-            '点击下面按钮',
-            '联系客服',
-            '特价',
-            '优惠'
-        ];
-        
-        foreach ($ad_keywords as $keyword) {
-            if (strpos($text, $keyword) !== false) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    // 发送广告按钮
-    private function sendAdButtons($chat_id, $reply_to_message_id) {
-        $keyboard = [
-            'inline_keyboard' => [
-                [
-                    ['text' => '👨‍💼 联系客服', 'callback_data' => 'action_kefu'],
-                    ['text' => '👥 进入用户群', 'callback_data' => 'action_usergroup']
-                ],
-                [
-                    ['text' => '🌐 访问官网', 'callback_data' => 'action_website'],
-                    ['text' => '📱 下载APP', 'callback_data' => 'action_app']
-                ]
-            ]
-        ];
-        
-        $data = [
-            'chat_id' => $chat_id,
-            'text' => "请选择您需要的服务 👇",
-            'reply_markup' => json_encode($keyboard),
-            'reply_to_message_id' => $reply_to_message_id
-        ];
-        
-        $this->sendRequest('sendMessage', $data);
+        // 不再处理普通消息，只处理按钮回调
+        // 超管自己发送按钮，Bot只统计点击
     }
     
     // 处理按钮回调
