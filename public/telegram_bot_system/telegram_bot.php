@@ -55,8 +55,6 @@ class TelegramBot {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
-        $chat_id = $callback_query['message']['chat']['id'];
-        $message_id = $callback_query['message']['message_id'];
         
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
@@ -64,36 +62,11 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        // 尝试使用answerCallbackQuery的url参数直接跳转
-        $result = $this->answerCallbackQuery($callback_query_id, $redirect_url);
-        
-        // 记录调试信息
-        error_log("Callback result: " . json_encode($result));
-        
-        // 如果直接跳转不工作，发送一个包含链接的消息
-        $this->sendDirectLink($chat_id, $callback_data, $redirect_url);
+        // 使用answerCallbackQuery的url参数直接在Telegram客户端内跳转
+        $this->answerCallbackQuery($callback_query_id, $redirect_url);
     }
     
-    // 发送直接链接消息
-    private function sendDirectLink($chat_id, $action, $url) {
-        $messages = [
-            'kefu' => "💬 <b>联系客服</b>\n点击下方链接直接联系客服：\n<a href='$url'>@markqing2024</a>",
-            'usergroup' => "👥 <b>进入用户群</b>\n点击下方链接进入用户群：\n<a href='$url'>@lalanetworkchat</a>",
-            'website' => "🌐 <b>访问官网</b>\n点击下方链接访问官网：\n<a href='$url'>lala.gg</a>",
-            'app' => "📱 <b>下载APP</b>\n点击下方链接下载APP：\n<a href='$url'>lala.gg</a>"
-        ];
-        
-        $text = $messages[$action] ?? "点击下方链接：\n<a href='$url'>$url</a>";
-        
-        $data = [
-            'chat_id' => $chat_id,
-            'text' => $text,
-            'parse_mode' => 'HTML',
-            'disable_web_page_preview' => true
-        ];
-        
-        $this->sendRequest('sendMessage', $data);
-    }
+
     
     // 记录用户行为到数据库
     private function logAction($user_id, $username, $action) {
