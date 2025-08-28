@@ -25,9 +25,10 @@ class TelegramBot {
         }
     }
 
-    // 处理 webhook
+    // 处理webhook
     public function handleUpdate($update_data) {
         $update = json_decode($update_data, true);
+
         if (isset($update['message'])) {
             $this->handleMessage($update['message']);
         } elseif (isset($update['callback_query'])) {
@@ -40,13 +41,13 @@ class TelegramBot {
         $chat_id = $message['chat']['id'];
         $text = $message['text'] ?? '';
 
-        // 如果包含“点下面按钮”，就发送广告按钮
+        // 如果包含“点下面按钮”，就自动发送广告按钮
         if (mb_strpos($text, '点下面按钮') !== false) {
             $this->sendAdButtons($chat_id);
         }
     }
 
-    // 处理回调按钮
+    // 处理按钮回调
     private function handleCallbackQuery($callback_query) {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
@@ -56,17 +57,17 @@ class TelegramBot {
         // 记录点击
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
 
-        // 获取 URL
-        $redirect_url = $this->getRedirectUrl($callback_data);
-
-        // 回复回调（不弹窗）
+        // 回复回调提示
         $this->answerCallbackQuery($callback_query_id, "操作已记录");
 
-        // 给用户私聊发送链接，不替换群消息
+        // 获取跳转 URL
+        $redirect_url = $this->getRedirectUrl($callback_data);
+
+        // 私聊发送 URL 给用户
         $this->sendPrivateLink($user['id'], $callback_data, $redirect_url);
     }
 
-    // 记录用户行为
+    // 记录用户行为到数据库
     private function logAction($user_id, $username, $action) {
         try {
             $sql = "INSERT INTO system_new_user_actions (user_id, username, action, chat_id, created_at) 
@@ -94,43 +95,7 @@ class TelegramBot {
         }
     }
 
-    // 给用户私聊发送链接消息
-    private function sendPrivateLink($user_id, $action, $url) {
-        $messages = [
-            'kefu' => "💬 <b>联系客服</b>\n点击下方按钮直接联系客服：",
-            'usergroup' => "👥 <b>进入用户群</b>\n点击下方按钮进入群：",
-            'website' => "🌐 <b>访问官网</b>\n点击下方按钮访问官网：",
-            'app' => "📱 <b>下载APP</b>\n点击下方按钮下载APP："
-        ];
-
-        $buttons = [
-            'kefu' => "联系客服",
-            'usergroup' => "进入用户群",
-            'website' => "访问官网",
-            'app' => "下载APP"
-        ];
-
-        $text = $messages[$action] ?? "点击下方按钮：";
-        $button_text = $buttons[$action] ?? "打开链接";
-
-        $keyboard = [
-            'inline_keyboard' => [
-                [['text' => $button_text, 'url' => $url]]
-            ]
-        ];
-
-        $data = [
-            'chat_id' => $user_id,
-            'text' => $text,
-            'parse_mode' => 'HTML',
-            'reply_markup' => json_encode($keyboard),
-            'disable_web_page_preview' => true
-        ];
-
-        $this->sendRequest('sendMessage', $data);
-    }
-
-    // 发送广告按钮（群或私聊）
+    // 发送广告按钮
     private function sendAdButtons($chat_id) {
         $keyboard = [
             'inline_keyboard' => [
@@ -154,7 +119,38 @@ class TelegramBot {
         $this->sendRequest('sendMessage', $data);
     }
 
-    // 回答回调
+    // 私聊发送 URL
+    private function sendPrivateLink($user_id, $action, $url) {
+        $messages = [
+            'kefu' => "💬 <b>联系客服</b>\n点击下方按钮直接联系客服：",
+            'usergroup' => "👥 <b>进入用户群</b>\n点击下方按钮进入群：",
+            'website' => "🌐 <b>访问官网</b>\n点击下方按钮访问官网：",
+            'app' => "📱 <b>下载APP</b>\n点击下方按钮下载APP："
+        ];
+
+        $buttons = [
+            'kefu' => "联系客服",
+            'usergroup' => "进入用户群",
+            'website' => "访问官网",
+            'app' => "下载APP"
+        ];
+
+        $keyboard = [
+            'inline_keyboard' => [
+                [['text' => $buttons[$action] ?? "打开链接", 'url' => $url]]
+            ]
+        ];
+
+        $this->sendRequest('sendMessage', [
+            'chat_id' => $user_id,
+            'text' => $messages[$action] ?? "点击下方按钮：",
+            'parse_mode' => 'HTML',
+            'reply_markup' => json_encode($keyboard),
+            'disable_web_page_preview' => true
+        ]);
+    }
+
+    // 回答回调查询
     private function answerCallbackQuery($callback_query_id, $text = null) {
         $data = ['callback_query_id' => $callback_query_id];
         if ($text) {
@@ -181,13 +177,17 @@ class TelegramBot {
 
     // 设置 webhook
     public function setWebhook($webhook_url) {
-        return $this->sendRequest('setWebhook', ['url' => $webhook_url]);
+        $data = ['url' => $webhook_url];
+        return $this->sendRequest('setWebhook', $data);
     }
 
-    // 获取统计
+    // 获取统计信息
     public function getStats() {
-        $sql = "SELECT action, COUNT(*) as count, DATE(created_at) as date
-                FROM system_new_user_actions
+        $sql = "SELECT 
+                    action,
+                    COUNT(*) as count,
+                    DATE(created_at) as date
+                FROM system_new_user_actions 
                 GROUP BY action, DATE(created_at)
                 ORDER BY date DESC, count DESC";
         $stmt = $this->db->query($sql);
