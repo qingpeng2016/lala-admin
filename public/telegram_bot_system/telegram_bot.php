@@ -57,37 +57,31 @@ class TelegramBot {
         $user = $callback_query['from'];
         $chat_id = $callback_query['message']['chat']['id'];
         $message_id = $callback_query['message']['message_id'];
-        
+
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
-        
+
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
 
-        // 回复回调（防止loading圈一直转）
+        // 回复回调提示
         $this->answerCallbackQuery($callback_query_id, "操作已记录");
 
-        // 特殊处理“联系客服”，编辑原消息，不刷屏
-        if ($callback_data === 'kefu') {
-            $this->editMessageWithUrlButton(
-                $chat_id,
-                $message_id,
-                "💬 联系客服\n点击下方按钮直接联系客服：",
-                "联系客服",
-                $redirect_url
-            );
-        } else {
-            // 其他按钮也改成编辑原消息 + url 按钮（防止刷屏）
-            $this->editMessageWithUrlButton(
-                $chat_id,
-                $message_id,
-                $this->getActionText($callback_data),
-                $this->getActionButtonText($callback_data),
-                $redirect_url
-            );
+        // 如果是在群组/频道里，不要替换消息，保持 callback 按钮
+        if ($chat_id < 0) {
+            return;
         }
+
+        // 私聊里 → 替换消息为 URL 按钮
+        $this->editMessageWithUrlButton(
+            $chat_id,
+            $message_id,
+            $this->getActionText($callback_data),
+            $this->getActionButtonText($callback_data),
+            $redirect_url
+        );
     }
-    
+
     // 记录用户行为到数据库
     private function logAction($user_id, $username, $action) {
         try {
@@ -122,34 +116,48 @@ class TelegramBot {
         }
     }
 
-    // 根据action返回消息文字
+    // 获取按钮替换后的文本
     private function getActionText($action) {
-        switch ($action) {
-            case 'usergroup':
-                return "👥 进入用户群\n点击下方按钮进入用户群：";
-            case 'website':
-                return "🌐 访问官网\n点击下方按钮访问官网：";
-            case 'app':
-                return "📱 下载APP\n点击下方按钮下载APP：";
-            default:
-                return "请选择：";
-        }
+        $texts = [
+            'kefu' => "💬 联系客服\n点击下方按钮直接联系客服：",
+            'usergroup' => "👥 进入用户群\n点击下方按钮进入群：",
+            'website' => "🌐 访问官网\n点击下方按钮访问：",
+            'app' => "📱 下载APP\n点击下方按钮下载："
+        ];
+        return $texts[$action] ?? "点击下方按钮：";
     }
 
-    // 根据action返回按钮文字
+    // 获取按钮文字
     private function getActionButtonText($action) {
-        switch ($action) {
-            case 'kefu':
-                return "联系客服";
-            case 'usergroup':
-                return "进入用户群";
-            case 'website':
-                return "访问官网";
-            case 'app':
-                return "下载APP";
-            default:
-                return "点击这里";
-        }
+        $texts = [
+            'kefu' => "联系客服",
+            'usergroup' => "进入用户群",
+            'website' => "访问官网",
+            'app' => "下载APP"
+        ];
+        return $texts[$action] ?? "打开链接";
+    }
+
+    // 替换消息为带 URL 按钮
+    private function editMessageWithUrlButton($chat_id, $message_id, $text, $button_text, $url) {
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => $button_text, 'url' => $url]
+                ]
+            ]
+        ];
+
+        $data = [
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+            'text' => $text,
+            'reply_markup' => json_encode($keyboard),
+            'parse_mode' => 'HTML',
+            'disable_web_page_preview' => true
+        ];
+
+        $this->sendRequest('editMessageText', $data);
     }
     
     // 发送广告按钮
@@ -176,34 +184,10 @@ class TelegramBot {
         
         $this->sendRequest('sendMessage', $data);
     }
-    
-    // 编辑原消息，替换为带URL按钮的版本
-    private function editMessageWithUrlButton($chat_id, $message_id, $text, $button_text, $url) {
-        $keyboard = [
-            'inline_keyboard' => [
-                [
-                    ['text' => $button_text, 'url' => $url]
-                ]
-            ]
-        ];
-
-        $data = [
-            'chat_id' => $chat_id,
-            'message_id' => $message_id,
-            'text' => $text,
-            'reply_markup' => json_encode($keyboard),
-            'parse_mode' => 'HTML',
-            'disable_web_page_preview' => true
-        ];
-
-        $this->sendRequest('editMessageText', $data);
-    }
 
     // 回答回调查询
     private function answerCallbackQuery($callback_query_id, $text = null) {
-        $data = [
-            'callback_query_id' => $callback_query_id
-        ];
+        $data = ['callback_query_id' => $callback_query_id];
         if ($text) {
             $data['text'] = $text;
             $data['show_alert'] = false;
@@ -250,7 +234,7 @@ class TelegramBot {
     }
 }
 
-// 配置数据库
+// 配置
 $bot_config = [
     'bot_token' => '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4',
     'database' => [
