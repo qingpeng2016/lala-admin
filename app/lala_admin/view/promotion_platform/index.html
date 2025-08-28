@@ -1,133 +1,126 @@
 {extend name="../../admin/view/main"}
 
+{block name="button"}
+<button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("add")}'>添加平台</button>
+{/block}
+
 {block name="content"}
-<div class="layui-fluid">
-    <div class="layui-card">
-        <div class="layui-card-header">
-            <div class="layui-row">
-                <div class="layui-col-md6">
-                    <h3>推广平台管理</h3>
-                </div>
-                <div class="layui-col-md6 text-right">
-                    <button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("add")}'>添加平台</button>
-                </div>
-            </div>
-        </div>
-        <div class="layui-card-body">
+<div class="think-box-shadow">
             <!-- 搜索表单 -->
-            <form class="layui-form layui-form-pane" method="get" action="">
-                <div class="layui-form-item">
-                    <div class="layui-inline">
-                        <label class="layui-form-label">平台名称</label>
-                        <div class="layui-input-inline">
-                            <input type="text" name="platform_name" value="{$get.platform_name|default=''}" placeholder="请输入平台名称" class="layui-input">
-                        </div>
+            <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">平台名称</label>
+                    <div class="layui-input-inline">
+                        <input name="platform_name" value="{:input('get.platform_name')}" placeholder="请输入平台名称" class="layui-input">
                     </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">频道/群组</label>
-                        <div class="layui-input-inline">
-                            <input type="text" name="channel" value="{$get.channel|default=''}" placeholder="请输入频道/群组" class="layui-input">
-                        </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">频道/群组</label>
+                    <div class="layui-input-inline">
+                        <input name="channel" value="{:input('get.channel')}" placeholder="请输入频道/群组" class="layui-input">
                     </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">状态</label>
-                        <div class="layui-input-inline">
-                            <select name="status" class="layui-select">
-                                <option value="">全部状态</option>
-                                {foreach $status_list as $key => $value}
-                                <option value="{$key}" {if isset($get.status) && $get.status eq $key}selected{/if}>{$value}</option>
-                                {/foreach}
-                            </select>
-                        </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-inline">
+                        <select name="status" class="layui-select">
+                            <option value="">-- 全部状态 --</option>
+                            {foreach $status_list as $key => $value}
+                            <option value="{$key}" {if input('get.status') eq $key}selected{/if}>{$value}</option>
+                            {/foreach}
+                        </select>
                     </div>
-                    <div class="layui-inline">
-                        <button class="layui-btn" lay-submit lay-filter="search">
-                            <i class="layui-icon layui-icon-search"></i> 搜索
-                        </button>
-                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-                    </div>
+                </div>
+                <div class="layui-form-item layui-inline">
+                    <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
                 </div>
             </form>
             
-            <!-- 数据列表 -->
-            <table class="layui-table" lay-skin="line">
-                <thead>
-                    <tr>
-                        <th style="width: 60px;">ID</th>
-                        <th style="width: 150px;">平台名称</th>
-                        <th style="width: 200px;">频道/群组</th>
-                        <th style="width: 300px;">Webhook URL</th>
-                        <th style="width: 100px;">状态</th>
-                        <th style="width: 200px;">配置</th>
-                        <th style="width: 150px;">创建时间</th>
-                        <th style="width: 150px;">更新时间</th>
-                        <th style="width: 200px;">操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {foreach $list as $vo}
-                    <tr>
-                        <td>{$vo.id}</td>
-                        <td>{$vo.platform_name}</td>
-                        <td>{$vo.channel|default='-'}</td>
-                        <td>
-                            {if $vo.webhook_url}
-                                <span class="layui-badge layui-bg-blue" title="{$vo.webhook_url}">已设置</span>
-                            {else}
-                                <span class="layui-badge layui-bg-gray">未设置</span>
-                            {/if}
-                        </td>
-                        <td>
-                            {if $vo.status eq 'active'}
-                                <span class="layui-badge layui-bg-green">{$vo.status_text}</span>
-                            {elseif $vo.status eq 'inactive'}
-                                <span class="layui-badge layui-bg-orange">{$vo.status_text}</span>
-                            {else}
-                                <span class="layui-badge layui-bg-blue">{$vo.status_text}</span>
-                            {/if}
-                        </td>
-                        <td>
-                            {if $vo.config_preview}
-                                <span class="layui-badge layui-bg-cyan" title="{$vo.config_preview}">配置</span>
-                            {else}
-                                <span class="layui-badge layui-bg-gray">无配置</span>
-                            {/if}
-                        </td>
-                        <td>{$vo.created_at|default='-'}</td>
-                        <td>{$vo.updated_at|default='-'}</td>
-                        <td class='text-left' style="white-space: nowrap;">
-                            <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
-                            <a class="layui-btn layui-btn-sm layui-btn-warm" onclick="updateStatus({$vo.id}, '{$vo.status}')">
-                                <i class="layui-icon layui-icon-refresh"></i> 状态
-                            </a>
-                            <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此推广平台吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
-                        </td>
-                    </tr>
-                    {/foreach}
-                </tbody>
-            </table>
-            
-            <!-- 分页 -->
-            {if $pagehtml}
-            <div class="layui-card-body">
-                {$pagehtml|raw}
-            </div>
-            {/if}
-        </div>
-    </div>
+            <div class="layui-tab-content table-block">
+                <table class="layui-table" lay-skin="line">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">ID</th>
+                            <th style="width: 150px;">平台名称</th>
+                            <th style="width: 200px;">频道/群组</th>
+                            <th style="width: 300px;">Webhook URL</th>
+                            <th style="width: 100px;">状态</th>
+                            <th style="width: 200px;">配置</th>
+                            <th style="width: 150px;">创建时间</th>
+                            <th style="width: 150px;">更新时间</th>
+                            <th style="width: 200px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $list as $vo}
+                        <tr>
+                            <td>{$vo.id}</td>
+                            <td>{$vo.platform_name}</td>
+                            <td>{$vo.channel|default='-'}</td>
+                            <td>
+                                {if $vo.webhook_url}
+                                    <span class="layui-badge layui-bg-blue" title="{$vo.webhook_url}">已设置</span>
+                                {else}
+                                    <span class="layui-badge layui-bg-gray">未设置</span>
+                                {/if}
+                            </td>
+                            <td>
+                                {if $vo.status eq 'active'}
+                                    <span class="layui-badge layui-bg-green">{$vo.status_text}</span>
+                                {elseif $vo.status eq 'inactive'}
+                                    <span class="layui-badge layui-bg-orange">{$vo.status_text}</span>
+                                {else}
+                                    <span class="layui-badge layui-bg-blue">{$vo.status_text}</span>
+                                {/if}
+                            </td>
+                            <td>
+                                {if $vo.config_preview}
+                                    <span class="layui-badge layui-bg-cyan" title="{$vo.config_preview}">配置</span>
+                                {else}
+                                    <span class="layui-badge layui-bg-gray">无配置</span>
+                                {/if}
+                            </td>
+                            <td>{$vo.created_at|default='-'}</td>
+                            <td>{$vo.updated_at|default='-'}</td>
+                            <td class='text-left' style="white-space: nowrap;">
+                                <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
+                                <a class="layui-btn layui-btn-sm layui-btn-warm" onclick="updateStatus({$vo.id}, '{$vo.status}')">
+                                    <i class="layui-icon layui-icon-refresh"></i> 状态
+                                </a>
+                                <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此推广平台吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
+                            </td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+                {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
 </div>
 
 
 {/block}
 
+{/block}
+
 {block name="script"}
 <script>
-layui.use(['layer', 'form'], function(){
+layui.use(['layer'], function(){
     var layer = layui.layer;
-    var form = layui.form;
     
     // 页面加载完成后的初始化
     layer.msg('推广平台管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
 });
 
 // 更新状态
@@ -196,14 +189,88 @@ function deleteItem(id) {
 </script>
 
 <style>
-.layui-card-header .layui-row {
+/* 分页样式修复 */
+.think-box-shadow .pagination {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
 }
-.text-right {
-    text-align: right;
+
+.think-box-shadow .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
 }
+
+/* 分页按钮基础样式 */
+.think-box-shadow .pagination li a,
+.think-box-shadow .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.think-box-shadow .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.think-box-shadow .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.think-box-shadow .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 确保分页按钮有足够的点击区域 */
+.think-box-shadow .pagination li a {
+    /* 确保整个按钮都可以点击 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 当前页码样式增强 */
+.think-box-shadow .pagination li.active {
+    position: relative;
+}
+
+.think-box-shadow .pagination li.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #009688;
+    border-radius: 4px;
+    z-index: -1;
+}
+
 .layui-badge {
     cursor: pointer;
 }
