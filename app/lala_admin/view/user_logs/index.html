@@ -14,13 +14,11 @@
                 <thead>
                     <tr>
                         <th style="width: 60px;">ID</th>
+                        <th style="width: 80px;">来源</th>
                         <th style="width: 80px;">用户ID</th>
                         <th style="width: 120px;">操作类型</th>
                         <th style="width: 200px;">操作描述</th>
                         <th style="width: 150px;">当前页面</th>
-                        <th style="width: 150px;">来源页面</th>
-                        <th style="width: 120px;">IP地址</th>
-                        <th style="width: 200px;">浏览器指纹</th>
                         <th style="width: 120px;">操作时间</th>
                     </tr>
                 </thead>
@@ -28,6 +26,7 @@
                     {foreach $list as $vo}
                     <tr>
                         <td>{$vo.id}</td>
+                        <td>{$vo.channel}</td>
                         <td>{$vo.userid}</td>
                         <td>
                             {if $vo.action eq '页面访问'}
@@ -40,15 +39,6 @@
                         </td>
                         <td>{$vo.description}</td>
                         <td>{$vo.current_page}</td>
-                        <td>{$vo.referer}</td>
-                        <td>{$vo.ipaddr}</td>
-                        <td>
-                            {if $vo.browser_fingerprint}
-                                <div title="指纹: {$vo.browser_fingerprint} | 原始UA: {$vo.user_agent}">
-                                    {$vo.browser_fingerprint}
-                                </div>
-                            {/if}
-                        </td>
                         <td>{$vo.created_at}</td>
                     </tr>
                     {/foreach}

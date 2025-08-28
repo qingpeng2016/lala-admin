@@ -6,6 +6,12 @@
         </div>
     </div>
     <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">来源</label>
+        <div class="layui-input-inline">
+            <input type="text" name="channel" placeholder="请输入来源" value="{$get.channel|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
         <label class="layui-form-label">操作类型</label>
         <div class="layui-input-inline">
             <select name="action" class="layui-select">
@@ -19,12 +25,6 @@
         <label class="layui-form-label">操作描述</label>
         <div class="layui-input-inline">
             <input type="text" name="description" placeholder="请输入操作描述" value="{$get.description|default=''}" class="layui-input">
-        </div>
-    </div>
-    <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">IP地址</label>
-        <div class="layui-input-inline">
-            <input type="text" name="ipaddr" placeholder="请输入IP地址" value="{$get.ipaddr|default=''}" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item layui-inline">
