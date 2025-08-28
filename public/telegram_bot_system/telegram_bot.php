@@ -37,19 +37,29 @@ class TelegramBot {
         }
     }
 
-    // 处理消息
+        // 处理消息
     private function handleMessage($message) {
         $chat_id = $message['chat']['id'];
         $text = $message['text'] ?? '';
         $user = $message['from'];
-
+        
         // 检测新用户加入
         if (isset($message['new_chat_members'])) {
             foreach ($message['new_chat_members'] as $new_member) {
                 // 如果是新用户加入（不是机器人自己）
                 if (!$new_member['is_bot']) {
+                    // 记录开始时间
+                    $start_time = microtime(true);
+                    
                     // 发送欢迎消息和按钮
                     $this->sendWelcomeMessage($chat_id, $new_member);
+                    
+                    // 记录结束时间
+                    $end_time = microtime(true);
+                    $execution_time = ($end_time - $start_time) * 1000; // 转换为毫秒
+                    
+                    // 记录执行时间到日志
+                    file_put_contents('performance.log', date('Y-m-d H:i:s') . " - 欢迎消息发送耗时: {$execution_time}ms\n", FILE_APPEND);
                 }
             }
         }
