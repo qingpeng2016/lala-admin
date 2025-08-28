@@ -43,7 +43,18 @@ class TelegramBot {
         $text = $message['text'] ?? '';
         $user = $message['from'];
 
-        // 检测关键词
+        // 检测新用户加入
+        if (isset($message['new_chat_members'])) {
+            foreach ($message['new_chat_members'] as $new_member) {
+                // 如果是新用户加入（不是机器人自己）
+                if (!$new_member['is_bot']) {
+                    // 发送欢迎消息和按钮
+                    $this->sendWelcomeMessage($chat_id, $new_member);
+                }
+            }
+        }
+
+        // 保留原有的关键词检测功能
         if (strpos($text, '点下面按钮') !== false || strpos($text, '获取更多福利') !== false) {
             // 发送按钮
             $this->sendAdButtons($chat_id, $message['message_id']);
@@ -107,6 +118,53 @@ class TelegramBot {
         }
     }
 
+    // 发送欢迎消息和按钮
+    private function sendWelcomeMessage($chat_id, $new_member) {
+        $username = $new_member['username'] ?? $new_member['first_name'] ?? '新朋友';
+
+        // 先发送图片
+        $this->sendPhoto($chat_id, '1.jpg', "台湾云-精品配置表");
+
+        // 然后发送文字消息和按钮
+        $welcome_text = "🎉 欢迎 $username 加入！\n\n";
+        $welcome_text .= "🚀【全球精品3C网络 VPS】🚀\n";
+        $welcome_text .= "价格：¥25-32/月起  \n";
+        $welcome_text .= "带宽：10M-10G  \n";
+        $welcome_text .= "流量：1T - 无限  \n";
+        $welcome_text .= "机房：新加坡 / 香港 / 日本 / 美国 / 台湾  \n";
+        $welcome_text .= "解锁流媒体：Netflix / HBO / Disney+  \n\n";
+        $welcome_text .= "🚀【IEPL NAT 高速通道】🚀\n";
+        $welcome_text .= "价格：¥580/月  \n";
+        $welcome_text .= "带宽：1Gbps  \n";
+        $welcome_text .= "流量：800G  \n";
+        $welcome_text .= "线路：厦门->香港 / 深圳->香港 / 广州->香港  \n";
+        $welcome_text .= "联通/电信/移动三网入口，20个NAT端口  \n";
+        $welcome_text .= "✅ 无需实名、快速开通、双端高防，抗投诉  \n\n";
+        $welcome_text .= "💡 获取更多福利和服务，请点击下方按钮：";
+
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => '联系客服', 'callback_data' => 'kefu'],
+                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
+                ],
+                [
+                    ['text' => '访问官网', 'callback_data' => 'website'],
+                    ['text' => '下载APP', 'callback_data' => 'app']
+                ]
+            ]
+        ];
+
+        $data = [
+            'chat_id' => $chat_id,
+            'text' => $welcome_text,
+            'reply_markup' => json_encode($keyboard),
+            'parse_mode' => 'HTML'
+        ];
+
+        $this->sendRequest('sendMessage', $data);
+    }
+
     // 发送广告按钮
     private function sendAdButtons($chat_id, $reply_to_message_id) {
         $keyboard = [
@@ -152,6 +210,25 @@ class TelegramBot {
         return $this->sendRequest('answerCallbackQuery', $data);
     }
 
+    // 发送图片
+    public function sendPhoto($chat_id, $photo_path, $caption = '') {
+        // 检查文件是否存在
+        if (!file_exists($photo_path)) {
+            error_log("图片文件不存在: $photo_path");
+            return false;
+        }
+
+        // 使用 CURLFile 发送本地文件
+        $data = [
+            'chat_id' => $chat_id,
+            'photo' => new CURLFile($photo_path),
+            'caption' => $caption,
+            'parse_mode' => 'HTML'
+        ];
+
+        return $this->sendRequest('sendPhoto', $data);
+    }
+
     // 发送可点击链接消息
     private function sendClickableLink($chat_id, $action, $url) {
         $messages = [
@@ -177,16 +254,39 @@ class TelegramBot {
     private function sendRequest($method, $data) {
         $url = $this->api_url . $method;
 
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-                'method' => 'POST',
-                'content' => http_build_query($data)
-            ]
-        ];
+        // 检查是否包含文件上传
+        $has_file = false;
+        foreach ($data as $value) {
+            if ($value instanceof CURLFile) {
+                $has_file = true;
+                break;
+            }
+        }
 
-        $context = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
+        if ($has_file) {
+            // 使用 cURL 处理文件上传
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+            $result = curl_exec($ch);
+            curl_close($ch);
+        } else {
+            // 普通请求使用 file_get_contents
+            $options = [
+                'http' => [
+                    'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method' => 'POST',
+                    'content' => http_build_query($data)
+                ]
+            ];
+
+            $context = stream_context_create($options);
+            $result = file_get_contents($url, false, $context);
+        }
 
         return json_decode($result, true);
     }
@@ -228,7 +328,7 @@ $bot_config = [
 $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
 // 处理webhook
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
     $bot->handleUpdate($input);
 }
