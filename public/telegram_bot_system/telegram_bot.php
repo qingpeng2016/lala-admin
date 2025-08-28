@@ -211,7 +211,7 @@ class TelegramBot {
     }
     
     // 发送图片
-    private function sendPhoto($chat_id, $photo_path, $caption = '') {
+    public function sendPhoto($chat_id, $photo_path, $caption = '') {
         // 检查文件是否存在
         if (!file_exists($photo_path)) {
             error_log("图片文件不存在: $photo_path");
