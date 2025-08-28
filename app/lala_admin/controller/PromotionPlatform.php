@@ -91,15 +91,20 @@ class PromotionPlatform extends Controller
             
             // 验证数据
             if (empty($data['platform_name'])) {
-                $this->error('平台名称不能为空');
+                return json(['code' => 0, 'info' => '平台名称不能为空']);
             }
             if (empty($data['channel'])) {
-                $this->error('频道/群组不能为空');
+                return json(['code' => 0, 'info' => '频道/群组不能为空']);
             }
             
             // 处理配置数据
             if (!empty($data['config'])) {
-                $data['config'] = json_encode($data['config'], JSON_UNESCAPED_UNICODE);
+                try {
+                    json_decode($data['config'], true);
+                    $data['config'] = json_encode(json_decode($data['config'], true), JSON_UNESCAPED_UNICODE);
+                } catch (\Exception $e) {
+                    return json(['code' => 0, 'info' => '配置格式错误，请输入有效的JSON格式']);
+                }
             }
             
             // 设置默认状态
@@ -110,12 +115,12 @@ class PromotionPlatform extends Controller
             try {
                 $id = Db::name('system_new_promotion_platforms')->insertGetId($data);
                 if ($id) {
-                    $this->success('添加成功', 'index');
+                    return json(['code' => 1, 'info' => '添加成功', 'url' => '']);
                 } else {
-                    $this->error('添加失败');
+                    return json(['code' => 0, 'info' => '添加失败']);
                 }
             } catch (\Exception $e) {
-                $this->error('添加失败：' . $e->getMessage());
+                return json(['code' => 0, 'info' => '添加失败：' . $e->getMessage()]);
             }
         }
         
@@ -123,7 +128,7 @@ class PromotionPlatform extends Controller
         $this->assign([
             'status_list' => PromotionPlatformModel::getStatusList()
         ]);
-        return $this->fetch();
+        return $this->fetch('form');
     }
 
     /**
@@ -134,7 +139,7 @@ class PromotionPlatform extends Controller
     {
         $id = $this->request->param('id');
         if (empty($id)) {
-            $this->error('参数错误');
+            return json(['code' => 0, 'info' => '参数错误']);
         }
         
         if ($this->request->isPost()) {
@@ -142,33 +147,38 @@ class PromotionPlatform extends Controller
             
             // 验证数据
             if (empty($data['platform_name'])) {
-                $this->error('平台名称不能为空');
+                return json(['code' => 0, 'info' => '平台名称不能为空']);
             }
             if (empty($data['channel'])) {
-                $this->error('频道/群组不能为空');
+                return json(['code' => 0, 'info' => '频道/群组不能为空']);
             }
             
             // 处理配置数据
             if (!empty($data['config'])) {
-                $data['config'] = json_encode($data['config'], JSON_UNESCAPED_UNICODE);
+                try {
+                    json_decode($data['config'], true);
+                    $data['config'] = json_encode(json_decode($data['config'], true), JSON_UNESCAPED_UNICODE);
+                } catch (\Exception $e) {
+                    return json(['code' => 0, 'info' => '配置格式错误，请输入有效的JSON格式']);
+                }
             }
             
             try {
                 $result = Db::name('system_new_promotion_platforms')->where('id', $id)->update($data);
                 if ($result !== false) {
-                    $this->success('更新成功', 'index');
+                    return json(['code' => 1, 'info' => '更新成功', 'url' => '']);
                 } else {
-                    $this->error('更新失败');
+                    return json(['code' => 0, 'info' => '更新失败']);
                 }
             } catch (\Exception $e) {
-                $this->error('更新失败：' . $e->getMessage());
+                return json(['code' => 0, 'info' => '更新失败：' . $e->getMessage()]);
             }
         }
         
         // 获取数据
         $info = Db::name('system_new_promotion_platforms')->where('id', $id)->find();
         if (!$info) {
-            $this->error('数据不存在');
+            return json(['code' => 0, 'info' => '数据不存在']);
         }
         
         // 解析配置
@@ -178,10 +188,10 @@ class PromotionPlatform extends Controller
         
         $this->title = '编辑推广平台';
         $this->assign([
-            'info' => $info,
+            'vo' => $info,  // 改为vo，与Business.php保持一致
             'status_list' => PromotionPlatformModel::getStatusList()
         ]);
-        return $this->fetch();
+        return $this->fetch('form');
     }
 
     /**

@@ -1,0 +1,96 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+        <div class="layui-form-item">
+            <label class="layui-form-label">平台名称</label>
+            <div class="layui-input-block">
+                <input name="platform_name" value='{$vo.platform_name|default=""}' required placeholder="请输入平台名称" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">频道/群组</label>
+            <div class="layui-input-block">
+                <input name="channel" value='{$vo.channel|default=""}' required placeholder="请输入频道/群组" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">Webhook URL</label>
+            <div class="layui-input-block">
+                <input name="webhook_url" value='{$vo.webhook_url|default=""}' placeholder="请输入Webhook URL" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                {foreach $status_list as $key => $value}
+                <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq 'active'}checked{/if}>
+                {/foreach}
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">配置</label>
+            <div class="layui-input-block">
+                <textarea name="config" placeholder="请输入JSON格式配置" class="layui-textarea" rows="5">{$vo.config|default=""}</textarea>
+                <div class="layui-form-mid layui-word-aux">请输入有效的JSON格式配置</div>
+            </div>
+        </div>
+        
+        <div class="hr-line-dashed"></div>
+        {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type='submit' lay-submit lay-filter="formSubmit">保存数据</button>
+            <button class="layui-btn layui-btn-danger" type='button' data-close>取消编辑</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+    
+    // 监听表单提交
+    form.on('submit(formSubmit)', function(data){
+        var formData = data.field;
+        
+        // 验证JSON格式
+        if (formData.config) {
+            try {
+                JSON.parse(formData.config);
+            } catch (e) {
+                layer.msg('配置格式错误，请输入有效的JSON格式', {icon: 2});
+                return false;
+            }
+        }
+        
+        // 发送AJAX请求
+        $.ajax({
+            url: formData.id ? '/admin.html/lala_admin/promotion_platform/edit.html' : '/admin.html/lala_admin/promotion_platform/add.html',
+            type: 'POST',
+            data: formData,
+            success: function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.info, {icon: 1, time: 2000}, function(){
+                        window.location.href = '/admin.html#/lala_admin/promotion_platform/index.html';
+                    });
+                } else {
+                    layer.msg(res.info, {icon: 2});
+                }
+            },
+            error: function() {
+                layer.msg('请求失败', {icon: 2});
+            }
+        });
+        
+        return false;
+    });
+});
+</script>
+{/block}

@@ -1,0 +1,167 @@
+{extend name="../../admin/view/main"}
+
+{block name="button"}
+<button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("add")}'>添加业务配置</button>
+{/block}
+
+{block name="content"}
+<div class="think-box-shadow">
+    {include file='business/index_search'}
+    <div class="layui-tab-content table-block">
+        <table class="layui-table" lay-skin="line">
+            <thead>
+                <tr>
+                    <th class='list-table-check-td think-checkbox' style="width: 40px;">
+                        <label><input data-auto-none data-check-target='.list-check-box' type='checkbox'></label>
+                    </th>
+                    <th style="width: 60px;">业务ID</th>
+                    <th style="width: 120px;">业务名称</th>
+                    <th style="width: 80px;">路由模式</th>
+                    <th style="width: 180px;">签名私钥</th>
+                    <th style="width: 180px;">IP白名单</th>
+                    <th style="width: 180px;">notify_url</th>
+                    <th style="width: 140px;">创建时间</th>
+                    <th style="width: 60px;">状态</th>
+                    <th style="width: 120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach $list as $key=>$vo}
+                <tr>
+                    <td class='list-table-check-td think-checkbox'>
+                        <label><input class="list-check-box" type='checkbox' value='{$vo.id}'></label>
+                    </td>
+                    <td>{$vo.id}</td>
+                    <td>{$vo.name}</td>
+                    <td>{$vo.route_mode}</td>
+                    <td>{$vo.business_sign_key}</td>
+                    <td>{$vo.ip_whitelist}</td>
+                    <td>{$vo.notify_url}</td>
+                    <td>{$vo.created_at}</td>
+                    <td>
+                        {if $vo.status eq 1}
+                        <span class="layui-btn layui-btn-sm layui-bg-green" style="padding: 0 10px; border: none;">启用</span>
+                        {else}
+                        <span class="layui-btn layui-btn-sm layui-bg-red" style="padding: 0 10px; border: none;">禁用</span>
+                        {/if}
+                    </td>
+                    <td class='text-left' style="white-space: nowrap;">
+                        <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
+                        <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此业务配置吗？" data-action='{:url("remove")}?id={$vo.id}'>删除</a>
+                    </td>
+                </tr>
+                {/foreach}
+            </tbody>
+        </table>
+        {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('业务配置管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
+
+<style>
+/* 分页样式修复 */
+.think-box-shadow .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.think-box-shadow .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+/* 分页按钮基础样式 */
+.think-box-shadow .pagination li a,
+.think-box-shadow .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.think-box-shadow .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.think-box-shadow .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.think-box-shadow .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 确保分页按钮有足够的点击区域 */
+.think-box-shadow .pagination li a {
+    /* 确保整个按钮都可以点击 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 当前页码样式增强 */
+.think-box-shadow .pagination li.active {
+    position: relative;
+}
+
+.think-box-shadow .pagination li.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #009688;
+    border-radius: 4px;
+    z-index: -1;
+}
+</style>
+{/block} 

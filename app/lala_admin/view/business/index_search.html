@@ -1,0 +1,32 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">业务名称</label>
+        <div class="layui-input-inline">
+            <input name="name" value="{:input('get.name')}" placeholder="请输入业务名称" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">路由模式</label>
+        <div class="layui-input-inline">
+            <select name="route_mode" class="layui-select">
+                <option value="">-- 全部模式 --</option>
+                {foreach $route_modes as $key => $name}
+                <option value="{$key}" {if input('get.route_mode') eq $key}selected{/if}>{$name}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline">
+            <select name="status" class="layui-select">
+                <option value="">-- 全部状态 --</option>
+                <option value="1" {if input('get.status') eq '1'}selected{/if}>启用</option>
+                <option value="0" {if input('get.status') eq '0'}selected{/if}>禁用</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+</form> 
