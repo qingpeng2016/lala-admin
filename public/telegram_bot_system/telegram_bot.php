@@ -84,15 +84,32 @@ class TelegramBot {
     // 记录用户行为到数据库
     private function logAction($user_id, $username, $action) {
         try {
-            $sql = "INSERT INTO system_new_user_actions (user_id, username, action, chat_id, created_at) 
-                    VALUES (:user_id, :username, :action, :chat_id, NOW())";
+            // 根据action获取按钮名称
+            $button_names = [
+                'kefu' => '联系客服',
+                'usergroup' => '进入用户群',
+                'website' => '访问官网',
+                'app' => '下载APP'
+            ];
+            
+            $description = $button_names[$action] ?? $action;
+            
+            $sql = "INSERT INTO custom_user_behavior_log (is_manager, manager_id, userid, channel, action, description, current_page, referer, ipaddr, user_agent, created_at) 
+                    VALUES (:is_manager, :manager_id, :userid, :channel, :action, :description, :current_page, :referer, :ipaddr, :user_agent, :created_at)";
 
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
-                'user_id' => $user_id ?: 0,
-                'username' => $username ?: 'unknown',
-                'action' => 'callback_' . $action,
-                'chat_id' => 0
+                'is_manager' => 0,
+                'manager_id' => 0,
+                'userid' => 0,
+                'channel' => '211',
+                'action' => '用户点击',
+                'description' => $description,
+                'current_page' => '',
+                'referer' => '',
+                'ipaddr' => '',
+                'user_agent' => '',
+                'created_at' => date('Y-m-d H:i:s')
             ]);
         } catch (Exception $e) {
             // 记录错误到日志
@@ -290,20 +307,6 @@ class TelegramBot {
     public function setWebhook($webhook_url) {
         $data = ['url' => $webhook_url];
         return $this->sendRequest('setWebhook', $data);
-    }
-
-    // 获取统计信息
-    public function getStats() {
-        $sql = "SELECT 
-                    action,
-                    COUNT(*) as count,
-                    DATE(created_at) as date
-                FROM system_new_user_actions 
-                GROUP BY action, DATE(created_at)
-                ORDER BY date DESC, count DESC";
-
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 
