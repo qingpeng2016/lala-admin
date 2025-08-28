@@ -36,7 +36,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">配置</label>
             <div class="layui-input-block">
-                <textarea name="config" placeholder="请输入JSON格式配置" class="layui-textarea" rows="5">{$vo.config|default=""}</textarea>
+                <textarea name="config" placeholder="请输入JSON格式配置" class="layui-textarea" rows="5" lay-verify="jsonFormat">{$vo.config|default=""}</textarea>
                 <div class="layui-form-mid layui-word-aux">请输入有效的JSON格式配置</div>
             </div>
         </div>
@@ -56,40 +56,33 @@
 layui.use(['form'], function(){
     var form = layui.form;
     
+    // 自定义验证规则
+    form.verify({
+        jsonFormat: function(value) {
+            if (value) {
+                try {
+                    JSON.parse(value);
+                } catch (e) {
+                    return '配置格式错误，请输入有效的JSON格式';
+                }
+            }
+        }
+    });
+    
     // 监听表单提交
     form.on('submit(formSubmit)', function(data){
-        var formData = data.field;
-        
         // 验证JSON格式
-        if (formData.config) {
+        var config = data.field.config;
+        if (config) {
             try {
-                JSON.parse(formData.config);
+                JSON.parse(config);
             } catch (e) {
                 layer.msg('配置格式错误，请输入有效的JSON格式', {icon: 2});
                 return false;
             }
         }
         
-        // 发送AJAX请求
-        $.ajax({
-            url: formData.id ? '/admin.html/lala_admin/promotion_platform/edit.html' : '/admin.html/lala_admin/promotion_platform/add.html',
-            type: 'POST',
-            data: formData,
-            success: function(res) {
-                if (res.code === 1) {
-                    layer.msg(res.info, {icon: 1, time: 2000}, function(){
-                        window.location.href = '/admin.html#/lala_admin/promotion_platform/index.html';
-                    });
-                } else {
-                    layer.msg(res.info, {icon: 2});
-                }
-            },
-            error: function() {
-                layer.msg('请求失败', {icon: 2});
-            }
-        });
-        
-        return false;
+        return true;
     });
 });
 </script>

@@ -9,9 +9,7 @@
                     <h3>推广平台管理</h3>
                 </div>
                 <div class="layui-col-md6 text-right">
-                    <a href="{:url('add')}" class="layui-btn layui-btn-sm">
-                        <i class="layui-icon layui-icon-add-1"></i> 添加平台
-                    </a>
+                    <button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("add")}'>添加平台</button>
                 </div>
             </div>
         </div>
@@ -99,15 +97,11 @@
                         <td>{$vo.updated_at|default='-'}</td>
                         <td>
                             <div class="layui-btn-group">
-                                <a href="{:url('edit', ['id' => $vo.id])}" class="layui-btn layui-btn-xs">
-                                    <i class="layui-icon layui-icon-edit"></i> 编辑
-                                </a>
+                                <a class="layui-btn layui-btn-xs" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
                                 <button class="layui-btn layui-btn-xs layui-btn-warm" onclick="updateStatus({$vo.id}, '{$vo.status}')">
                                     <i class="layui-icon layui-icon-refresh"></i> 状态
                                 </button>
-                                <button class="layui-btn layui-btn-xs layui-btn-danger" onclick="deleteItem({$vo.id})">
-                                    <i class="layui-icon layui-icon-delete"></i> 删除
-                                </button>
+                                <a class="layui-btn layui-btn-xs layui-btn-danger" data-confirm="确定要删除此推广平台吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
                             </div>
                         </td>
                     </tr>
