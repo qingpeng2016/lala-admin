@@ -88,7 +88,7 @@ class TelegramBot {
         
         $data = [
             'chat_id' => $chat_id,
-            'text' => "",  // 空文本，只显示按钮
+            'text' => "请选择：",  // 简短文字，让按钮显示
             'reply_markup' => json_encode($keyboard),
             'reply_to_message_id' => $reply_to_message_id
         ];
