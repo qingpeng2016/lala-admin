@@ -76,19 +76,19 @@ class TelegramBot {
         $keyboard = [
             'inline_keyboard' => [
                 [
-                    ['text' => '👨‍💼 联系客服', 'callback_data' => 'action_kefu'],
-                    ['text' => '👥 进入用户群', 'callback_data' => 'action_usergroup']
+                    ['text' => '联系客服', 'callback_data' => 'action_kefu'],
+                    ['text' => '进入用户群', 'callback_data' => 'action_usergroup']
                 ],
                 [
-                    ['text' => '🌐 访问官网', 'callback_data' => 'action_website'],
-                    ['text' => '📱 下载APP', 'callback_data' => 'action_app']
+                    ['text' => '访问官网', 'callback_data' => 'action_website'],
+                    ['text' => '下载APP', 'callback_data' => 'action_app']
                 ]
             ]
         ];
         
         $data = [
             'chat_id' => $chat_id,
-            'text' => "👇",  // 发送一个emoji，让按钮显示
+            'text' => "",  // 空文本，只显示按钮
             'reply_markup' => json_encode($keyboard),
             'reply_to_message_id' => $reply_to_message_id
         ];
