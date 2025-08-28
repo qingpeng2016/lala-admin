@@ -49,22 +49,23 @@ class TelegramBot {
         }
     }
 
-    // 处理按钮回调
+    // 处理按钮回调（现在使用callback_data按钮）
     private function handleCallbackQuery($callback_query) {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
-        $user_id = $user['id'];
-        $username = $user['username'] ?? 'unknown';
+        $chat_id = $callback_query['message']['chat']['id'];
 
         // 记录点击到数据库
-        $this->logAction($user_id, $username, $callback_data);
+        $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
 
-        // 回复回调提示（防止客户端显示“加载中”）
-        $this->answerCallbackQuery($callback_query_id);
+        // 先回答回调查询（群里不显示任何消息）
+        $this->answerCallbackQuery($callback_query_id, "操作已记录");
 
-        // 私聊发送可点击链接
-        $this->sendClickableLink($user_id, $callback_data, $this->getRedirectUrl($callback_data));
+        // **关键改动：私聊用户发送可点击链接**
+        $user_chat_id = $user['id']; // 用户ID就是私聊ID
+        $redirect_url = $this->getRedirectUrl($callback_data);
+        $this->sendClickableLink($user_chat_id, $callback_data, $redirect_url);
     }
 
     // 记录用户行为
