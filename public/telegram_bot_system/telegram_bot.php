@@ -50,25 +50,10 @@ class TelegramBot {
         }
     }
     
-    // 处理按钮回调
+    // 处理按钮回调（现在使用URL按钮，这个基本不会用到）
     private function handleCallbackQuery($callback_query) {
-        $user = $callback_query['from'];
-        $action = $callback_query['data'];
-        $chat_id = $callback_query['message']['chat']['id'];
-        
-        // 记录用户行为（记录所有按钮点击）
-        $this->logUserAction($user['id'], $user['username'], $action, $chat_id);
-        
-        // 如果是我们定义的按钮，发送回复
-        if (in_array($action, ['action_kefu', 'action_usergroup', 'action_website', 'action_app'])) {
-            $this->handleUserAction($user['id'], $action);
-        } else {
-            // 其他按钮点击，发送通用回复
-            $this->sendGenericResponse($user['id'], $action);
-        }
-        
-        // 回答回调查询（消除按钮加载状态）
-        $this->answerCallbackQuery($callback_query['id']);
+        // 现在使用URL按钮，很少会触发这个回调
+        // 保留以防万一有其他callback_data的按钮
     }
     
     // 发送广告按钮
@@ -76,12 +61,12 @@ class TelegramBot {
         $keyboard = [
             'inline_keyboard' => [
                 [
-                    ['text' => '联系客服', 'callback_data' => 'action_kefu'],
-                    ['text' => '进入用户群', 'callback_data' => 'action_usergroup']
+                    ['text' => '联系客服', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=kefu'],
+                    ['text' => '进入用户群', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=usergroup']
                 ],
                 [
-                    ['text' => '访问官网', 'callback_data' => 'action_website'],
-                    ['text' => '下载APP', 'callback_data' => 'action_app']
+                    ['text' => '访问官网', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=website'],
+                    ['text' => '下载APP', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=app']
                 ]
             ]
         ];
@@ -96,111 +81,11 @@ class TelegramBot {
         $this->sendRequest('sendMessage', $data);
     }
     
-    // 发送通用回复
-    private function sendGenericResponse($user_id, $action) {
-        $response_text = "感谢您的点击！\n\n";
-        $response_text .= "您点击了按钮：{$action}\n";
-        $response_text .= "我们的客服：@markqing2024\n";
-        $response_text .= "群组：https://t.me/lalanetworkchat";
-        
-        $data = [
-            'chat_id' => $user_id,
-            'text' => $response_text
-        ];
-        
-        $this->sendRequest('sendMessage', $data);
-    }
+
     
-    // 记录用户行为
-    private function logUserAction($user_id, $username, $action, $chat_id) {
-        // 1. 插入用户行为记录
-        $sql = "INSERT INTO system_new_user_actions (user_id, username, action, chat_id, created_at) 
-                VALUES (:user_id, :username, :action, :chat_id, NOW())";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            'user_id' => $user_id,
-            'username' => $username,
-            'action' => $action,
-            'chat_id' => $chat_id
-        ]);
-        
-        // 2. 更新用户统计
-        $this->updateUserStats($user_id, $username, $action);
-        
-        // 记录日志
-        error_log("用户 {$user_id} (@{$username}) 点击了 {$action}");
-    }
+
     
-    // 更新用户统计
-    private function updateUserStats($user_id, $username, $action) {
-        $sql = "INSERT INTO system_new_user_stats (user_id, username, total_actions, kefu_clicks, usergroup_clicks, website_clicks, app_clicks) 
-                VALUES (:user_id, :username, 1, 
-                        CASE WHEN :action = 'action_kefu' THEN 1 ELSE 0 END,
-                        CASE WHEN :action = 'action_usergroup' THEN 1 ELSE 0 END,
-                        CASE WHEN :action = 'action_website' THEN 1 ELSE 0 END,
-                        CASE WHEN :action = 'action_app' THEN 1 ELSE 0 END)
-                ON DUPLICATE KEY UPDATE
-                    total_actions = total_actions + 1,
-                    kefu_clicks = kefu_clicks + CASE WHEN :action = 'action_kefu' THEN 1 ELSE 0 END,
-                    usergroup_clicks = usergroup_clicks + CASE WHEN :action = 'action_usergroup' THEN 1 ELSE 0 END,
-                    website_clicks = website_clicks + CASE WHEN :action = 'action_website' THEN 1 ELSE 0 END,
-                    app_clicks = app_clicks + CASE WHEN :action = 'action_app' THEN 1 ELSE 0 END,
-                    last_seen = CURRENT_TIMESTAMP";
-        
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([
-            'user_id' => $user_id,
-            'username' => $username,
-            'action' => $action
-        ]);
-    }
-    
-    // 处理用户操作
-    private function handleUserAction($user_id, $action) {
-        $response_text = '';
-        
-        switch ($action) {
-            case 'action_kefu':
-                $response_text = "👨‍💼 联系客服\n\n";
-                $response_text .= "💬 客服：@markqing2024\n";
-                $response_text .= "👥 群组：https://t.me/lalanetworkchat\n\n";
-                $response_text .= "⏰ 7*24小时技术支持";
-                break;
-                
-            case 'action_usergroup':
-                $response_text = "👥 用户交流群\n\n";
-                $response_text .= "🔗 主群链接: https://t.me/your_main_group\n";
-                $response_text .= "🔗 技术群: https://t.me/your_tech_group\n";
-                $response_text .= "🔗 VIP群: https://t.me/your_vip_group\n\n";
-                $response_text .= "💡 加入群组，与其他用户交流经验！";
-                break;
-                
-            case 'action_website':
-                $response_text = "🌐 官方网站\n\n";
-                $response_text .= "🔗 官网: https://yourwebsite.com\n";
-                $response_text .= "🔗 产品介绍: https://yourwebsite.com/products\n";
-                $response_text .= "🔗 价格方案: https://yourwebsite.com/pricing\n\n";
-                $response_text .= "📖 了解更多产品详情！";
-                break;
-                
-            case 'action_app':
-                $response_text = "📱 下载APP\n\n";
-                $response_text .= "🍎 iOS版本: https://apps.apple.com/your-app\n";
-                $response_text .= "🤖 Android版本: https://play.google.com/your-app\n";
-                $response_text .= "💻 桌面版本: https://yourwebsite.com/download\n\n";
-                $response_text .= "📲 随时随地使用我们的服务！";
-                break;
-        }
-        
-        // 发送回复
-        $data = [
-            'chat_id' => $user_id,
-            'text' => $response_text
-        ];
-        
-        $this->sendRequest('sendMessage', $data);
-    }
+
     
     // 回答回调查询
     private function answerCallbackQuery($callback_query_id) {
