@@ -148,21 +148,22 @@ class TelegramBot {
         return $this->sendRequest('answerCallbackQuery', $data);
     }
     
-    // 显示弹窗提示，包含可点击的链接
+    // 显示弹窗提示，点击确认后直接跳转
     private function showAlertWithLink($callback_query_id, $action, $url) {
         $messages = [
-            'kefu' => "💬 联系客服\n\n点击下方链接直接联系客服：\n$url",
-            'usergroup' => "👥 进入用户群\n\n点击下方链接进入用户群：\n$url",
-            'website' => "🌐 访问官网\n\n点击下方链接访问官网：\n$url",
-            'app' => "📱 下载APP\n\n点击下方链接下载APP：\n$url"
+            'kefu' => "💬 联系客服\n\n点击确认按钮直接跳转到客服",
+            'usergroup' => "👥 进入用户群\n\n点击确认按钮直接跳转到用户群",
+            'website' => "🌐 访问官网\n\n点击确认按钮直接跳转到官网",
+            'app' => "📱 下载APP\n\n点击确认按钮直接跳转到APP下载"
         ];
         
-        $text = $messages[$action] ?? "点击下方链接：\n$url";
+        $text = $messages[$action] ?? "点击确认按钮跳转";
         
         $data = [
             'callback_query_id' => $callback_query_id,
             'text' => $text,
-            'show_alert' => true
+            'show_alert' => true,
+            'url' => $url  // 点击确认按钮后直接跳转
         ];
         
         return $this->sendRequest('answerCallbackQuery', $data);
