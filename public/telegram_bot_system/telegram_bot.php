@@ -88,7 +88,7 @@ class TelegramBot {
         
         $data = [
             'chat_id' => $chat_id,
-            'text' => "请选择您需要的服务 👇",
+            'text' => " ",  // 只发送一个空格，让按钮直接显示
             'reply_markup' => json_encode($keyboard),
             'reply_to_message_id' => $reply_to_message_id
         ];
@@ -163,10 +163,9 @@ class TelegramBot {
         switch ($action) {
             case 'action_kefu':
                 $response_text = "👨‍💼 联系客服\n\n";
-                $response_text .= "📞 客服电话: +86-xxx-xxxx-xxxx\n";
-                $response_text .= "💬 在线客服: @your_kefu_bot\n";
-                $response_text .= "📧 邮箱: support@yourcompany.com\n\n";
-                $response_text .= "⏰ 服务时间: 9:00-18:00 (周一至周五)";
+                $response_text .= "💬 客服：@markqing2024\n";
+                $response_text .= "👥 群组：https://t.me/lalanetworkchat\n\n";
+                $response_text .= "⏰ 7*24小时技术支持";
                 break;
                 
             case 'action_usergroup':
