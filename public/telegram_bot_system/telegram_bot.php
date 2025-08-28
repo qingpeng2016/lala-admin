@@ -55,6 +55,7 @@ class TelegramBot {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
+        $chat_id = $callback_query['message']['chat']['id'];
         
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
@@ -62,8 +63,11 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        // 使用answerCallbackQuery的url参数直接在Telegram客户端内跳转
-        $this->answerCallbackQuery($callback_query_id, $redirect_url);
+        // 先回答回调查询
+        $this->answerCallbackQuery($callback_query_id);
+        
+        // 发送包含可点击链接的消息
+        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
     }
     
 
@@ -146,6 +150,27 @@ class TelegramBot {
         }
         
         return $this->sendRequest('answerCallbackQuery', $data);
+    }
+    
+    // 发送可点击链接消息
+    private function sendClickableLink($chat_id, $action, $url) {
+        $messages = [
+            'kefu' => "💬 <b>联系客服</b>\n点击下方链接直接联系客服：\n<a href='$url'>@markqing2024</a>",
+            'usergroup' => "👥 <b>进入用户群</b>\n点击下方链接进入用户群：\n<a href='$url'>@lalanetworkchat</a>",
+            'website' => "🌐 <b>访问官网</b>\n点击下方链接访问官网：\n<a href='$url'>lala.gg</a>",
+            'app' => "📱 <b>下载APP</b>\n点击下方链接下载APP：\n<a href='$url'>lala.gg</a>"
+        ];
+        
+        $text = $messages[$action] ?? "点击下方链接：\n<a href='$url'>$url</a>";
+        
+        $data = [
+            'chat_id' => $chat_id,
+            'text' => $text,
+            'parse_mode' => 'HTML',
+            'disable_web_page_preview' => true
+        ];
+        
+        $this->sendRequest('sendMessage', $data);
     }
     
     // 发送API请求
