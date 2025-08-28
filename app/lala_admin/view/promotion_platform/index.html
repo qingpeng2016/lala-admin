@@ -126,7 +126,7 @@
 </div>
 
 <!-- 添加/编辑弹窗 -->
-<div id="platformModal" style="display: none; padding: 20px;">
+<div id="platformModal" style="display: none; padding: 20px; background: #fff;">
     <form class="layui-form" id="platformForm">
         <input type="hidden" name="id" id="platform_id">
         
@@ -236,7 +236,9 @@ function openAddModal() {
         title: '添加推广平台',
         area: ['600px', '500px'],
         content: $('#platformModal'),
-        success: function() {
+        shade: 0,
+        anim: 1,
+        success: function(layero, index) {
             layui.form.render();
         }
     });
@@ -262,7 +264,9 @@ function openEditModal(id) {
                 title: '编辑推广平台',
                 area: ['600px', '500px'],
                 content: $('#platformModal'),
-                success: function() {
+                shade: 0,
+                anim: 1,
+                success: function(layero, index) {
                     layui.form.render();
                 }
             });
