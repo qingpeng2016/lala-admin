@@ -118,14 +118,11 @@ class TelegramBot {
         }
     }
 
-    // 发送欢迎消息和按钮
+        // 发送欢迎消息和按钮
     private function sendWelcomeMessage($chat_id, $new_member) {
         $username = $new_member['username'] ?? $new_member['first_name'] ?? '新朋友';
-
-        // 先发送图片
-        $this->sendPhoto($chat_id, '1.jpg', "台湾云-精品配置表");
-
-        // 然后发送文字消息和按钮
+        
+        // 发送文字消息和按钮
         $welcome_text = "🎉 欢迎 $username 加入！\n\n";
         $welcome_text .= "🚀【全球精品3C网络 VPS】🚀\n";
         $welcome_text .= "价格：¥25-32/月起  \n";
