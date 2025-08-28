@@ -60,15 +60,15 @@ class TelegramBot {
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
 
-        // 根据callback_data确定跳转URL
+        // 先回答回调查询（群里不显示任何消息）
+        $this->answerCallbackQuery($callback_query_id, "操作已记录");
+
+        // **关键改动：私聊用户发送可点击链接**
+        $user_chat_id = $user['id']; // 用户ID就是私聊ID
         $redirect_url = $this->getRedirectUrl($callback_data);
-
-        // 先回答回调查询
-        $this->answerCallbackQuery($callback_query_id);
-
-        // 发送包含可点击链接的消息
-        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
+        $this->sendClickableLink($user_chat_id, $callback_data, $redirect_url);
     }
+
 
 
 
