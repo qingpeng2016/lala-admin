@@ -50,27 +50,43 @@ class TelegramBot {
         }
     }
     
-    // 处理按钮回调（现在使用callback_data按钮）
+    // 处理按钮回调
     private function handleCallbackQuery($callback_query) {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
         $chat_id = $callback_query['message']['chat']['id'];
+        $message_id = $callback_query['message']['message_id'];
         
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
         
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
-        
-        // 先回答回调查询
-        $this->answerCallbackQuery($callback_query_id);
-        
-        // 发送包含可点击链接的消息
-        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
-    }
-    
 
+        // 回复回调（防止loading圈一直转）
+        $this->answerCallbackQuery($callback_query_id, "操作已记录");
+
+        // 特殊处理“联系客服”，编辑原消息，不刷屏
+        if ($callback_data === 'kefu') {
+            $this->editMessageWithUrlButton(
+                $chat_id,
+                $message_id,
+                "💬 联系客服\n点击下方按钮直接联系客服：",
+                "联系客服",
+                $redirect_url
+            );
+        } else {
+            // 其他按钮也改成编辑原消息 + url 按钮（防止刷屏）
+            $this->editMessageWithUrlButton(
+                $chat_id,
+                $message_id,
+                $this->getActionText($callback_data),
+                $this->getActionButtonText($callback_data),
+                $redirect_url
+            );
+        }
+    }
     
     // 记录用户行为到数据库
     private function logAction($user_id, $username, $action) {
@@ -86,7 +102,6 @@ class TelegramBot {
                 'chat_id' => 0
             ]);
         } catch (Exception $e) {
-            // 记录错误到日志
             error_log("数据库错误: " . $e->getMessage());
         }
     }
@@ -104,6 +119,36 @@ class TelegramBot {
                 return 'https://lala.gg';
             default:
                 return 'https://t.me/markqing2024';
+        }
+    }
+
+    // 根据action返回消息文字
+    private function getActionText($action) {
+        switch ($action) {
+            case 'usergroup':
+                return "👥 进入用户群\n点击下方按钮进入用户群：";
+            case 'website':
+                return "🌐 访问官网\n点击下方按钮访问官网：";
+            case 'app':
+                return "📱 下载APP\n点击下方按钮下载APP：";
+            default:
+                return "请选择：";
+        }
+    }
+
+    // 根据action返回按钮文字
+    private function getActionButtonText($action) {
+        switch ($action) {
+            case 'kefu':
+                return "联系客服";
+            case 'usergroup':
+                return "进入用户群";
+            case 'website':
+                return "访问官网";
+            case 'app':
+                return "下载APP";
+            default:
+                return "点击这里";
         }
     }
     
@@ -124,7 +169,7 @@ class TelegramBot {
         
         $data = [
             'chat_id' => $chat_id,
-            'text' => "请选择：",  // 简短文字，让按钮显示
+            'text' => "请选择：",
             'reply_markup' => json_encode($keyboard),
             'reply_to_message_id' => $reply_to_message_id
         ];
@@ -132,45 +177,38 @@ class TelegramBot {
         $this->sendRequest('sendMessage', $data);
     }
     
-
-    
-
-    
-
-    
-    // 回答回调查询
-    private function answerCallbackQuery($callback_query_id, $url = null) {
-        $data = [
-            'callback_query_id' => $callback_query_id
+    // 编辑原消息，替换为带URL按钮的版本
+    private function editMessageWithUrlButton($chat_id, $message_id, $text, $button_text, $url) {
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => $button_text, 'url' => $url]
+                ]
+            ]
         ];
-        
-        // 如果提供了URL，添加到参数中，这样Telegram客户端会直接打开该URL
-        if ($url) {
-            $data['url'] = $url;
-        }
-        
-        return $this->sendRequest('answerCallbackQuery', $data);
-    }
-    
-    // 发送可点击链接消息
-    private function sendClickableLink($chat_id, $action, $url) {
-        $messages = [
-            'kefu' => "💬 <b>联系客服</b>\n点击下方链接直接联系客服：\n<a href='$url'>@markqing2024</a>",
-            'usergroup' => "👥 <b>进入用户群</b>\n点击下方链接进入用户群：\n<a href='$url'>@lalanetworkchat</a>",
-            'website' => "🌐 <b>访问官网</b>\n点击下方链接访问官网：\n<a href='$url'>lala.gg</a>",
-            'app' => "📱 <b>下载APP</b>\n点击下方链接下载APP：\n<a href='$url'>lala.gg</a>"
-        ];
-        
-        $text = $messages[$action] ?? "点击下方链接：\n<a href='$url'>$url</a>";
-        
+
         $data = [
             'chat_id' => $chat_id,
+            'message_id' => $message_id,
             'text' => $text,
+            'reply_markup' => json_encode($keyboard),
             'parse_mode' => 'HTML',
             'disable_web_page_preview' => true
         ];
-        
-        $this->sendRequest('sendMessage', $data);
+
+        $this->sendRequest('editMessageText', $data);
+    }
+
+    // 回答回调查询
+    private function answerCallbackQuery($callback_query_id, $text = null) {
+        $data = [
+            'callback_query_id' => $callback_query_id
+        ];
+        if ($text) {
+            $data['text'] = $text;
+            $data['show_alert'] = false;
+        }
+        return $this->sendRequest('answerCallbackQuery', $data);
     }
     
     // 发送API请求
@@ -212,7 +250,7 @@ class TelegramBot {
     }
 }
 
-// 直接配置数据库信息（避免依赖其他函数）
+// 配置数据库
 $bot_config = [
     'bot_token' => '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4',
     'database' => [
