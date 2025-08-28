@@ -62,8 +62,14 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        // 显示弹窗提示，点击确认后直接跳转
-        $this->showAlertWithLink($callback_query_id, $callback_data, $redirect_url);
+        // 检查是否是第二次点击（通过检查最近是否有相同用户的相同action记录）
+        if ($this->isSecondClick($user['id'], $callback_data)) {
+            // 第二次点击，直接跳转
+            $this->answerCallbackQuery($callback_query_id, $redirect_url);
+        } else {
+            // 第一次点击，显示弹窗
+            $this->showAlertWithLink($callback_query_id, $callback_data, $redirect_url);
+        }
     }
     
 
@@ -146,6 +152,27 @@ class TelegramBot {
         }
         
         return $this->sendRequest('answerCallbackQuery', $data);
+    }
+    
+    // 检查是否是第二次点击
+    private function isSecondClick($user_id, $action) {
+        try {
+            $sql = "SELECT COUNT(*) as count FROM system_new_user_actions 
+                    WHERE user_id = :user_id AND action = :action 
+                    AND created_at > DATE_SUB(NOW(), INTERVAL 1 MINUTE)";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                'user_id' => $user_id,
+                'action' => 'callback_' . $action
+            ]);
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 1; // 如果1分钟内点击超过1次，就是第二次点击
+        } catch (Exception $e) {
+            error_log("检查第二次点击错误: " . $e->getMessage());
+            return false;
+        }
     }
     
     // 显示弹窗提示
