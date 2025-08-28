@@ -123,14 +123,19 @@ class TelegramBot {
         $username = $new_member['username'] ?? $new_member['first_name'] ?? '新朋友';
         
         $welcome_text = "🎉 欢迎 $username 加入！\n\n";
-        $welcome_text .= "🌟 全球服务器\n";
-        $welcome_text .= "💎 高防CDN\n";
-        $welcome_text .= "🚀 香港/新加坡/日本/欧洲/awk等\n";
-        $welcome_text .= "⚡ 高配/定制\n";
-        $welcome_text .= "🔗 专线/托管\n";
-        $welcome_text .= "✅ 免实名, 免备案\n";
-        $welcome_text .= "🛡️ 7*24 小时技术支持\n";
-        $welcome_text .= "💰 支持USDT付款\n\n";
+        $welcome_text .= "🚀【全球精品3C网络 VPS】🚀\n";
+        $welcome_text .= "价格：¥25-32/月起  \n";
+        $welcome_text .= "带宽：10M-10G  \n";
+        $welcome_text .= "流量：1T - 无限  \n";
+        $welcome_text .= "机房：新加坡 / 香港 / 日本 / 美国 / 台湾  \n";
+        $welcome_text .= "解锁流媒体：Netflix / HBO / Disney+  \n\n";
+        $welcome_text .= "🚀【IEPL NAT 高速通道】🚀\n";
+        $welcome_text .= "价格：¥580/月  \n";
+        $welcome_text .= "带宽：1Gbps  \n";
+        $welcome_text .= "流量：800G  \n";
+        $welcome_text .= "线路：厦门->香港 / 深圳->香港 / 广州->香港  \n";
+        $welcome_text .= "联通/电信/移动三网入口，20个NAT端口  \n";
+        $welcome_text .= "✅ 无需实名、快速开通、双端高防，抗投诉  \n\n";
         $welcome_text .= "💡 获取更多福利和服务，请点击下方按钮：";
         
         $keyboard = [
