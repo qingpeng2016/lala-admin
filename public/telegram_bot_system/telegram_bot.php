@@ -327,6 +327,10 @@ $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 // 处理webhook
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
+    
+    // 记录webhook数据到日志文件
+    file_put_contents('webhook.log', date('Y-m-d H:i:s') . " - " . $input . "\n", FILE_APPEND);
+    
     $bot->handleUpdate($input);
 }
 ?>
