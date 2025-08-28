@@ -3,12 +3,14 @@ require_once 'telegram_bot.php';
 
 // 配置
 $bot_config = [
-    'bot_token' => 'YOUR_BOT_TOKEN_HERE',
+    'bot_token' => '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4',
     'database' => [
-        'host' => 'localhost',
-        'database' => 'telegram_bot',
-        'username' => 'root',
-        'password' => 'password'
+        'host' => '127.0.0.1',
+        'database' => 'whmcs',
+        'username' => 'whmcs',
+        'password' => 'dwxDEfK6478WTSwZ',
+        'port' => '3306',
+        'charset' => 'utf8mb4'
     ]
 ];
 
