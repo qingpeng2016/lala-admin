@@ -4,6 +4,22 @@
  * 用于设置和删除webhook
  */
 
+
+ # 进入脚本目录
+/*
+
+cd /path/to/telegram_bot_system
+
+# 设置webhook
+php set_webhook.php --action=set --domain=example.com
+
+# 删除webhook
+php set_webhook.php --action=delete --domain=example.com
+
+# 查看webhook信息
+php set_webhook.php --action=info --domain=example.com
+ */
+ 
 // 机器人配置
 $bot_token = '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4';
 $api_url = "https://api.telegram.org/bot{$bot_token}/";
