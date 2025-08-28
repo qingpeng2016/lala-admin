@@ -43,18 +43,7 @@ class TelegramBot {
         $text = $message['text'] ?? '';
         $user = $message['from'];
 
-        // 检测新用户加入
-        if (isset($message['new_chat_members'])) {
-            foreach ($message['new_chat_members'] as $new_member) {
-                // 如果是新用户加入（不是机器人自己）
-                if (!$new_member['is_bot']) {
-                    // 发送欢迎消息和按钮
-                    $this->sendWelcomeMessage($chat_id, $new_member);
-                }
-            }
-        }
-        
-        // 保留原有的关键词检测功能
+        // 检测关键词
         if (strpos($text, '点下面按钮') !== false || strpos($text, '获取更多福利') !== false) {
             // 发送按钮
             $this->sendAdButtons($chat_id, $message['message_id']);
@@ -66,6 +55,7 @@ class TelegramBot {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
+        $chat_id = $callback_query['message']['chat']['id'];
 
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
@@ -73,8 +63,11 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
 
-        // 使用answerCallbackQuery的url参数直接跳转
-        $this->answerCallbackQuery($callback_query_id, $redirect_url);
+        // 先回答回调查询
+        $this->answerCallbackQuery($callback_query_id);
+
+        // 发送包含可点击链接的消息
+        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
     }
 
 
@@ -114,44 +107,6 @@ class TelegramBot {
         }
     }
 
-    // 发送欢迎消息和按钮
-    private function sendWelcomeMessage($chat_id, $new_member) {
-        $username = $new_member['username'] ?? $new_member['first_name'] ?? '新朋友';
-        
-        $welcome_text = "🎉 欢迎 $username 加入！\n\n";
-        $welcome_text .= "🌟 全球服务器\n";
-        $welcome_text .= "💎 高防CDN\n";
-        $welcome_text .= "🚀 香港/新加坡/日本/欧洲/awk等\n";
-        $welcome_text .= "⚡ 高配/定制\n";
-        $welcome_text .= "🔗 专线/托管\n";
-        $welcome_text .= "✅ 免实名, 免备案\n";
-        $welcome_text .= "🛡️ 7*24 小时技术支持\n";
-        $welcome_text .= "💰 支持USDT付款\n\n";
-        $welcome_text .= "💡 获取更多福利和服务，请点击下方按钮：";
-        
-        $keyboard = [
-            'inline_keyboard' => [
-                [
-                    ['text' => '联系客服', 'callback_data' => 'kefu'],
-                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
-                ],
-                [
-                    ['text' => '访问官网', 'callback_data' => 'website'],
-                    ['text' => '下载APP', 'callback_data' => 'app']
-                ]
-            ]
-        ];
-
-        $data = [
-            'chat_id' => $chat_id,
-            'text' => $welcome_text,
-            'reply_markup' => json_encode($keyboard),
-            'parse_mode' => 'HTML'
-        ];
-
-        $this->sendRequest('sendMessage', $data);
-    }
-    
     // 发送广告按钮
     private function sendAdButtons($chat_id, $reply_to_message_id) {
         $keyboard = [
@@ -197,7 +152,26 @@ class TelegramBot {
         return $this->sendRequest('answerCallbackQuery', $data);
     }
 
+    // 发送可点击链接消息
+    private function sendClickableLink($chat_id, $action, $url) {
+        $messages = [
+            'kefu' => "💬 <b>联系客服</b>\n点击下方链接直接联系客服：\n<a href='$url'>@markqing2024</a>",
+            'usergroup' => "👥 <b>进入用户群</b>\n点击下方链接进入用户群：\n<a href='$url'>@lalanetworkchat</a>",
+            'website' => "🌐 <b>访问官网</b>\n点击下方链接访问官网：\n<a href='$url'>lala.gg</a>",
+            'app' => "📱 <b>下载APP</b>\n点击下方链接下载APP：\n<a href='$url'>lala.gg</a>"
+        ];
 
+        $text = $messages[$action] ?? "点击下方链接：\n<a href='$url'>$url</a>";
+
+        $data = [
+            'chat_id' => $chat_id,
+            'text' => $text,
+            'parse_mode' => 'HTML',
+            'disable_web_page_preview' => true
+        ];
+
+        $this->sendRequest('sendMessage', $data);
+    }
 
     // 发送API请求
     private function sendRequest($method, $data) {
