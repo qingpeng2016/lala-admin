@@ -36,17 +36,15 @@ class TelegramBot {
             $this->handleCallbackQuery($update['callback_query']);
         }
     }
-    
+
     // 处理消息
     private function handleMessage($message) {
         $chat_id = $message['chat']['id'];
         $text = $message['text'] ?? '';
-        $user = $message['from'];
-        
-        // 检测关键词
-        if (strpos($text, '点下面按钮') !== false || strpos($text, '获取更多福利') !== false) {
-            // 发送按钮
-            $this->sendAdButtons($chat_id, $message['message_id']);
+
+        // 如果包含“点下面按钮”，就自动发送按钮
+        if (mb_strpos($text, '点下面按钮') !== false) {
+            $this->sendAdButtons($chat_id);
         }
     }
     
@@ -161,27 +159,26 @@ class TelegramBot {
     }
     
     // 发送广告按钮
-    private function sendAdButtons($chat_id, $reply_to_message_id) {
+    private function sendAdButtons($chat_id) {
         $keyboard = [
             'inline_keyboard' => [
                 [
-                    ['text' => '联系客服', 'callback_data' => 'kefu'],
-                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
+                    ['text' => '💬 联系客服', 'callback_data' => 'kefu'],
+                    ['text' => '👥 进入用户群', 'callback_data' => 'usergroup']
                 ],
                 [
-                    ['text' => '访问官网', 'callback_data' => 'website'],
-                    ['text' => '下载APP', 'callback_data' => 'app']
+                    ['text' => '🌐 访问官网', 'callback_data' => 'website'],
+                    ['text' => '📱 下载APP', 'callback_data' => 'app']
                 ]
             ]
         ];
-        
+
         $data = [
             'chat_id' => $chat_id,
-            'text' => "请选择：",
-            'reply_markup' => json_encode($keyboard),
-            'reply_to_message_id' => $reply_to_message_id
+            'text' => "👇 请选择：",
+            'reply_markup' => json_encode($keyboard)
         ];
-        
+
         $this->sendRequest('sendMessage', $data);
     }
 
