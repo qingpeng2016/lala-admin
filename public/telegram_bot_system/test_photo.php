@@ -21,6 +21,8 @@ $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 $test_chat_id = -1001234567890; // 替换为你的群组ID
 
 echo "正在测试图片发送...\n";
+echo "群组ID: $test_chat_id\n";
+echo "图片文件: " . (file_exists('1.jpg') ? '存在' : '不存在') . "\n";
 
 // 测试发送图片
 $result = $bot->sendPhoto($test_chat_id, '1.jpg', "台湾云-精品配置表");
