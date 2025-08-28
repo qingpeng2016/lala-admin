@@ -101,11 +101,11 @@ class PromotionPlatform extends Controller
             
             // 处理配置数据
             if (!empty($data['config'])) {
-                try {
-                    json_decode($data['config'], true);
-                    $data['config'] = json_encode(json_decode($data['config'], true), JSON_UNESCAPED_UNICODE);
-                } catch (\Exception $e) {
-                    $this->error('配置格式错误，请输入有效的JSON格式');
+                $config = json_decode($data['config'], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['config'] = json_encode($config, JSON_UNESCAPED_UNICODE);
+                } else {
+                    return $this->error('配置格式错误，请输入有效的JSON格式');
                 }
             }
             
@@ -153,23 +153,19 @@ class PromotionPlatform extends Controller
             
             // 处理配置数据
             if (!empty($data['config'])) {
-                try {
-                    json_decode($data['config'], true);
-                    $data['config'] = json_encode(json_decode($data['config'], true), JSON_UNESCAPED_UNICODE);
-                } catch (\Exception $e) {
-                    $this->error('配置格式错误，请输入有效的JSON格式');
+                $config = json_decode($data['config'], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['config'] = json_encode($config, JSON_UNESCAPED_UNICODE);
+                } else {
+                    return $this->error('配置格式错误，请输入有效的JSON格式');
                 }
             }
             
-            try {
-                $result = Db::name('system_new_promotion_platforms')->where('id', $id)->update($data);
-                if ($result !== false) {
-                    $this->success('更新成功', 'index');
-                } else {
-                    $this->error('更新失败');
-                }
-            } catch (\Exception $e) {
-                $this->error('更新失败：' . $e->getMessage());
+            $result = Db::name('system_new_promotion_platforms')->where('id', $id)->update($data);
+            if ($result !== false) {
+                return json(['code' => 1, 'info' => '更新成功', 'url' => '']);
+            } else {
+                return $this->error('更新失败');
             }
         }
         
@@ -203,15 +199,11 @@ class PromotionPlatform extends Controller
             $this->error('参数错误');
         }
         
-        try {
-            $result = Db::name('system_new_promotion_platforms')->where('id', $id)->delete();
-            if ($result) {
-                $this->success('删除成功');
-            } else {
-                $this->error('删除失败');
-            }
-        } catch (\Exception $e) {
-            $this->error('删除失败：' . $e->getMessage());
+        $result = Db::name('system_new_promotion_platforms')->where('id', $id)->delete();
+        if ($result) {
+            return json(['code' => 1, 'info' => '删除成功']);
+        } else {
+            return json(['code' => 0, 'info' => '删除失败']);
         }
     }
 
@@ -228,15 +220,11 @@ class PromotionPlatform extends Controller
             return json(['code' => 0, 'info' => '参数错误']);
         }
         
-        try {
-            $result = Db::name('system_new_promotion_platforms')->where('id', $id)->update(['status' => $status]);
-            if ($result !== false) {
-                return json(['code' => 1, 'info' => '状态更新成功']);
-            } else {
-                return json(['code' => 0, 'info' => '状态更新失败']);
-            }
-        } catch (\Exception $e) {
-            return json(['code' => 0, 'info' => '状态更新失败：' . $e->getMessage()]);
+        $result = Db::name('system_new_promotion_platforms')->where('id', $id)->update(['status' => $status]);
+        if ($result !== false) {
+            return json(['code' => 1, 'info' => '状态更新成功']);
+        } else {
+            return json(['code' => 0, 'info' => '状态更新失败']);
         }
     }
 }
