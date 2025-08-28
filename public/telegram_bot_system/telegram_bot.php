@@ -99,7 +99,7 @@ class TelegramBot {
                 'manager_id' => 0,
                 'userid' => 0,
                 'channel' => '211',
-                'action' => '用户进入',
+                'action' => '用户加入',
                 'description' => "TG-用户Join: {$username}",
                 'current_page' => '',
                 'referer' => '',
