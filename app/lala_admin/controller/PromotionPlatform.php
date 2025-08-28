@@ -202,18 +202,18 @@ class PromotionPlatform extends Controller
     {
         $id = $this->request->param('id');
         if (empty($id)) {
-            $this->error('参数错误');
+            return json(['code' => 0, 'info' => '参数错误']);
         }
         
         try {
             $result = Db::name('system_new_promotion_platforms')->where('id', $id)->delete();
             if ($result) {
-                $this->success('删除成功');
+                return json(['code' => 1, 'info' => '删除成功']);
             } else {
-                $this->error('删除失败');
+                return json(['code' => 0, 'info' => '删除失败']);
             }
         } catch (\Exception $e) {
-            $this->error('删除失败：' . $e->getMessage());
+            return json(['code' => 0, 'info' => '删除失败：' . $e->getMessage()]);
         }
     }
 
@@ -227,18 +227,18 @@ class PromotionPlatform extends Controller
         $status = $this->request->param('status');
         
         if (empty($id) || empty($status)) {
-            $this->error('参数错误');
+            return json(['code' => 0, 'info' => '参数错误']);
         }
         
         try {
             $result = Db::name('system_new_promotion_platforms')->where('id', $id)->update(['status' => $status]);
             if ($result !== false) {
-                $this->success('状态更新成功');
+                return json(['code' => 1, 'info' => '状态更新成功']);
             } else {
-                $this->error('状态更新失败');
+                return json(['code' => 0, 'info' => '状态更新失败']);
             }
         } catch (\Exception $e) {
-            $this->error('状态更新失败：' . $e->getMessage());
+            return json(['code' => 0, 'info' => '状态更新失败：' . $e->getMessage()]);
         }
     }
 }

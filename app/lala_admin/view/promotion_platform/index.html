@@ -136,8 +136,7 @@ layui.use(['layer', 'form'], function(){
     
     // 页面加载完成后的初始化
     layer.msg('推广平台管理页面加载完成', {icon: 1, time: 2000});
-    
-
+});
 
 // 更新状态
 function updateStatus(id, currentStatus) {
@@ -154,44 +153,52 @@ function updateStatus(id, currentStatus) {
         'testing': '测试中'
     };
     
-    layer.confirm('确定要将状态更改为"' + statusText[newStatus] + '"吗？', {
-        icon: 3,
-        title: '确认操作'
-    }, function(index) {
-        $.post('/admin.html/lala_admin/promotion_platform/updateStatus.html', {
-            id: id,
-            status: newStatus
-        }, function(res) {
-            if (res.code === 1) {
-                layer.msg(res.msg, {icon: 1, time: 2000}, function(){
-                    window.location.reload();
-                });
-            } else {
-                layer.msg(res.msg, {icon: 2});
-            }
+    layui.use(['layer'], function(){
+        var layer = layui.layer;
+        
+        layer.confirm('确定要将状态更改为"' + statusText[newStatus] + '"吗？', {
+            icon: 3,
+            title: '确认操作'
+        }, function(index) {
+            $.post('/admin.html/lala_admin/promotion_platform/updateStatus.html', {
+                id: id,
+                status: newStatus
+            }, function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.info, {icon: 1, time: 2000}, function(){
+                        window.location.reload();
+                    });
+                } else {
+                    layer.msg(res.info, {icon: 2});
+                }
+            });
+            layer.close(index);
         });
-        layer.close(index);
     });
 }
 
 // 删除项目
 function deleteItem(id) {
-    layer.confirm('确定要删除这个推广平台吗？', {
-        icon: 3,
-        title: '确认删除'
-    }, function(index) {
-        $.post('/admin.html/lala_admin/promotion_platform/delete.html', {
-            id: id
-        }, function(res) {
-            if (res.code === 1) {
-                layer.msg(res.msg, {icon: 1, time: 2000}, function(){
-                    window.location.reload();
-                });
-            } else {
-                layer.msg(res.msg, {icon: 2});
-            }
+    layui.use(['layer'], function(){
+        var layer = layui.layer;
+        
+        layer.confirm('确定要删除这个推广平台吗？', {
+            icon: 3,
+            title: '确认删除'
+        }, function(index) {
+            $.post('/admin.html/lala_admin/promotion_platform/delete.html', {
+                id: id
+            }, function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.info, {icon: 1, time: 2000}, function(){
+                        window.location.reload();
+                    });
+                } else {
+                    layer.msg(res.info, {icon: 2});
+                }
+            });
+            layer.close(index);
         });
-        layer.close(index);
     });
 }
 </script>
