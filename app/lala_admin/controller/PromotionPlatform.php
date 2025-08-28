@@ -65,6 +65,8 @@ class PromotionPlatform extends Controller
             if (!empty($item['config'])) {
                 $config = json_decode($item['config'], true);
                 $item['config_preview'] = is_array($config) ? json_encode($config, JSON_UNESCAPED_UNICODE) : $item['config'];
+            } else {
+                $item['config_preview'] = '';
             }
         }
         
