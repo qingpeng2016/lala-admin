@@ -49,14 +49,34 @@ class TelegramBot {
         $action = $callback_query['data'];
         $chat_id = $callback_query['message']['chat']['id'];
         
-        // 记录用户行为
+        // 记录用户行为（记录所有按钮点击）
         $this->logUserAction($user['id'], $user['username'], $action, $chat_id);
         
-        // 回复用户
-        $this->handleUserAction($user['id'], $action);
+        // 如果是我们定义的按钮，发送回复
+        if (in_array($action, ['action_kefu', 'action_usergroup', 'action_website', 'action_app'])) {
+            $this->handleUserAction($user['id'], $action);
+        } else {
+            // 其他按钮点击，发送通用回复
+            $this->sendGenericResponse($user['id'], $action);
+        }
         
         // 回答回调查询（消除按钮加载状态）
         $this->answerCallbackQuery($callback_query['id']);
+    }
+    
+    // 发送通用回复
+    private function sendGenericResponse($user_id, $action) {
+        $response_text = "感谢您的点击！\n\n";
+        $response_text .= "您点击了按钮：{$action}\n";
+        $response_text .= "我们的客服：@markqing2024\n";
+        $response_text .= "群组：https://t.me/lalanetworkchat";
+        
+        $data = [
+            'chat_id' => $user_id,
+            'text' => $response_text
+        ];
+        
+        $this->sendRequest('sendMessage', $data);
     }
     
     // 记录用户行为
