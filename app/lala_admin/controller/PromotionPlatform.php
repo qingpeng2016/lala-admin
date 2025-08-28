@@ -112,15 +112,11 @@ class PromotionPlatform extends Controller
                 $data['status'] = 'active';
             }
             
-            try {
-                $id = Db::name('system_new_promotion_platforms')->insertGetId($data);
-                if ($id) {
-                    $this->success('添加成功', 'index');
-                } else {
-                    $this->error('添加失败');
-                }
-            } catch (\Exception $e) {
-                $this->error('添加失败：' . $e->getMessage());
+            $id = Db::name('system_new_promotion_platforms')->insertGetId($data);
+            if ($id) {
+                $this->success('添加成功', 'index');
+            } else {
+                $this->error('添加失败');
             }
         }
         
