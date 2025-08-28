@@ -26,7 +26,13 @@
                     {foreach $list as $vo}
                     <tr>
                         <td>{$vo.id}</td>
-                        <td>{$vo.channel}</td>
+                        <td>
+                            {if $vo.channel eq '211'}
+                                <span class="layui-badge layui-bg-cyan">TG</span>
+                            {else}
+                                {$vo.channel}
+                            {/if}
+                        </td>
                         <td>{$vo.userid}</td>
                         <td>
                             {if $vo.action eq '页面访问'}

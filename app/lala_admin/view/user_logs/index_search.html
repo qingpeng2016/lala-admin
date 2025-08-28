@@ -8,7 +8,10 @@
     <div class="layui-form-item layui-inline">
         <label class="layui-form-label">来源</label>
         <div class="layui-input-inline">
-            <input type="text" name="channel" placeholder="请输入来源" value="{$get.channel|default=''}" class="layui-input">
+            <select name="channel" class="layui-select">
+                <option value="">-- 全部来源 --</option>
+                <option value="211" {if input('get.channel') eq '211'}selected{/if}>TG</option>
+            </select>
         </div>
     </div>
     <div class="layui-form-item layui-inline">
