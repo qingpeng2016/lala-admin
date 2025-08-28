@@ -212,9 +212,16 @@ class TelegramBot {
     
     // 发送图片
     private function sendPhoto($chat_id, $photo_path, $caption = '') {
+        // 检查文件是否存在
+        if (!file_exists($photo_path)) {
+            error_log("图片文件不存在: $photo_path");
+            return false;
+        }
+        
+        // 使用 CURLFile 发送本地文件
         $data = [
             'chat_id' => $chat_id,
-            'photo' => $photo_path,
+            'photo' => new CURLFile($photo_path),
             'caption' => $caption,
             'parse_mode' => 'HTML'
         ];
@@ -247,16 +254,39 @@ class TelegramBot {
     private function sendRequest($method, $data) {
         $url = $this->api_url . $method;
         
-        $options = [
-            'http' => [
-                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-                'method' => 'POST',
-                'content' => http_build_query($data)
-            ]
-        ];
+        // 检查是否包含文件上传
+        $has_file = false;
+        foreach ($data as $value) {
+            if ($value instanceof CURLFile) {
+                $has_file = true;
+                break;
+            }
+        }
         
-        $context = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
+        if ($has_file) {
+            // 使用 cURL 处理文件上传
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            
+            $result = curl_exec($ch);
+            curl_close($ch);
+        } else {
+            // 普通请求使用 file_get_contents
+            $options = [
+                'http' => [
+                    'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method' => 'POST',
+                    'content' => http_build_query($data)
+                ]
+            ];
+            
+            $context = stream_context_create($options);
+            $result = file_get_contents($url, false, $context);
+        }
         
         return json_decode($result, true);
     }
