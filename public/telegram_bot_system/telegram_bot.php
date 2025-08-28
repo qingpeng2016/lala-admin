@@ -61,7 +61,7 @@ class TelegramBot {
         }
     }
 
-    // 处理按钮回调（现在使用callback_data按钮）
+    // 处理按钮回调（现在只有kefu和usergroup使用callback_data）
     private function handleCallbackQuery($callback_query) {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
@@ -74,14 +74,9 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
 
-        // 对于官网和APP按钮，直接跳转URL
-        if ($callback_data === 'website' || $callback_data === 'app') {
-            $this->answerCallbackQuery($callback_query_id, $redirect_url);
-        } else {
-            // 其他按钮发送消息
-            $this->answerCallbackQuery($callback_query_id);
-            $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
-        }
+        // 回答回调查询并发送消息
+        $this->answerCallbackQuery($callback_query_id);
+        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
     }
 
 
@@ -149,8 +144,8 @@ class TelegramBot {
                     ['text' => '进入用户群', 'callback_data' => 'usergroup']
                 ],
                 [
-                    ['text' => '访问官网', 'callback_data' => 'website'],
-                    ['text' => '下载APP', 'callback_data' => 'app']
+                    ['text' => '访问官网', 'url' => 'https://lala.gg/aff.php?aff=211'],
+                    ['text' => '下载APP', 'url' => 'https://lala.gg/aff.php?aff=211']
                 ]
             ]
         ];
@@ -174,8 +169,8 @@ class TelegramBot {
                     ['text' => '进入用户群', 'callback_data' => 'usergroup']
                 ],
                 [
-                    ['text' => '访问官网', 'callback_data' => 'website'],
-                    ['text' => '下载APP', 'callback_data' => 'app']
+                    ['text' => '访问官网', 'url' => 'https://lala.gg/aff.php?aff=211'],
+                    ['text' => '下载APP', 'url' => 'https://lala.gg/aff.php?aff=211']
                 ]
             ]
         ];
