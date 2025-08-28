@@ -100,7 +100,7 @@ class TelegramBot {
                 'userid' => 0,
                 'channel' => '211',
                 'action' => '用户加入',
-                'description' => "TG-用户Join: {$username}",
+                'description' => "TG-用户Join, TG用户ID:{$user_id}, TG用户名:{$username},",
                 'current_page' => '',
                 'referer' => '',
                 'ipaddr' => '',
