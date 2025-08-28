@@ -3,15 +3,35 @@
 $bot_token = '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4';
 $api_url = "https://api.telegram.org/bot{$bot_token}/";
 
-echo "正在获取Bot更新信息...\n";
+echo "正在获取Bot信息...\n";
+
+// 先删除webhook
+echo "删除webhook...\n";
+$delete_url = $api_url . 'deleteWebhook';
+$delete_result = file_get_contents($delete_url);
+$delete_data = json_decode($delete_result, true);
+
+if ($delete_data['ok']) {
+    echo "webhook删除成功\n";
+} else {
+    echo "webhook删除失败: " . ($delete_data['description'] ?? '未知错误') . "\n";
+}
+
+// 等待一下
+sleep(2);
 
 // 获取更新
+echo "获取更新信息...\n";
 $url = $api_url . 'getUpdates';
 $result = file_get_contents($url);
 $data = json_decode($result, true);
 
-if ($data['ok']) {
+if ($data && $data['ok']) {
     echo "获取成功！找到 " . count($data['result']) . " 条更新\n\n";
+    
+    if (count($data['result']) == 0) {
+        echo "没有找到任何更新。请在群组中发送一条消息，然后重新运行此脚本。\n";
+    }
     
     foreach ($data['result'] as $update) {
         if (isset($update['message'])) {
@@ -36,6 +56,11 @@ if ($data['ok']) {
         }
     }
 } else {
-    echo "获取失败: " . $data['description'] . "\n";
+    echo "获取失败: " . ($data['description'] ?? '未知错误') . "\n";
+    if ($data) {
+        print_r($data);
+    }
 }
+
+echo "\n注意：此脚本会删除webhook，请记得重新设置webhook！\n";
 ?>
