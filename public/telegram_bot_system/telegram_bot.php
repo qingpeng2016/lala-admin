@@ -62,8 +62,8 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        // 使用answerCallbackQuery的url参数直接跳转
-        $this->answerCallbackQuery($callback_query_id, $redirect_url);
+        // 显示弹窗提示，包含可点击的链接
+        $this->showAlertWithLink($callback_query_id, $callback_data, $redirect_url);
     }
     
 
@@ -144,6 +144,26 @@ class TelegramBot {
         if ($url) {
             $data['url'] = $url;
         }
+        
+        return $this->sendRequest('answerCallbackQuery', $data);
+    }
+    
+    // 显示弹窗提示，包含可点击的链接
+    private function showAlertWithLink($callback_query_id, $action, $url) {
+        $messages = [
+            'kefu' => "💬 联系客服\n\n点击下方链接直接联系客服：\n$url",
+            'usergroup' => "👥 进入用户群\n\n点击下方链接进入用户群：\n$url",
+            'website' => "🌐 访问官网\n\n点击下方链接访问官网：\n$url",
+            'app' => "📱 下载APP\n\n点击下方链接下载APP：\n$url"
+        ];
+        
+        $text = $messages[$action] ?? "点击下方链接：\n$url";
+        
+        $data = [
+            'callback_query_id' => $callback_query_id,
+            'text' => $text,
+            'show_alert' => true
+        ];
         
         return $this->sendRequest('answerCallbackQuery', $data);
     }
