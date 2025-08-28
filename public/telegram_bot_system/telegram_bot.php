@@ -48,6 +48,9 @@ class TelegramBot {
             foreach ($message['new_chat_members'] as $new_member) {
                 // 如果是新用户加入（不是机器人自己）
                 if (!$new_member['is_bot']) {
+                    // 记录用户加入事件到数据库
+                    $this->logJoinAction($new_member);
+                    
                     // 发送欢迎消息和按钮
                     $this->sendWelcomeMessage($chat_id, $new_member);
                 }
@@ -80,6 +83,35 @@ class TelegramBot {
     }
 
 
+
+    // 记录用户加入事件到数据库
+    private function logJoinAction($new_member) {
+        try {
+            $username = $new_member['username'] ?? $new_member['first_name'] ?? 'unknown';
+            $user_id = $new_member['id'] ?? 0;
+            
+            $sql = "INSERT INTO custom_user_behavior_log (is_manager, manager_id, userid, channel, action, description, current_page, referer, ipaddr, user_agent, created_at) 
+                    VALUES (:is_manager, :manager_id, :userid, :channel, :action, :description, :current_page, :referer, :ipaddr, :user_agent, :created_at)";
+
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                'is_manager' => 0,
+                'manager_id' => 0,
+                'userid' => 0,
+                'channel' => '211',
+                'action' => '用户加入',
+                'description' => "TG-用户加入: {$username}",
+                'current_page' => '',
+                'referer' => '',
+                'ipaddr' => '',
+                'user_agent' => '',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        } catch (Exception $e) {
+            // 记录错误到日志
+            error_log("数据库错误: " . $e->getMessage());
+        }
+    }
 
     // 记录用户行为到数据库
     private function logAction($user_id, $username, $action) {
