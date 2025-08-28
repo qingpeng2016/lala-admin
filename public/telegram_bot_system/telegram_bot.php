@@ -58,17 +58,24 @@ class TelegramBot {
         $chat_id = $callback_query['message']['chat']['id'];
         $message_id = $callback_query['message']['message_id'];
         
+        // 记录调试信息
+        error_log("收到回调: callback_data=$callback_data, user_id=" . $user['id']);
+        
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
         
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
+        error_log("跳转URL: $redirect_url");
+        
         // 先回答回调查询
-        $this->answerCallbackQuery($callback_query_id);
+        $result1 = $this->answerCallbackQuery($callback_query_id);
+        error_log("answerCallbackQuery结果: " . json_encode($result1));
         
         // 将按钮改为URL按钮，这样用户点击就能直接跳转
-        $this->updateButtonToUrl($chat_id, $message_id, $callback_data, $redirect_url);
+        $result2 = $this->updateButtonToUrl($chat_id, $message_id, $callback_data, $redirect_url);
+        error_log("updateButtonToUrl结果: " . json_encode($result2));
     }
     
 
@@ -240,6 +247,9 @@ $bot_config = [
         'charset' => 'utf8mb4'
     ]
 ];
+
+// 添加调试信息
+error_log("Bot配置: " . json_encode($bot_config));
 
 $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
