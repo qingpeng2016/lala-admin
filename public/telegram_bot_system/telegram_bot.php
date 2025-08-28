@@ -50,10 +50,55 @@ class TelegramBot {
         }
     }
     
-    // 处理按钮回调（现在使用URL按钮，这个基本不会用到）
+    // 处理按钮回调（现在使用callback_data按钮）
     private function handleCallbackQuery($callback_query) {
-        // 现在使用URL按钮，很少会触发这个回调
-        // 保留以防万一有其他callback_data的按钮
+        $callback_data = $callback_query['data'];
+        $callback_query_id = $callback_query['id'];
+        $user = $callback_query['from'];
+        
+        // 记录点击到数据库
+        $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
+        
+        // 根据callback_data确定跳转URL
+        $redirect_url = $this->getRedirectUrl($callback_data);
+        
+        // 使用answerCallbackQuery的url参数直接在Telegram客户端内跳转
+        $this->answerCallbackQuery($callback_query_id, $redirect_url);
+    }
+    
+    // 记录用户行为到数据库
+    private function logAction($user_id, $username, $action) {
+        try {
+            $sql = "INSERT INTO system_new_user_actions (user_id, username, action, chat_id, created_at) 
+                    VALUES (:user_id, :username, :action, :chat_id, NOW())";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([
+                'user_id' => $user_id ?: 0,
+                'username' => $username ?: 'unknown',
+                'action' => 'callback_' . $action,
+                'chat_id' => 0
+            ]);
+        } catch (Exception $e) {
+            // 记录错误到日志
+            error_log("数据库错误: " . $e->getMessage());
+        }
+    }
+    
+    // 根据action获取跳转URL
+    public function getRedirectUrl($action) {
+        switch ($action) {
+            case 'kefu':
+                return 'https://t.me/markqing2024';
+            case 'usergroup':
+                return 'https://t.me/lalanetworkchat';
+            case 'website':
+                return 'https://lala.gg';
+            case 'app':
+                return 'https://lala.gg';
+            default:
+                return 'https://t.me/markqing2024';
+        }
     }
     
     // 发送广告按钮
@@ -61,12 +106,12 @@ class TelegramBot {
         $keyboard = [
             'inline_keyboard' => [
                 [
-                    ['text' => '联系客服', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=kefu'],
-                    ['text' => '进入用户群', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=usergroup']
+                    ['text' => '联系客服', 'callback_data' => 'kefu'],
+                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
                 ],
                 [
-                    ['text' => '访问官网', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=website'],
-                    ['text' => '下载APP', 'url' => 'https://ad.tslala.com/telegram_bot_system/redirect.php?action=app']
+                    ['text' => '访问官网', 'callback_data' => 'website'],
+                    ['text' => '下载APP', 'callback_data' => 'app']
                 ]
             ]
         ];
@@ -88,10 +133,15 @@ class TelegramBot {
 
     
     // 回答回调查询
-    private function answerCallbackQuery($callback_query_id) {
+    private function answerCallbackQuery($callback_query_id, $url = null) {
         $data = [
             'callback_query_id' => $callback_query_id
         ];
+        
+        // 如果提供了URL，添加到参数中，这样Telegram客户端会直接打开该URL
+        if ($url) {
+            $data['url'] = $url;
+        }
         
         $this->sendRequest('answerCallbackQuery', $data);
     }
