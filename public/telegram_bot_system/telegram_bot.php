@@ -104,7 +104,7 @@ class TelegramBot {
                 'userid' => 0,
                 'channel' => '211',
                 'action' => '用户点击',
-                'description' => $description,
+                'description' => "TG-" . $description,
                 'current_page' => '',
                 'referer' => '',
                 'ipaddr' => '',
