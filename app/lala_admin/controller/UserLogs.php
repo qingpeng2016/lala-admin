@@ -29,12 +29,15 @@ class UserLogs extends Controller
         // 创建查询对象
         $query = Db::name('custom_user_behavior_log');
         
-        // 添加基础条件：排除user_id为0的记录，只查询普通用户日志（非管理员）
-        $query->where('userid', '<>', 0)->where('is_manager', 0);
+        // 添加基础条件：只查询普通用户日志（非管理员）
+        $query->where('is_manager', 0);
         
         // 添加搜索条件
         if (isset($get['userid']) && $get['userid'] !== '') {
             $query->where('userid', 'like', "%{$get['userid']}%");
+        }
+        if (isset($get['channel']) && $get['channel'] !== '') {
+            $query->where('channel', 'like', "%{$get['channel']}%");
         }
         if (isset($get['action']) && $get['action'] !== '') {
             $query->where('action', $get['action']);
