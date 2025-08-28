@@ -12,8 +12,11 @@ class TelegramBot {
     
     private function initDatabase($config) {
         try {
+            $port = $config['port'] ?? 3306;
+            $charset = $config['charset'] ?? 'utf8mb4';
+            
             $this->db = new PDO(
-                "mysql:host={$config['host']};dbname={$config['database']};charset=utf8mb4",
+                "mysql:host={$config['host']};port={$port};dbname={$config['database']};charset={$charset}",
                 $config['username'],
                 $config['password']
             );
@@ -246,14 +249,19 @@ class TelegramBot {
     }
 }
 
+// 读取数据库配置
+require_once __DIR__ . '/../../config/database.php';
+
 // 配置
 $bot_config = [
     'bot_token' => 'YOUR_BOT_TOKEN_HERE', // 请替换为您的Bot Token
     'database' => [
-        'host' => 'localhost',
-        'database' => 'telegram_bot',
-        'username' => 'root',
-        'password' => 'password' // 请替换为您的数据库密码
+        'host' => $connections['test']['mysql']['hostname'],
+        'database' => $connections['test']['mysql']['database'],
+        'username' => $connections['test']['mysql']['username'],
+        'password' => $connections['test']['mysql']['password'],
+        'port' => $connections['test']['mysql']['hostport'],
+        'charset' => $connections['test']['mysql']['charset']
     ]
 ];
 
