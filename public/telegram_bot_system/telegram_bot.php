@@ -39,8 +39,15 @@ class TelegramBot {
     
     // 处理消息
     private function handleMessage($message) {
-        // 不再处理普通消息，只处理按钮回调
-        // 超管自己发送按钮，Bot只统计点击
+        $chat_id = $message['chat']['id'];
+        $text = $message['text'] ?? '';
+        $user = $message['from'];
+        
+        // 检测关键词
+        if (strpos($text, '点下面按钮') !== false || strpos($text, '获取更多福利') !== false) {
+            // 发送按钮
+            $this->sendAdButtons($chat_id, $message['message_id']);
+        }
     }
     
     // 处理按钮回调
@@ -62,6 +69,31 @@ class TelegramBot {
         
         // 回答回调查询（消除按钮加载状态）
         $this->answerCallbackQuery($callback_query['id']);
+    }
+    
+    // 发送广告按钮
+    private function sendAdButtons($chat_id, $reply_to_message_id) {
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => '👨‍💼 联系客服', 'callback_data' => 'action_kefu'],
+                    ['text' => '👥 进入用户群', 'callback_data' => 'action_usergroup']
+                ],
+                [
+                    ['text' => '🌐 访问官网', 'callback_data' => 'action_website'],
+                    ['text' => '📱 下载APP', 'callback_data' => 'action_app']
+                ]
+            ]
+        ];
+        
+        $data = [
+            'chat_id' => $chat_id,
+            'text' => "请选择您需要的服务 👇",
+            'reply_markup' => json_encode($keyboard),
+            'reply_to_message_id' => $reply_to_message_id
+        ];
+        
+        $this->sendRequest('sendMessage', $data);
     }
     
     // 发送通用回复
