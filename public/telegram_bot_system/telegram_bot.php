@@ -328,7 +328,7 @@ $bot_config = [
 $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
 // 处理webhook
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
     $bot->handleUpdate($input);
 }

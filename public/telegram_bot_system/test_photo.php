@@ -1,8 +1,21 @@
 <?php
 require_once 'telegram_bot.php';
 
+// 配置信息
+$bot_config = [
+    'bot_token' => '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4',
+    'database' => [
+        'host' => '127.0.0.1',
+        'database' => 'whmcs',
+        'username' => 'whmcs',
+        'password' => 'dwxDEfK6478WTSwZ',
+        'port' => '3306',
+        'charset' => 'utf8mb4'
+    ]
+];
+
 // 创建机器人实例
-$bot = new TelegramBot();
+$bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
 // 测试图片发送（替换为你的测试群组ID）
 $test_chat_id = -1001234567890; // 替换为你的群组ID
