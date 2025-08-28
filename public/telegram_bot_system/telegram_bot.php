@@ -55,21 +55,19 @@ class TelegramBot {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
+        $chat_id = $callback_query['message']['chat']['id'];
         
-        // 记录点击到数据库（埋点）
+        // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
         
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        // 检查是否是第二次点击（通过检查最近是否有相同用户的相同action记录）
-        if ($this->isSecondClick($user['id'], $callback_data)) {
-            // 第二次点击，直接跳转
-            $this->answerCallbackQuery($callback_query_id, $redirect_url);
-        } else {
-            // 第一次点击，显示弹窗
-            $this->showAlertWithLink($callback_query_id, $callback_data, $redirect_url);
-        }
+        // 先回答回调查询
+        $this->answerCallbackQuery($callback_query_id);
+        
+        // 发送包含可点击链接的消息
+        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
     }
     
 
@@ -154,52 +152,26 @@ class TelegramBot {
         return $this->sendRequest('answerCallbackQuery', $data);
     }
     
-    // 检查是否是第二次点击
-    private function isSecondClick($user_id, $action) {
-        try {
-            $sql = "SELECT COUNT(*) as count FROM system_new_user_actions 
-                    WHERE user_id = :user_id AND action = :action 
-                    AND created_at > DATE_SUB(NOW(), INTERVAL 1 MINUTE)";
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute([
-                'user_id' => $user_id,
-                'action' => 'callback_' . $action
-            ]);
-            
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result['count'] > 1; // 如果1分钟内点击超过1次，就是第二次点击
-        } catch (Exception $e) {
-            error_log("检查第二次点击错误: " . $e->getMessage());
-            return false;
-        }
-    }
-    
-    // 显示弹窗提示
-    private function showAlertWithLink($callback_query_id, $action, $url) {
+    // 发送可点击链接消息
+    private function sendClickableLink($chat_id, $action, $url) {
         $messages = [
-            'kefu' => "💬 联系客服\n\n已记录您的点击！\n\n请再次点击按钮跳转到客服",
-            'usergroup' => "👥 进入用户群\n\n已记录您的点击！\n\n请再次点击按钮跳转到用户群",
-            'website' => "🌐 访问官网\n\n已记录您的点击！\n\n请再次点击按钮跳转到官网",
-            'app' => "📱 下载APP\n\n已记录您的点击！\n\n请再次点击按钮跳转到APP下载"
+            'kefu' => "💬 <b>联系客服</b>\n点击下方链接直接联系客服：\n<a href='$url'>@markqing2024</a>",
+            'usergroup' => "👥 <b>进入用户群</b>\n点击下方链接进入用户群：\n<a href='$url'>@lalanetworkchat</a>",
+            'website' => "🌐 <b>访问官网</b>\n点击下方链接访问官网：\n<a href='$url'>lala.gg</a>",
+            'app' => "📱 <b>下载APP</b>\n点击下方链接下载APP：\n<a href='$url'>lala.gg</a>"
         ];
         
-        $text = $messages[$action] ?? "已记录您的点击！\n\n请再次点击按钮跳转";
+        $text = $messages[$action] ?? "点击下方链接：\n<a href='$url'>$url</a>";
         
         $data = [
-            'callback_query_id' => $callback_query_id,
+            'chat_id' => $chat_id,
             'text' => $text,
-            'show_alert' => true  // 显示弹窗
+            'parse_mode' => 'HTML',
+            'disable_web_page_preview' => true
         ];
         
-        return $this->sendRequest('answerCallbackQuery', $data);
+        $this->sendRequest('sendMessage', $data);
     }
-    
-
-    
-
-    
-
     
     // 发送API请求
     private function sendRequest($method, $data) {
@@ -253,13 +225,10 @@ $bot_config = [
     ]
 ];
 
-// 添加调试信息
-error_log("Bot配置: " . json_encode($bot_config));
-
 $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
 // 处理webhook
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
     $bot->handleUpdate($input);
 }
