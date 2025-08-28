@@ -25,35 +25,41 @@ class TelegramBot {
         }
     }
 
-    // 处理webhook
     public function handleUpdate($update_data) {
         $update = json_decode($update_data, true);
-
-        // 新用户加入群
-        if (isset($update['message']['new_chat_members'])) {
-            $chat_id = $update['message']['chat']['id'];
-            $this->sendAdButtons($chat_id);
-        }
-        // 按钮回调
-        if (isset($update['callback_query'])) {
+        if (isset($update['message'])) {
+            $this->handleMessage($update['message']);
+        } elseif (isset($update['callback_query'])) {
             $this->handleCallbackQuery($update['callback_query']);
         }
     }
 
-    // 处理按钮回调
+    private function handleMessage($message) {
+        $chat_id = $message['chat']['id'];
+        $text = $message['text'] ?? '';
+
+        // 超管发广告时，自动发送广告 + 按钮（可根据条件限制）
+        if (strpos($text, '点下面按钮') !== false || strpos($text, '获取更多福利') !== false) {
+            $this->sendAdButtons($chat_id, $message['message_id']);
+        }
+    }
+
     private function handleCallbackQuery($callback_query) {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
         $chat_id = $callback_query['message']['chat']['id'];
 
-        // 记录点击
+        // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
 
-        // 回答 callbackQuery，不弹框，不私聊
-        $this->answerCallbackQuery($callback_query_id);
+        // 回调提示用户已记录，群里不显示任何 URL
+        $this->answerCallbackQuery($callback_query_id, "操作已记录");
 
-        // 不发送私聊消息，URL按钮直接跳转
+        // 私聊用户，提示 Telegram 内信息（客服账号/群组账号）
+        $user_chat_id = $user['id'];
+        $redirect_url = $this->getRedirectUrl($callback_data);
+        $this->sendClickableLink($user_chat_id, $callback_data, $redirect_url);
     }
 
     private function logAction($user_id, $username, $action) {
@@ -72,57 +78,60 @@ class TelegramBot {
         }
     }
 
-    private function getRedirectUrl($action) {
+    public function getRedirectUrl($action) {
+        // 这里仅提示 Telegram 内信息，不直接跳浏览器
         switch ($action) {
-            case 'kefu': return 'https://t.me/markqing2024';
-            case 'usergroup': return 'https://t.me/lalanetworkchat';
-            case 'website': return 'https://lala.gg';
-            case 'app': return 'https://lala.gg';
-            default: return 'https://t.me/markqing2024';
+            case 'kefu': return "@markqing2024";
+            case 'usergroup': return "@lalanetworkchat";
+            case 'website': return "访问官网：lala.gg";
+            case 'app': return "下载APP：lala.gg";
+            default: return "@markqing2024";
         }
     }
 
-    // 自动发送广告 + URL 按钮
-    private function sendAdButtons($chat_id) {
+    private function sendAdButtons($chat_id, $reply_to_message_id) {
         $keyboard = [
             'inline_keyboard' => [
                 [
-                    ['text' => '联系客服', 'url' => $this->getRedirectUrl('kefu')],
-                    ['text' => '进入用户群', 'url' => $this->getRedirectUrl('usergroup')]
+                    ['text' => '联系客服', 'callback_data' => 'kefu'],
+                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
                 ],
                 [
-                    ['text' => '访问官网', 'url' => $this->getRedirectUrl('website')],
-                    ['text' => '下载APP', 'url' => $this->getRedirectUrl('app')]
+                    ['text' => '访问官网', 'callback_data' => 'website'],
+                    ['text' => '下载APP', 'callback_data' => 'app']
                 ]
             ]
         ];
-
-        $text = "⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️\n
-❤️‍🔥全球服务器
-❤️‍🔥高防CDN
-👍香港/新加坡/日本/欧洲/awk等
-👍高配/定制
-🟠专线/托管
-
-👍免实名, 免备案
-👍❤️*❤️❤️小时技术支持  
-👍支持USDT付款
-
-点下面按钮，获取更多福利";
-
         $data = [
             'chat_id' => $chat_id,
-            'text' => $text,
+            'text' => "请选择：",
             'reply_markup' => json_encode($keyboard),
-            'parse_mode' => 'HTML'
+            'reply_to_message_id' => $reply_to_message_id
         ];
-
         $this->sendRequest('sendMessage', $data);
     }
 
-    private function answerCallbackQuery($callback_query_id) {
+    private function answerCallbackQuery($callback_query_id, $text = null) {
         $data = ['callback_query_id' => $callback_query_id];
-        $this->sendRequest('answerCallbackQuery', $data);
+        if ($text) $data['text'] = $text;
+        return $this->sendRequest('answerCallbackQuery', $data);
+    }
+
+    private function sendClickableLink($chat_id, $action, $text) {
+        $messages = [
+            'kefu' => "💬 <b>联系客服</b>\n请在 Telegram 内联系：$text",
+            'usergroup' => "👥 <b>进入用户群</b>\n请在 Telegram 内加入：$text",
+            'website' => "🌐 <b>访问官网</b>\n$text",
+            'app' => "📱 <b>下载APP</b>\n$text"
+        ];
+        $msg = $messages[$action] ?? $text;
+        $data = [
+            'chat_id' => $chat_id,
+            'text' => $msg,
+            'parse_mode' => 'HTML',
+            'disable_web_page_preview' => true
+        ];
+        $this->sendRequest('sendMessage', $data);
     }
 
     private function sendRequest($method, $data) {
@@ -140,19 +149,18 @@ class TelegramBot {
     }
 
     public function setWebhook($webhook_url) {
-        $data = ['url' => $webhook_url];
-        return $this->sendRequest('setWebhook', $data);
+        return $this->sendRequest('setWebhook', ['url' => $webhook_url]);
     }
 }
 
-// 配置
+// 配置数据库和机器人
 $bot_config = [
-    'bot_token' => '7641427509:AAEJfgrtELcDkJfPn_oU0wkRlEAg_etCnj4',
+    'bot_token' => 'YOUR_BOT_TOKEN',
     'database' => [
         'host' => '127.0.0.1',
         'database' => 'whmcs',
         'username' => 'whmcs',
-        'password' => 'dwxDEfK6478WTSwZ',
+        'password' => 'YOUR_PASSWORD',
         'port' => '3306',
         'charset' => 'utf8mb4'
     ]
@@ -160,7 +168,6 @@ $bot_config = [
 
 $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
-// 处理 webhook
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
     $bot->handleUpdate($input);
