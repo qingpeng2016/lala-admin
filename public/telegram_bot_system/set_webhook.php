@@ -11,7 +11,7 @@
 cd /path/to/telegram_bot_system
 
 # 设置webhook
-php set_webhook.php --action=set --domain=http://admin.tslala.com
+php set_webhook.php --action=set --domain=https://admin.tslala.com
 
 # 删除webhook
 php set_webhook.php --action=delete --domain=example.com
