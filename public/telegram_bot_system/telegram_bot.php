@@ -55,6 +55,8 @@ class TelegramBot {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
+        $chat_id = $callback_query['message']['chat']['id'];
+        $message_id = $callback_query['message']['message_id'];
         
         // 记录点击到数据库
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
@@ -62,8 +64,11 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        // 使用answerCallbackQuery的url参数直接跳转
-        $this->answerCallbackQuery($callback_query_id, $redirect_url);
+        // 先回答回调查询
+        $this->answerCallbackQuery($callback_query_id);
+        
+        // 将按钮改为URL按钮，这样用户点击就能直接跳转
+        $this->updateButtonToUrl($chat_id, $message_id, $callback_data, $redirect_url);
     }
     
 
@@ -146,6 +151,40 @@ class TelegramBot {
         }
         
         return $this->sendRequest('answerCallbackQuery', $data);
+    }
+    
+    // 将按钮更新为URL按钮
+    private function updateButtonToUrl($chat_id, $message_id, $clicked_action, $clicked_url) {
+        // 创建新的键盘，将点击的按钮改为URL按钮，其他保持callback_data
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => '联系客服', 'callback_data' => 'kefu'],
+                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
+                ],
+                [
+                    ['text' => '访问官网', 'callback_data' => 'website'],
+                    ['text' => '下载APP', 'callback_data' => 'app']
+                ]
+            ]
+        ];
+        
+        // 将点击的按钮改为URL按钮
+        foreach ($keyboard['inline_keyboard'] as &$row) {
+            foreach ($row as &$button) {
+                if ($button['callback_data'] === $clicked_action) {
+                    $button = ['text' => $button['text'], 'url' => $clicked_url];
+                }
+            }
+        }
+        
+        $data = [
+            'chat_id' => $chat_id,
+            'message_id' => $message_id,
+            'reply_markup' => json_encode($keyboard)
+        ];
+        
+        $this->sendRequest('editMessageReplyMarkup', $data);
     }
     
 
