@@ -74,11 +74,14 @@ class TelegramBot {
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
 
-        // 先回答回调查询
-        $this->answerCallbackQuery($callback_query_id);
-
-        // 发送包含可点击链接的消息
-        $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
+        // 对于官网和APP按钮，直接跳转URL
+        if ($callback_data === 'website' || $callback_data === 'app') {
+            $this->answerCallbackQuery($callback_query_id, $redirect_url);
+        } else {
+            // 其他按钮发送消息
+            $this->answerCallbackQuery($callback_query_id);
+            $this->sendClickableLink($chat_id, $callback_data, $redirect_url);
+        }
     }
 
 
@@ -110,9 +113,9 @@ class TelegramBot {
             case 'usergroup':
                 return 'https://t.me/lalanetworkchat';
             case 'website':
-                return 'https://lala.gg';
+                return 'https://lala.gg/aff.php?aff=211';
             case 'app':
-                return 'https://lala.gg';
+                return 'https://lala.gg/aff.php?aff=211';
             default:
                 return 'https://t.me/markqing2024';
         }
