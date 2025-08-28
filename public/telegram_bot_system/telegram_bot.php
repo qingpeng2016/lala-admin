@@ -88,7 +88,7 @@ class TelegramBot {
         
         $data = [
             'chat_id' => $chat_id,
-            'text' => " ",  // 只发送一个空格，让按钮直接显示
+            'text' => "👇",  // 发送一个emoji，让按钮显示
             'reply_markup' => json_encode($keyboard),
             'reply_to_message_id' => $reply_to_message_id
         ];
