@@ -1,0 +1,345 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <div class="layui-row">
+                <div class="layui-col-md6">
+                    <h3>推广平台管理</h3>
+                </div>
+                <div class="layui-col-md6 text-right">
+                    <button class="layui-btn layui-btn-sm" onclick="openAddModal()">
+                        <i class="layui-icon layui-icon-add-1"></i> 添加平台
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            <form class="layui-form layui-form-pane" method="get" action="">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">平台名称</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="platform_name" value="{$get.platform_name|default=''}" placeholder="请输入平台名称" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">频道/群组</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="channel" value="{$get.channel|default=''}" placeholder="请输入频道/群组" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-input-inline">
+                            <select name="status" class="layui-select">
+                                <option value="">全部状态</option>
+                                {foreach $status_list as $key => $value}
+                                <option value="{$key}" {if isset($get.status) && $get.status eq $key}selected{/if}>{$value}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn" lay-submit lay-filter="search">
+                            <i class="layui-icon layui-icon-search"></i> 搜索
+                        </button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- 数据列表 -->
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 150px;">平台名称</th>
+                        <th style="width: 200px;">频道/群组</th>
+                        <th style="width: 300px;">Webhook URL</th>
+                        <th style="width: 100px;">状态</th>
+                        <th style="width: 200px;">配置</th>
+                        <th style="width: 150px;">创建时间</th>
+                        <th style="width: 150px;">更新时间</th>
+                        <th style="width: 200px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>{$vo.id}</td>
+                        <td>{$vo.platform_name}</td>
+                        <td>{$vo.channel|default='-'}</td>
+                        <td>
+                            {if $vo.webhook_url}
+                                <span class="layui-badge layui-bg-blue" title="{$vo.webhook_url}">已设置</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">未设置</span>
+                            {/if}
+                        </td>
+                        <td>
+                            {if $vo.status eq 'active'}
+                                <span class="layui-badge layui-bg-green">{$vo.status_text}</span>
+                            {elseif $vo.status eq 'inactive'}
+                                <span class="layui-badge layui-bg-orange">{$vo.status_text}</span>
+                            {else}
+                                <span class="layui-badge layui-bg-blue">{$vo.status_text}</span>
+                            {/if}
+                        </td>
+                        <td>
+                            {if $vo.config_preview}
+                                <span class="layui-badge layui-bg-cyan" title="{$vo.config_preview}">配置</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">无配置</span>
+                            {/if}
+                        </td>
+                        <td>{$vo.created_at|default='-'}</td>
+                        <td>{$vo.updated_at|default='-'}</td>
+                        <td>
+                            <div class="layui-btn-group">
+                                <button class="layui-btn layui-btn-xs" onclick="openEditModal({$vo.id})">
+                                    <i class="layui-icon layui-icon-edit"></i> 编辑
+                                </button>
+                                <button class="layui-btn layui-btn-xs layui-btn-warm" onclick="updateStatus({$vo.id}, '{$vo.status}')">
+                                    <i class="layui-icon layui-icon-refresh"></i> 状态
+                                </button>
+                                <button class="layui-btn layui-btn-xs layui-btn-danger" onclick="deleteItem({$vo.id})">
+                                    <i class="layui-icon layui-icon-delete"></i> 删除
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
+</div>
+
+<!-- 添加/编辑弹窗 -->
+<div id="platformModal" style="display: none; padding: 20px;">
+    <form class="layui-form" id="platformForm">
+        <input type="hidden" name="id" id="platform_id">
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">平台名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="platform_name" id="platform_name" required lay-verify="required" placeholder="请输入平台名称" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">频道/群组</label>
+            <div class="layui-input-block">
+                <input type="text" name="channel" id="platform_channel" required lay-verify="required" placeholder="请输入频道/群组" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">Webhook URL</label>
+            <div class="layui-input-block">
+                <input type="text" name="webhook_url" id="platform_webhook_url" placeholder="请输入Webhook URL" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                <select name="status" id="platform_status" class="layui-select">
+                    {foreach $status_list as $key => $value}
+                    <option value="{$key}">{$value}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">配置</label>
+            <div class="layui-input-block">
+                <textarea name="config" id="platform_config" placeholder="请输入JSON格式配置" class="layui-textarea" rows="5"></textarea>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="platformSubmit">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer', 'form'], function(){
+    var layer = layui.layer;
+    var form = layui.form;
+    
+    // 页面加载完成后的初始化
+    layer.msg('推广平台管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 表单提交
+    form.on('submit(platformSubmit)', function(data){
+        var formData = data.field;
+        
+        // 验证JSON格式
+        if (formData.config) {
+            try {
+                JSON.parse(formData.config);
+            } catch (e) {
+                layer.msg('配置格式错误，请输入有效的JSON格式', {icon: 2});
+                return false;
+            }
+        }
+        
+        // 发送AJAX请求
+        $.ajax({
+            url: formData.id ? '/admin.html/lala_admin/promotion_platform/edit.html' : '/admin.html/lala_admin/promotion_platform/add.html',
+            type: 'POST',
+            data: formData,
+            success: function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.msg, {icon: 1, time: 2000}, function(){
+                        window.location.reload();
+                    });
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            },
+            error: function() {
+                layer.msg('请求失败', {icon: 2});
+            }
+        });
+        
+        return false;
+    });
+});
+
+// 打开添加弹窗
+function openAddModal() {
+    // 重置表单
+    $('#platformForm')[0].reset();
+    $('#platform_id').val('');
+    
+    layer.open({
+        type: 1,
+        title: '添加推广平台',
+        area: ['600px', '500px'],
+        content: $('#platformModal'),
+        success: function() {
+            layui.form.render();
+        }
+    });
+}
+
+// 打开编辑弹窗
+function openEditModal(id) {
+    // 获取数据
+    $.get('/admin.html/lala_admin/promotion_platform/edit.html?id=' + id, function(res) {
+        if (res.code === 1) {
+            var data = res.data;
+            
+            // 填充表单
+            $('#platform_id').val(data.id);
+            $('#platform_name').val(data.platform_name);
+            $('#platform_channel').val(data.channel);
+            $('#platform_webhook_url').val(data.webhook_url);
+            $('#platform_status').val(data.status);
+            $('#platform_config').val(data.config ? JSON.stringify(data.config, null, 2) : '');
+            
+            layer.open({
+                type: 1,
+                title: '编辑推广平台',
+                area: ['600px', '500px'],
+                content: $('#platformModal'),
+                success: function() {
+                    layui.form.render();
+                }
+            });
+        } else {
+            layer.msg(res.msg, {icon: 2});
+        }
+    });
+}
+
+// 更新状态
+function updateStatus(id, currentStatus) {
+    var statusList = {
+        'active': 'inactive',
+        'inactive': 'testing',
+        'testing': 'active'
+    };
+    
+    var newStatus = statusList[currentStatus] || 'active';
+    var statusText = {
+        'active': '活跃',
+        'inactive': '非活跃',
+        'testing': '测试中'
+    };
+    
+    layer.confirm('确定要将状态更改为"' + statusText[newStatus] + '"吗？', {
+        icon: 3,
+        title: '确认操作'
+    }, function(index) {
+        $.post('/admin.html/lala_admin/promotion_platform/updateStatus.html', {
+            id: id,
+            status: newStatus
+        }, function(res) {
+            if (res.code === 1) {
+                layer.msg(res.msg, {icon: 1, time: 2000}, function(){
+                    window.location.reload();
+                });
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        });
+        layer.close(index);
+    });
+}
+
+// 删除项目
+function deleteItem(id) {
+    layer.confirm('确定要删除这个推广平台吗？', {
+        icon: 3,
+        title: '确认删除'
+    }, function(index) {
+        $.post('/admin.html/lala_admin/promotion_platform/delete.html', {
+            id: id
+        }, function(res) {
+            if (res.code === 1) {
+                layer.msg(res.msg, {icon: 1, time: 2000}, function(){
+                    window.location.reload();
+                });
+            } else {
+                layer.msg(res.msg, {icon: 2});
+            }
+        });
+        layer.close(index);
+    });
+}
+</script>
+
+<style>
+.layui-card-header .layui-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.text-right {
+    text-align: right;
+}
+.layui-badge {
+    cursor: pointer;
+}
+</style>
+{/block}

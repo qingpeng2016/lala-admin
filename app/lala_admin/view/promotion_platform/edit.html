@@ -1,0 +1,108 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <h3>编辑推广平台</h3>
+        </div>
+        <div class="layui-card-body">
+            <form class="layui-form" method="post" action="">
+                <input type="hidden" name="id" value="{$info.id}">
+                
+                <div class="layui-form-item">
+                    <label class="layui-form-label">平台名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="platform_name" value="{$info.platform_name}" required lay-verify="required" placeholder="请输入平台名称" class="layui-input">
+                    </div>
+                </div>
+                
+                <div class="layui-form-item">
+                    <label class="layui-form-label">频道/群组</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="channel" value="{$info.channel}" required lay-verify="required" placeholder="请输入频道/群组" class="layui-input">
+                    </div>
+                </div>
+                
+                <div class="layui-form-item">
+                    <label class="layui-form-label">Webhook URL</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="webhook_url" value="{$info.webhook_url}" placeholder="请输入Webhook URL" class="layui-input">
+                    </div>
+                </div>
+                
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <select name="status" class="layui-select">
+                            {foreach $status_list as $key => $value}
+                            <option value="{$key}" {if $info.status eq $key}selected{/if}>{$value}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="layui-form-item">
+                    <label class="layui-form-label">配置</label>
+                    <div class="layui-input-block">
+                        <textarea name="config" placeholder="请输入JSON格式配置" class="layui-textarea" rows="5">{if $info.config}{$info.config|json_encode:JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT}{/if}</textarea>
+                    </div>
+                </div>
+                
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="editSubmit">保存</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        <a href="{:url('index')}" class="layui-btn layui-btn-normal">返回</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer', 'form'], function(){
+    var layer = layui.layer;
+    var form = layui.form;
+    
+    // 表单提交
+    form.on('submit(editSubmit)', function(data){
+        var formData = data.field;
+        
+        // 验证JSON格式
+        if (formData.config) {
+            try {
+                JSON.parse(formData.config);
+            } catch (e) {
+                layer.msg('配置格式错误，请输入有效的JSON格式', {icon: 2});
+                return false;
+            }
+        }
+        
+        // 发送AJAX请求
+        $.ajax({
+            url: '/admin.html/lala_admin/promotion_platform/edit.html',
+            type: 'POST',
+            data: formData,
+            success: function(res) {
+                if (res.code === 1) {
+                    layer.msg(res.msg, {icon: 1, time: 2000}, function(){
+                        window.location.href = '/admin.html#/lala_admin/promotion_platform/index.html';
+                    });
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            },
+            error: function() {
+                layer.msg('请求失败', {icon: 2});
+            }
+        });
+        
+        return false;
+    });
+});
+</script>
+{/block}
