@@ -55,27 +55,15 @@ class TelegramBot {
         $callback_data = $callback_query['data'];
         $callback_query_id = $callback_query['id'];
         $user = $callback_query['from'];
-        $chat_id = $callback_query['message']['chat']['id'];
-        $message_id = $callback_query['message']['message_id'];
         
-        // 记录调试信息
-        error_log("收到回调: callback_data=$callback_data, user_id=" . $user['id']);
-        
-        // 记录点击到数据库
+        // 记录点击到数据库（埋点）
         $this->logAction($user['id'], $user['username'] ?? 'unknown', $callback_data);
         
         // 根据callback_data确定跳转URL
         $redirect_url = $this->getRedirectUrl($callback_data);
         
-        error_log("跳转URL: $redirect_url");
-        
-        // 先回答回调查询
-        $result1 = $this->answerCallbackQuery($callback_query_id);
-        error_log("answerCallbackQuery结果: " . json_encode($result1));
-        
-        // 将按钮改为URL按钮，这样用户点击就能直接跳转
-        $result2 = $this->updateButtonToUrl($chat_id, $message_id, $callback_data, $redirect_url);
-        error_log("updateButtonToUrl结果: " . json_encode($result2));
+        // 使用answerCallbackQuery的url参数直接跳转
+        $this->answerCallbackQuery($callback_query_id, $redirect_url);
     }
     
 
@@ -160,39 +148,7 @@ class TelegramBot {
         return $this->sendRequest('answerCallbackQuery', $data);
     }
     
-    // 将按钮更新为URL按钮
-    private function updateButtonToUrl($chat_id, $message_id, $clicked_action, $clicked_url) {
-        // 创建新的键盘，将点击的按钮改为URL按钮，其他保持callback_data
-        $keyboard = [
-            'inline_keyboard' => [
-                [
-                    ['text' => '联系客服', 'callback_data' => 'kefu'],
-                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
-                ],
-                [
-                    ['text' => '访问官网', 'callback_data' => 'website'],
-                    ['text' => '下载APP', 'callback_data' => 'app']
-                ]
-            ]
-        ];
-        
-        // 将点击的按钮改为URL按钮
-        foreach ($keyboard['inline_keyboard'] as &$row) {
-            foreach ($row as &$button) {
-                if ($button['callback_data'] === $clicked_action) {
-                    $button = ['text' => $button['text'], 'url' => $clicked_url];
-                }
-            }
-        }
-        
-        $data = [
-            'chat_id' => $chat_id,
-            'message_id' => $message_id,
-            'reply_markup' => json_encode($keyboard)
-        ];
-        
-        $this->sendRequest('editMessageReplyMarkup', $data);
-    }
+
     
 
     
@@ -254,7 +210,7 @@ error_log("Bot配置: " . json_encode($bot_config));
 $bot = new TelegramBot($bot_config['bot_token'], $bot_config['database']);
 
 // 处理webhook
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = file_get_contents('php://input');
     $bot->handleUpdate($input);
 }
