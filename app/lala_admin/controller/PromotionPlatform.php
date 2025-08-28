@@ -116,9 +116,9 @@ class PromotionPlatform extends Controller
             
             $id = Db::name('system_new_promotion_platforms')->insertGetId($data);
             if ($id) {
-                $this->success('添加成功', 'index');
+                return json(['code' => 1, 'info' => '添加成功', 'url' => '']);
             } else {
-                $this->error('添加失败');
+                return $this->error('添加失败');
             }
         }
         

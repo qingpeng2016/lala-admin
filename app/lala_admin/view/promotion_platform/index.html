@@ -95,14 +95,12 @@
                         </td>
                         <td>{$vo.created_at|default='-'}</td>
                         <td>{$vo.updated_at|default='-'}</td>
-                        <td>
-                            <div class="layui-btn-group">
-                                <a class="layui-btn layui-btn-xs" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
-                                <button class="layui-btn layui-btn-xs layui-btn-warm" onclick="updateStatus({$vo.id}, '{$vo.status}')">
-                                    <i class="layui-icon layui-icon-refresh"></i> 状态
-                                </button>
-                                <a class="layui-btn layui-btn-xs layui-btn-danger" data-confirm="确定要删除此推广平台吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
-                            </div>
+                        <td class='text-left' style="white-space: nowrap;">
+                            <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
+                            <a class="layui-btn layui-btn-sm layui-btn-warm" onclick="updateStatus({$vo.id}, '{$vo.status}')">
+                                <i class="layui-icon layui-icon-refresh"></i> 状态
+                            </a>
+                            <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此推广平台吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
                         </td>
                     </tr>
                     {/foreach}
