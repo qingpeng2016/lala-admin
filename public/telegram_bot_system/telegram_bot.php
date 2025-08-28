@@ -43,7 +43,18 @@ class TelegramBot {
         $text = $message['text'] ?? '';
         $user = $message['from'];
         
-        // 检测关键词
+        // 检测新用户加入
+        if (isset($message['new_chat_members'])) {
+            foreach ($message['new_chat_members'] as $new_member) {
+                // 如果是新用户加入（不是机器人自己）
+                if (!$new_member['is_bot']) {
+                    // 发送欢迎消息和按钮
+                    $this->sendWelcomeMessage($chat_id, $new_member);
+                }
+            }
+        }
+        
+        // 保留原有的关键词检测功能
         if (strpos($text, '点下面按钮') !== false || strpos($text, '获取更多福利') !== false) {
             // 发送按钮
             $this->sendAdButtons($chat_id, $message['message_id']);
@@ -105,6 +116,44 @@ class TelegramBot {
             default:
                 return 'https://t.me/markqing2024';
         }
+    }
+    
+    // 发送欢迎消息和按钮
+    private function sendWelcomeMessage($chat_id, $new_member) {
+        $username = $new_member['username'] ?? $new_member['first_name'] ?? '新朋友';
+        
+        $welcome_text = "🎉 欢迎 $username 加入！\n\n";
+        $welcome_text .= "🌟 全球服务器\n";
+        $welcome_text .= "💎 高防CDN\n";
+        $welcome_text .= "🚀 香港/新加坡/日本/欧洲/awk等\n";
+        $welcome_text .= "⚡ 高配/定制\n";
+        $welcome_text .= "🔗 专线/托管\n";
+        $welcome_text .= "✅ 免实名, 免备案\n";
+        $welcome_text .= "🛡️ 7*24 小时技术支持\n";
+        $welcome_text .= "💰 支持USDT付款\n\n";
+        $welcome_text .= "💡 获取更多福利和服务，请点击下方按钮：";
+        
+        $keyboard = [
+            'inline_keyboard' => [
+                [
+                    ['text' => '联系客服', 'callback_data' => 'kefu'],
+                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
+                ],
+                [
+                    ['text' => '访问官网', 'callback_data' => 'website'],
+                    ['text' => '下载APP', 'callback_data' => 'app']
+                ]
+            ]
+        ];
+
+        $data = [
+            'chat_id' => $chat_id,
+            'text' => $welcome_text,
+            'reply_markup' => json_encode($keyboard),
+            'parse_mode' => 'HTML'
+        ];
+
+        $this->sendRequest('sendMessage', $data);
     }
     
     // 发送广告按钮
