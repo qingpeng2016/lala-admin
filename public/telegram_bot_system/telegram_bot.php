@@ -123,6 +123,14 @@ class TelegramBot {
         $username = $new_member['username'] ?? $new_member['first_name'] ?? '新朋友';
         
         $welcome_text = "🎉 欢迎 $username 加入！\n\n";
+        $welcome_text .= "🌐 全球服务器\n";
+        $welcome_text .= "🛡️ 高防CDN\n";
+        $welcome_text .= "🚀 香港/新加坡/日本/欧洲/awk等\n";
+        $welcome_text .= "⚡ 高配/定制\n";
+        $welcome_text .= "🔗 专线/托管\n";
+        $welcome_text .= "✅ 免实名, 免备案\n";
+        $welcome_text .= "🆘 7*24 小时技术支持\n";
+        $welcome_text .= "💰 支持USDT付款\n\n";
         $welcome_text .= "💡 获取更多福利和服务，请点击下方按钮：";
         
         $keyboard = [
