@@ -99,8 +99,8 @@ class TelegramBot {
                 'manager_id' => 0,
                 'userid' => 0,
                 'channel' => '211',
-                'action' => '用户加入',
-                'description' => "TG-用户Join, TG用户ID:{$user_id}, TG用户名:{$username},",
+                'action' => '用户点击',
+                'description' => "TG-用户加入, TgUserId:{$user_id}, TgUserName:{$username},",
                 'current_page' => '',
                 'referer' => '',
                 'ipaddr' => '',
@@ -171,19 +171,21 @@ class TelegramBot {
         
         // 发送文字消息和按钮
         $welcome_text = "🎉 欢迎 $username 加入！\n\n";
-        $welcome_text .= "🚀【全球精品3C网络 VPS】🚀\n";
-        $welcome_text .= "价格：¥25-32/月起  \n";
-        $welcome_text .= "带宽：10M-10G  \n";
-        $welcome_text .= "流量：1T - 无限  \n";
-        $welcome_text .= "机房：新加坡 / 香港 / 日本 / 美国 / 台湾  \n";
-        $welcome_text .= "解锁流媒体：Netflix / HBO / Disney+  \n\n";
-        $welcome_text .= "🚀【IEPL NAT 高速通道】🚀\n";
-        $welcome_text .= "价格：¥580/月  \n";
-        $welcome_text .= "带宽：1Gbps  \n";
-        $welcome_text .= "流量：800G  \n";
-        $welcome_text .= "线路：厦门->香港 / 深圳->香港 / 广州->香港  \n";
-        $welcome_text .= "联通/电信/移动三网入口，20个NAT端口  \n";
-        $welcome_text .= "✅ 无需实名、快速开通、双端高防，抗投诉  \n\n";
+        $welcome_text .= "🚀【全球BGP精品网络 VPS】🌏\n\n";
+        $welcome_text .= "💰 价格：¥25/月起  \n";
+        $welcome_text .= "⚡️ 带宽：5G  \n";
+        $welcome_text .= "📈 流量：1T - 无限  \n";
+        $welcome_text .= "🏢 机房：新加坡 / 香港 / 日本 / 美国  \n";
+        $welcome_text .= "🎬 解锁常见流媒体  \n";
+        $welcome_text .= "✅ 多线接入，5年老商家，稳定可靠  \n\n";
+        $welcome_text .= "----------------------------------\n\n";
+        $welcome_text .= "🚀【IEPL 国际以太网专线】🌏\n\n";
+        $welcome_text .= "💰 价格：¥14/月起\n";
+        $welcome_text .= "⚡️ 带宽：随心定制，量大从优\n";
+        $welcome_text .= "🏢 线路：深港/广港/夏港/沪日 \n";
+        $welcome_text .= "🌐 联通/电信/移动三网入口\n";
+        $welcome_text .= "🛡 双端高防，抗投诉  \n";
+        $welcome_text .= "✅ 高端独享线路，5年老商家，稳定可靠  \n\n";
         $welcome_text .= "💡 获取更多福利和服务，请点击下方按钮：";
 
         $keyboard = [
