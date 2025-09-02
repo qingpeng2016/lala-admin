@@ -45,7 +45,8 @@ class Enum
     public static function getChannelList()
     {
         return [
-            self::CHANNEL_TG => 'TG'
+            self::CHANNEL_TG => 'TG',
+            'official' => '官方'
         ];
     }
 

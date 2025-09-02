@@ -38,7 +38,12 @@ class UserLogs extends Controller
             $query->where('userid', 'like', "%{$get['userid']}%");
         }
         if (isset($get['channel']) && $get['channel'] !== '') {
-            $query->where('channel', 'like', "%{$get['channel']}%");
+            if ($get['channel'] === 'official') {
+                // 查询官方渠道（除211以外的所有渠道）
+                $query->where('channel', '<>', '211');
+            } else {
+                $query->where('channel', 'like', "%{$get['channel']}%");
+            }
         }
         if (isset($get['action']) && $get['action'] !== '') {
             $query->where('action', $get['action']);
