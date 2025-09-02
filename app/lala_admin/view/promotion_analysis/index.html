@@ -103,8 +103,9 @@
                 <table class="layui-table" lay-skin="line">
                     <thead>
                         <tr>
+                            <th style="width: 80px;">渠道</th>
                             <th style="width: 120px;">日期</th>
-                            <th style="width: 100px;">访问量</th>
+                            <th style="width: 100px;">独立访问量</th>
                             <th style="width: 100px;">注册数</th>
                             <th style="width: 100px;">注册率</th>
                             <th style="width: 100px;">下单数</th>
@@ -115,6 +116,7 @@
                     <tbody>
                         {foreach $roi_data_all[$channel] as $item}
                         <tr>
+                            <td>{$channel}</td>
                             <td>{$item.date}</td>
                             <td><span class="stat-number-small">{$item.visits}</span></td>
                             <td><span class="stat-number-small">{$item.registers}</span></td>
@@ -313,7 +315,7 @@ li {
 
 /* 投资回报分析样式 */
 .amount-badge {
-    background: #FF5722;
+    background: #666666;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
