@@ -58,7 +58,39 @@
             <h3>TG渠道页面漏斗分析</h3>
         </div>
         <div class="layui-card-body">
-            <div id="funnelChart" style="height: 500px;"></div>
+            {if $funnel_data}
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">排名</th>
+                        <th>页面路径</th>
+                        <th style="width: 120px;">独立访客</th>
+                        <th style="width: 120px;">转化率</th>
+                        <th style="width: 200px;">转化率条形图</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $funnel_data as $key => $item}
+                    <tr>
+                        <td>{$key + 1}</td>
+                        <td title="{$item.page}">{$item.page}</td>
+                        <td><span class="stat-number-small">{$item.visitors}</span></td>
+                        <td><span class="rate-badge">{$item.rate}%</span></td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {$item.rate}%"></div>
+                                <span class="progress-text">{$item.rate}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            {else}
+            <div class="empty-data">
+                <p>暂无TG渠道数据</p>
+            </div>
+            {/if}
         </div>
     </div>
 
@@ -94,151 +126,7 @@ layui.use(['layer'], function(){
     // 页面加载完成后的初始化
     layer.msg('推广分析页面加载完成', {icon: 1, time: 2000});
     
-    // 动态加载ECharts
-    loadECharts();
 });
-
-// 动态加载ECharts
-function loadECharts() {
-    if (typeof echarts !== 'undefined') {
-        // ECharts已经加载，直接初始化图表
-        initFunnelChart();
-        return;
-    }
-    
-    // 创建script标签加载ECharts
-    var script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
-    script.onload = function() {
-        console.log('ECharts加载成功');
-        initFunnelChart();
-    };
-    script.onerror = function() {
-        console.error('ECharts加载失败');
-        var chartDom = document.getElementById('trendChart');
-        if (chartDom) {
-            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#f56c6c;">ECharts加载失败，请检查网络连接</div>';
-        }
-    };
-    document.head.appendChild(script);
-}
-
-// 初始化漏斗图表
-function initFunnelChart() {
-    try {
-        var chartDom = document.getElementById('funnelChart');
-        if (!chartDom) {
-            console.error('找不到图表容器');
-            return;
-        }
-        
-        // 检查ECharts是否加载成功
-        if (typeof echarts === 'undefined') {
-            console.error('ECharts未加载成功');
-            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#999;">图表加载失败，请刷新页面重试</div>';
-            return;
-        }
-        
-        var myChart = echarts.init(chartDom);
-        
-        // 显示加载动画
-        myChart.showLoading();
-        
-        var funnelData = {$funnel_data|json_encode|raw};
-        console.log('漏斗数据:', funnelData);
-        
-        // 检查数据是否为空
-        if (!funnelData || !Array.isArray(funnelData) || funnelData.length === 0) {
-            console.warn('漏斗数据为空或格式错误');
-            myChart.hideLoading();
-            myChart.setOption({
-                title: {
-                    text: '暂无TG渠道数据',
-                    left: 'center',
-                    top: 'middle',
-                    textStyle: {
-                        color: '#999',
-                        fontSize: 16
-                    }
-                }
-            });
-            return;
-        }
-        
-        // 准备漏斗图数据
-        var funnelChartData = [];
-        funnelData.forEach(function(item) {
-            funnelChartData.push({
-                name: item.page + ' (' + item.rate + '%)',
-                value: item.visitors
-            });
-        });
-        
-        var option = {
-            title: {
-                text: 'TG渠道页面漏斗分析',
-                left: 'center'
-            },
-            tooltip: {
-                trigger: 'item',
-                formatter: function(params) {
-                    var data = funnelData[params.dataIndex];
-                    return data.page + '<br/>独立访客: ' + data.visitors + '<br/>转化率: ' + data.rate + '%';
-                }
-            },
-            series: [
-                {
-                    name: '页面漏斗',
-                    type: 'funnel',
-                    left: '10%',
-                    top: 60,
-                    bottom: 60,
-                    width: '80%',
-                    min: 0,
-                    max: Math.max(...funnelData.map(item => item.visitors)),
-                    minSize: '0%',
-                    maxSize: '100%',
-                    sort: 'descending',
-                    gap: 2,
-                    label: {
-                        show: true,
-                        position: 'inside'
-                    },
-                    labelLine: {
-                        length: 10,
-                        lineStyle: {
-                            width: 1,
-                            type: 'solid'
-                        }
-                    },
-                    itemStyle: {
-                        borderColor: '#fff',
-                        borderWidth: 1
-                    },
-                    emphasis: {
-                        label: {
-                            fontSize: 20
-                        }
-                    },
-                    data: funnelChartData
-                }
-            ]
-        };
-        
-        // 隐藏加载动画并设置选项
-        myChart.hideLoading();
-        myChart.setOption(option);
-        
-        console.log('漏斗图初始化完成');
-        
-    } catch (error) {
-        console.error('漏斗图初始化失败:', error);
-        var chartDom = document.getElementById('funnelChart');
-        if (chartDom) {
-            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#f56c6c;">漏斗图初始化失败: ' + error.message + '</div>';
-        }
-    }
-}
 
 
 </script>
@@ -284,6 +172,54 @@ ul {
 
 li {
     margin-bottom: 8px;
+}
+
+/* 漏斗表格样式 */
+.stat-number-small {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1E9FFF;
+}
+
+.rate-badge {
+    background: #009688;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.progress-bar {
+    position: relative;
+    background: #f5f5f5;
+    border-radius: 10px;
+    height: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #1E9FFF, #5FB878);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
+}
+
+.empty-data {
+    text-align: center;
+    padding: 50px;
+    color: #999;
+    font-size: 16px;
 }
 </style>
 {/block}
