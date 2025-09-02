@@ -195,56 +195,30 @@ class PromotionAnalysis extends Controller
                 return [];
             }
 
-            // 2. 分别统计页面访问和用户操作
-            
-            // 2.1 页面访问漏斗（按current_page分组）
-            $page_stats = $this->getBaseQuery()
+            // 2. 统一按 description 和 action 分组
+            $all_stats = $this->getBaseQuery()
                 ->where('channel', Enum::CHANNEL_TG)
-                ->where('action', '页面访问')
-                ->where('current_page', '<>', '')
-                ->where('current_page', 'not null')
-                ->where('created_at', '>=', $start_date . ' 00:00:00')
-                ->where('created_at', '<=', $end_date . ' 23:59:59')
-                ->field([
-                    'current_page as page_name',
-                    'COUNT(DISTINCT ipaddr) as visitors',
-                    '"页面访问" as action_type'
-                ])
-                ->group('current_page')
-                ->select()
-                ->toArray();
-
-            // 2.2 用户操作漏斗（按description分组，排除页面访问）
-            $action_stats = $this->getBaseQuery()
-                ->where('channel', Enum::CHANNEL_TG)
-                ->where('action', '<>', '页面访问')
                 ->where('description', '<>', '')
                 ->where('description', 'not null')
                 ->where('created_at', '>=', $start_date . ' 00:00:00')
                 ->where('created_at', '<=', $end_date . ' 23:59:59')
                 ->field([
-                    'description as page_name',
-                    'COUNT(DISTINCT ipaddr) as visitors',
-                    'action as action_type'
+                    'description',
+                    'action',
+                    'COUNT(DISTINCT ipaddr) as visitors'
                 ])
                 ->group('description, action')
+                ->order('visitors desc')
+                ->limit(15)
                 ->select()
                 ->toArray();
 
-            // 2.3 合并数据并计算转化率
-            $all_stats = array_merge($page_stats, $action_stats);
-            
-            // 按访客数降序排列
-            usort($all_stats, function($a, $b) {
-                return $b['visitors'] - $a['visitors'];
-            });
-
-            // 取前15个并计算转化率
+            // 3. 计算转化率并格式化显示
             $funnel_data = [];
-            foreach (array_slice($all_stats, 0, 15) as $item) {
+            foreach ($all_stats as $item) {
                 $funnel_rate = round(($item['visitors'] / $total_tg_visitors) * 100, 2);
                 $funnel_data[] = [
-                    'page' => $item['page_name'] . ' (' . $item['action_type'] . ')',
+                    'page' => '(' . $item['action'] . ') ' . $item['description'],
                     'visitors' => $item['visitors'],
                     'rate' => $funnel_rate
                 ];
