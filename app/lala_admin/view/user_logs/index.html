@@ -27,10 +27,14 @@
                     <tr>
                         <td>{$vo.id}</td>
                         <td>
-                            {if $vo.channel eq '211'}
-                                <span class="layui-badge layui-bg-cyan">TG</span>
+                            {php}
+                                $channel_name = \app\lala_admin\model\UserLog::getChannelName($vo['channel']);
+                                $is_tg = \app\lala_admin\model\UserLog::isTgChannel($vo['channel']);
+                            {/php}
+                            {if $is_tg}
+                                <span class="layui-badge layui-bg-cyan">{$channel_name}</span>
                             {else}
-                                {$vo.channel}
+                                <span class="layui-badge layui-bg-gray">{$channel_name}</span>
                             {/if}
                         </td>
                         <td>{$vo.userid}</td>

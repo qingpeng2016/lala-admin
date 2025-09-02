@@ -5,6 +5,7 @@ namespace app\lala_admin\controller;
 
 use think\admin\Controller;
 use app\lala_admin\model\PromotionAnalysis as PromotionAnalysisModel;
+use app\lala_admin\const\EnumTool;
 
 /**
  * 推广分析管理
@@ -51,10 +52,7 @@ class PromotionAnalysis extends Controller
      */
     public static function getChannelList()
     {
-        return [
-            '211' => 'TG',
-            'official' => '官方'
-        ];
+        return EnumTool::getChannelList();
     }
 
     /**
@@ -104,7 +102,7 @@ class PromotionAnalysis extends Controller
         // 重新整理数据
         $result = [];
         foreach ($stats as $item) {
-            $channel = $item['channel'] == '211' ? 'TG' : '官方';
+            $channel = EnumTool::getChannelName($item['channel']);
             if (!isset($result[$channel])) {
                 $result[$channel] = [
                     'unique_visitors' => 0,
@@ -138,9 +136,9 @@ class PromotionAnalysis extends Controller
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', '211');
+                $query->where('channel', \app\lala_admin\const\Enum::CHANNEL_TG);
             } else {
-                $query->where('channel', '<>', '211');
+                $query->where('channel', '<>', \app\lala_admin\const\Enum::CHANNEL_TG);
             }
         }
 
@@ -199,9 +197,9 @@ class PromotionAnalysis extends Controller
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', '211');
+                $query->where('channel', \app\lala_admin\const\Enum::CHANNEL_TG);
             } else {
-                $query->where('channel', '<>', '211');
+                $query->where('channel', '<>', \app\lala_admin\const\Enum::CHANNEL_TG);
             }
         }
 

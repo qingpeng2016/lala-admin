@@ -5,6 +5,7 @@ namespace app\lala_admin\controller;
 
 use think\admin\Controller;
 use think\facade\Db;
+use app\lala_admin\model\UserLog;
 
 /**
  * 用户日志管理
@@ -78,10 +79,8 @@ class UserLogs extends Controller
             'list' => $list,
             'pagehtml' => $result->render(),
             'get' => $get,
-            'action_list' => [
-                '页面访问' => '页面访问',
-                '用户点击' => '用户点击'
-            ]
+            'channel_list' => UserLog::getChannelList(),
+            'action_list' => UserLog::getActionList()
         ]);
         
         // 渲染视图

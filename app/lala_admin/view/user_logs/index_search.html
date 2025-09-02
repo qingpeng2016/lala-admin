@@ -10,7 +10,9 @@
         <div class="layui-input-inline">
             <select name="channel" class="layui-select">
                 <option value="">-- 全部来源 --</option>
-                <option value="211" {if input('get.channel') eq '211'}selected{/if}>TG</option>
+                {foreach $channel_list as $channel_code => $channel_name}
+                <option value="{$channel_code}" {if input('get.channel') eq $channel_code}selected{/if}>{$channel_name}</option>
+                {/foreach}
             </select>
         </div>
     </div>
@@ -19,9 +21,9 @@
         <div class="layui-input-inline">
             <select name="action" class="layui-select">
                 <option value="">-- 全部类型 --</option>
-                <option value="页面访问" {if input('get.action') eq '页面访问'}selected{/if}>页面访问</option>
-                <option value="用户点击" {if input('get.action') eq '用户点击'}selected{/if}>用户点击</option>
-                <option value="用户加入" {if input('get.action') eq '用户加入'}selected{/if}>用户加入</option>
+                {foreach $action_list as $action_code => $action_name}
+                <option value="{$action_code}" {if input('get.action') eq $action_code}selected{/if}>{$action_name}</option>
+                {/foreach}
             </select>
         </div>
     </div>
