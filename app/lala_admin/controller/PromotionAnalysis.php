@@ -14,6 +14,41 @@ use app\lala_admin\constant\Enum;
 class PromotionAnalysis extends Controller
 {
     /**
+     * 默认查询天数
+     */
+    const DEFAULT_DAYS = 7;
+
+    /**
+     * 获取基础查询条件
+     * @return \think\db\Query
+     */
+    private function getBaseQuery()
+    {
+        return PromotionAnalysisModel::where('is_manager', 0)
+            ->where('manager_id', 0)
+            ->where('userid', 0);
+    }
+
+    /**
+     * 获取标准化的日期范围
+     * @param string $start_date 开始日期
+     * @param string $end_date 结束日期
+     * @return array [start_date, end_date]
+     */
+    private function getDateRange($start_date = '', $end_date = '')
+    {
+        // 如果没有指定日期范围，使用默认天数
+        if (empty($start_date)) {
+            $start_date = date('Y-m-d', strtotime('-' . self::DEFAULT_DAYS . ' days'));
+        }
+        if (empty($end_date)) {
+            $end_date = date('Y-m-d');
+        }
+        
+        return [$start_date, $end_date];
+    }
+
+    /**
      * 推广分析首页
      * @auth true
      * @menu true
@@ -26,8 +61,7 @@ class PromotionAnalysis extends Controller
         $get = $this->request->get();
 
         // 获取日期范围
-        $start_date = $get['start_date'] ?? date('Y-m-d', strtotime('-7 days'));
-        $end_date = $get['end_date'] ?? date('Y-m-d');
+        list($start_date, $end_date) = $this->getDateRange($get['start_date'] ?? '', $get['end_date'] ?? '');
 
         // 获取渠道统计
         $channel_stats = $this->getChannelStats($start_date, $end_date);
@@ -57,9 +91,7 @@ class PromotionAnalysis extends Controller
      */
     protected function getChannelStats($start_date = '', $end_date = '')
     {
-        $query = PromotionAnalysisModel::where('is_manager', 0)
-            ->where('manager_id', 0)
-            ->where('userid', 0)
+        $query = $this->getBaseQuery()
             ->where('channel', '<>', '')
             ->where('channel', '<>', '0');
 
@@ -109,9 +141,7 @@ class PromotionAnalysis extends Controller
      */
     protected function getChannelDetail($channel = '', $start_date = '', $end_date = '', $page = 1, $limit = 20)
     {
-        $query = PromotionAnalysisModel::where('is_manager', 0)
-            ->where('manager_id', 0)
-            ->where('userid', 0)
+        $query = $this->getBaseQuery()
             ->where('channel', '<>', '')
             ->where('channel', '<>', '0');
 
@@ -150,19 +180,12 @@ class PromotionAnalysis extends Controller
      */
     protected function getFunnelData($start_date = '', $end_date = '')
     {
-        // 如果没有指定日期范围，默认分析最近1周
-        if (empty($start_date)) {
-            $start_date = date('Y-m-d', strtotime('-7 days'));
-        }
-        if (empty($end_date)) {
-            $end_date = date('Y-m-d');
-        }
+        // 获取标准化的日期范围
+        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
 
         try {
             // 1. 先获取TG渠道的总独立访客数
-            $total_tg_visitors = PromotionAnalysisModel::where('is_manager', 0)
-                ->where('manager_id', 0)
-                ->where('userid', 0)
+            $total_tg_visitors = $this->getBaseQuery()
                 ->where('channel', Enum::CHANNEL_TG)
                 ->where('created_at', '>=', $start_date . ' 00:00:00')
                 ->where('created_at', '<=', $end_date . ' 23:59:59')
@@ -173,9 +196,7 @@ class PromotionAnalysis extends Controller
             }
 
             // 2. 按页面分组统计独立访客数
-            $page_stats = PromotionAnalysisModel::where('is_manager', 0)
-                ->where('manager_id', 0)
-                ->where('userid', 0)
+            $page_stats = $this->getBaseQuery()
                 ->where('channel', Enum::CHANNEL_TG)
                 ->where('current_page', '<>', '')
                 ->where('current_page', 'not null')
