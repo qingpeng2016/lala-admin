@@ -46,7 +46,7 @@
                         <h3>{$channel} 渠道漏斗分析</h3>
                     </div>
                     <div class="layui-card-body">
-                        {if $channel == 'TG' && $funnel_data}
+                        {if ($channel == 'TG' && $funnel_data) || ($channel == '全部' && $all_funnel_data)}
                         <table class="layui-table" lay-skin="line">
                             <thead>
                                 <tr>
@@ -58,7 +58,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {foreach $funnel_data as $key => $item}
+                                {php}
+                                    $current_funnel_data = ($channel == 'TG') ? $funnel_data : $all_funnel_data;
+                                {/php}
+                                {foreach $current_funnel_data as $key => $item}
                                 <tr>
                                     <td>{$key + 1}</td>
                                     <td title="{$item.page}">{$item.page}</td>
@@ -74,7 +77,7 @@
                                 {/foreach}
                             </tbody>
                         </table>
-                        {elseif $channel == 'TG'}
+                        {elseif $channel == 'TG' || $channel == '全部'}
                         <div class="empty-data">
                             <p>暂无{$channel}渠道漏斗数据</p>
                         </div>

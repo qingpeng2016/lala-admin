@@ -68,11 +68,15 @@ class PromotionAnalysis extends Controller
 
         // 获取漏斗数据
         $funnel_data = $this->getFunnelData($start_date, $end_date);
+        
+        // 获取全部渠道的漏斗数据
+        $all_funnel_data = $this->getAllFunnelData($start_date, $end_date);
 
         // 分配变量到视图
         $this->assign([
             'channel_stats' => $channel_stats,
             'funnel_data' => $funnel_data,
+            'all_funnel_data' => $all_funnel_data,
             'start_date' => $start_date,
             'end_date' => $end_date,
             'get' => $get
@@ -257,6 +261,65 @@ class PromotionAnalysis extends Controller
         } catch (\Exception $e) {
             // 如果查询出错，记录日志并返回空数组
             trace('getFunnelData查询出错: ' . $e->getMessage(), 'error');
+            return [];
+        }
+    }
+
+    /**
+     * 获取全部渠道漏斗数据
+     * @param string $start_date 开始日期
+     * @param string $end_date 结束日期
+     * @return array
+     */
+    protected function getAllFunnelData($start_date = '', $end_date = '')
+    {
+        // 获取标准化的日期范围
+        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
+
+        try {
+            // 1. 先获取所有渠道的总独立访客数
+            $total_visitors = $this->getBaseQuery()
+                ->where('created_at', '>=', $start_date . ' 00:00:00')
+                ->where('created_at', '<=', $end_date . ' 23:59:59')
+                ->count('DISTINCT ipaddr');
+
+            if ($total_visitors == 0) {
+                return [];
+            }
+
+            // 2. 统一按 description 和 action 分组
+            $all_stats = $this->getBaseQuery()
+                ->where('description', '<>', '')
+                ->where('description', 'not null')
+                ->where('created_at', '>=', $start_date . ' 00:00:00')
+                ->where('created_at', '<=', $end_date . ' 23:59:59')
+                ->field([
+                    'description',
+                    'action',
+                    'COUNT(DISTINCT ipaddr) as visitors'
+                ])
+                ->group('description, action')
+                ->order('visitors desc')
+                ->limit(15)
+                ->select()
+                ->toArray();
+
+            // 3. 计算转化率并格式化显示
+            $funnel_data = [];
+            foreach ($all_stats as $item) {
+                $funnel_rate = round(($item['visitors'] / $total_visitors) * 100, 2);
+                $funnel_data[] = [
+                    'page' => '(' . $item['action'] . ') ' . $item['description'],
+                    'visitors' => $item['visitors'],
+                    'rate' => $funnel_rate
+                ];
+            }
+
+            return $funnel_data;
+
+        } catch (\Exception $e) {
+            // 如果查询出错，记录日志并返回空数组
+            trace('getAllFunnelData查询出错: ' . $e->getMessage(), 'error');
             return [];
         }
     }
