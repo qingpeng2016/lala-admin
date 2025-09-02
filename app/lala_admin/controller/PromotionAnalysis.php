@@ -1,11 +1,13 @@
 <?php
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace app\lala_admin\controller;
 
 use think\admin\Controller;
 use app\lala_admin\model\PromotionAnalysis as PromotionAnalysisModel;
 use app\lala_admin\constant\EnumTool;
+use app\lala_admin\constant\Enum;
+
 /**
  * 推广分析管理
  */
@@ -19,20 +21,20 @@ class PromotionAnalysis extends Controller
     public function index()
     {
         $this->title = '推广分析';
-        
+
         // 获取请求参数
         $get = $this->request->get();
-        
+
         // 获取日期范围
         $start_date = $get['start_date'] ?? date('Y-m-d', strtotime('-7 days'));
         $end_date = $get['end_date'] ?? date('Y-m-d');
-        
+
         // 获取渠道统计
         $channel_stats = $this->getChannelStats($start_date, $end_date);
-        
+
         // 获取每日趋势
         $daily_trend = $this->getDailyTrend('', $start_date, $end_date);
-        
+
         // 分配变量到视图
         $this->assign([
             'channel_stats' => $channel_stats,
@@ -41,11 +43,10 @@ class PromotionAnalysis extends Controller
             'end_date' => $end_date,
             'get' => $get
         ]);
-        
+
         // 渲染视图
         return $this->fetch();
     }
-
 
 
     /**
@@ -57,10 +58,10 @@ class PromotionAnalysis extends Controller
     protected function getChannelStats($start_date = '', $end_date = '')
     {
         $query = PromotionAnalysisModel::where('is_manager', 0)
-                    ->where('manager_id', 0)
-                    ->where('userid', 0)
-                    ->where('channel', '<>', '')
-                    ->where('channel', '<>', '0');
+            ->where('manager_id', 0)
+            ->where('userid', 0)
+            ->where('channel', '<>', '')
+            ->where('channel', '<>', '0');
 
         // 添加日期范围
         if ($start_date) {
@@ -72,10 +73,10 @@ class PromotionAnalysis extends Controller
 
         // 按渠道分组统计，去重IP
         $stats = $query->field([
-                'channel',
-                'COUNT(DISTINCT ipaddr) as unique_visitors',
-                'COUNT(*) as total_actions'
-            ])
+            'channel',
+            'COUNT(DISTINCT ipaddr) as unique_visitors',
+            'COUNT(*) as total_actions'
+        ])
             ->group('channel')
             ->select()
             ->toArray();
@@ -109,17 +110,17 @@ class PromotionAnalysis extends Controller
     protected function getChannelDetail($channel = '', $start_date = '', $end_date = '', $page = 1, $limit = 20)
     {
         $query = PromotionAnalysisModel::where('is_manager', 0)
-                    ->where('manager_id', 0)
-                    ->where('userid', 0)
-                    ->where('channel', '<>', '')
-                    ->where('channel', '<>', '0');
+            ->where('manager_id', 0)
+            ->where('userid', 0)
+            ->where('channel', '<>', '')
+            ->where('channel', '<>', '0');
 
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', Enum::CHANNEL_TG);
             } else {
-                $query->where('channel', '<>', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', '<>', Enum::CHANNEL_TG);
             }
         }
 
@@ -133,10 +134,10 @@ class PromotionAnalysis extends Controller
 
         // 分页查询
         $result = $query->order('created_at desc')
-                       ->paginate([
-                           'list_rows' => $limit,
-                           'page' => $page
-                       ]);
+            ->paginate([
+                'list_rows' => $limit,
+                'page' => $page
+            ]);
 
         return $result;
     }
@@ -157,40 +158,40 @@ class PromotionAnalysis extends Controller
         if (empty($end_date)) {
             $end_date = date('Y-m-d');
         }
-        
+
         // 限制查询范围不超过30天，避免数据量过大
         $start_timestamp = strtotime($start_date);
         $end_timestamp = strtotime($end_date);
         $max_days = 30;
-        
+
         if (($end_timestamp - $start_timestamp) > ($max_days * 24 * 3600)) {
             $start_date = date('Y-m-d', $end_timestamp - ($max_days * 24 * 3600));
         }
 
         $query = PromotionAnalysisModel::where('is_manager', 0)
-                    ->where('manager_id', 0)
-                    ->where('userid', 0)
-                    ->where('channel', '<>', '')
-                    ->where('channel', '<>', '0')
-                    ->where('created_at', '>=', $start_date . ' 00:00:00')
-                    ->where('created_at', '<=', $end_date . ' 23:59:59');
+            ->where('manager_id', 0)
+            ->where('userid', 0)
+            ->where('channel', '<>', '')
+            ->where('channel', '<>', '0')
+            ->where('created_at', '>=', $start_date . ' 00:00:00')
+            ->where('created_at', '<=', $end_date . ' 23:59:59');
 
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', Enum::CHANNEL_TG);
             } else {
-                $query->where('channel', '<>', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', '<>', Enum::CHANNEL_TG);
             }
         }
 
         try {
             // 按日期分组统计
             $trend = $query->field([
-                    'DATE(created_at) as date',
-                    'COUNT(DISTINCT ipaddr) as unique_visitors',
-                    'COUNT(*) as total_actions'
-                ])
+                'DATE(created_at) as date',
+                'COUNT(DISTINCT ipaddr) as unique_visitors',
+                'COUNT(*) as total_actions'
+            ])
                 ->group('DATE(created_at)')
                 ->order('date asc')
                 ->select()
