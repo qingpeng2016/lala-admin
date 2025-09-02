@@ -46,7 +46,7 @@
                         <h3>{$channel} 渠道漏斗分析</h3>
                     </div>
                     <div class="layui-card-body">
-                        {if ($channel == 'TG' && $funnel_data) || ($channel == '全部' && $all_funnel_data)}
+                        {if isset($funnel_data_all[$channel]) && !empty($funnel_data_all[$channel])}
                         <table class="layui-table" lay-skin="line">
                             <thead>
                                 <tr>
@@ -59,7 +59,7 @@
                             </thead>
                             <tbody>
                                 {php}
-                                    $current_funnel_data = ($channel == 'TG') ? $funnel_data : $all_funnel_data;
+                                    $current_funnel_data = $funnel_data_all[$channel];
                                 {/php}
                                 {foreach $current_funnel_data as $key => $item}
                                 <tr>
@@ -77,13 +77,9 @@
                                 {/foreach}
                             </tbody>
                         </table>
-                        {elseif $channel == 'TG' || $channel == '全部'}
-                        <div class="empty-data">
-                            <p>暂无{$channel}渠道漏斗数据</p>
-                        </div>
                         {else}
                         <div class="empty-data">
-                            <p>{$channel} 渠道漏斗分析功能开发中...</p>
+                            <p>暂无{$channel}渠道漏斗数据</p>
                         </div>
                         {/if}
                     </div>
@@ -99,76 +95,55 @@
             <h3>投资回报分析</h3>
         </div>
         <div class="layui-card-body">
-            <!-- TG渠道投资回报分析 -->
-            <div id="tg-roi-analysis" style="display: block;">
-                {if $roi_data}
-                <table class="layui-table" lay-skin="line">
-                    <thead>
-                        <tr>
-                            <th style="width: 120px;">日期</th>
-                            <th style="width: 100px;">访问量</th>
-                            <th style="width: 100px;">注册数</th>
-                            <th style="width: 100px;">注册率</th>
-                            <th style="width: 100px;">下单数</th>
-                            <th style="width: 100px;">下单率</th>
-                            <th style="width: 120px;">下单金额</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {foreach $roi_data as $item}
-                        <tr>
-                            <td>{$item.date}</td>
-                            <td><span class="stat-number-small">{$item.visits}</span></td>
-                            <td><span class="stat-number-small">{$item.registers}</span></td>
-                            <td><span class="rate-badge">{$item.register_rate}%</span></td>
-                            <td><span class="stat-number-small">{$item.orders}</span></td>
-                            <td><span class="rate-badge">{$item.order_rate}%</span></td>
-                            <td><span class="amount-badge">¥{$item.order_amount}</span></td>
-                        </tr>
-                        {/foreach}
-                    </tbody>
-                </table>
-                {else}
-                <div class="empty-data">
-                    <p>暂无TG渠道投资回报数据</p>
+            <!-- TAB分页投资回报分析 -->
+            <div class="layui-tab layui-tab-brief">
+                <ul class="layui-tab-title">
+                    {php}$roi_tab_index = 0;{/php}
+                    {foreach $channel_stats as $channel => $stats}
+                    <li {if $roi_tab_index == 0}class="layui-this"{/if}>{$channel} 渠道</li>
+                    {php}$roi_tab_index++;{/php}
+                    {/foreach}
+                </ul>
+                <div class="layui-tab-content">
+                    {php}$roi_content_index = 0;{/php}
+                    {foreach $channel_stats as $channel => $stats}
+                    <div class="layui-tab-item {if $roi_content_index == 0}layui-show{/if}">
+                    {php}$roi_content_index++;{/php}
+                        {if isset($roi_data_all[$channel]) && !empty($roi_data_all[$channel])}
+                        <table class="layui-table" lay-skin="line">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">日期</th>
+                                    <th style="width: 100px;">访问量</th>
+                                    <th style="width: 100px;">注册数</th>
+                                    <th style="width: 100px;">注册率</th>
+                                    <th style="width: 100px;">下单数</th>
+                                    <th style="width: 100px;">下单率</th>
+                                    <th style="width: 120px;">下单金额</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {foreach $roi_data_all[$channel] as $item}
+                                <tr>
+                                    <td>{$item.date}</td>
+                                    <td><span class="stat-number-small">{$item.visits}</span></td>
+                                    <td><span class="stat-number-small">{$item.registers}</span></td>
+                                    <td><span class="rate-badge">{$item.register_rate}%</span></td>
+                                    <td><span class="stat-number-small">{$item.orders}</span></td>
+                                    <td><span class="rate-badge">{$item.order_rate}%</span></td>
+                                    <td><span class="amount-badge">¥{$item.order_amount}</span></td>
+                                </tr>
+                                {/foreach}
+                            </tbody>
+                        </table>
+                        {else}
+                        <div class="empty-data">
+                            <p>暂无{$channel}渠道投资回报数据</p>
+                        </div>
+                        {/if}
+                    </div>
+                    {/foreach}
                 </div>
-                {/if}
-            </div>
-            
-            <!-- 全部渠道投资回报分析 -->
-            <div id="all-roi-analysis" style="display: none;">
-                {if $all_roi_data}
-                <table class="layui-table" lay-skin="line">
-                    <thead>
-                        <tr>
-                            <th style="width: 120px;">日期</th>
-                            <th style="width: 100px;">访问量</th>
-                            <th style="width: 100px;">注册数</th>
-                            <th style="width: 100px;">注册率</th>
-                            <th style="width: 100px;">下单数</th>
-                            <th style="width: 100px;">下单率</th>
-                            <th style="width: 120px;">下单金额</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {foreach $all_roi_data as $item}
-                        <tr>
-                            <td>{$item.date}</td>
-                            <td><span class="stat-number-small">{$item.visits}</span></td>
-                            <td><span class="stat-number-small">{$item.registers}</span></td>
-                            <td><span class="rate-badge">{$item.register_rate}%</span></td>
-                            <td><span class="stat-number-small">{$item.orders}</span></td>
-                            <td><span class="rate-badge">{$item.order_rate}%</span></td>
-                            <td><span class="amount-badge">¥{$item.order_amount}</span></td>
-                        </tr>
-                        {/foreach}
-                    </tbody>
-                </table>
-                {else}
-                <div class="empty-data">
-                    <p>暂无全部渠道投资回报数据</p>
-                </div>
-                {/if}
             </div>
         </div>
     </div>
@@ -209,17 +184,6 @@ layui.use(['layer', 'element'], function(){
     // TAB切换事件
     element.on('tab()', function(data){
         console.log('切换到第' + (data.index + 1) + '个TAB');
-        
-        // 根据TAB切换投资回报分析显示
-        if (data.index === 0) {
-            // TG渠道TAB
-            $('#tg-roi-analysis').show();
-            $('#all-roi-analysis').hide();
-        } else if (data.index === 1) {
-            // 全部渠道TAB
-            $('#tg-roi-analysis').hide();
-            $('#all-roi-analysis').show();
-        }
     });
     
 });
