@@ -171,11 +171,30 @@ class PromotionAnalysis extends Controller
      */
     protected function getDailyTrend($channel = '', $start_date = '', $end_date = '')
     {
+        // 如果没有指定日期范围，默认分析最近1周
+        if (empty($start_date)) {
+            $start_date = date('Y-m-d', strtotime('-7 days'));
+        }
+        if (empty($end_date)) {
+            $end_date = date('Y-m-d');
+        }
+        
+        // 限制查询范围不超过30天，避免数据量过大
+        $start_timestamp = strtotime($start_date);
+        $end_timestamp = strtotime($end_date);
+        $max_days = 30;
+        
+        if (($end_timestamp - $start_timestamp) > ($max_days * 24 * 3600)) {
+            $start_date = date('Y-m-d', $end_timestamp - ($max_days * 24 * 3600));
+        }
+
         $query = PromotionAnalysisModel::where('is_manager', 0)
                     ->where('manager_id', 0)
                     ->where('userid', 0)
                     ->where('channel', '<>', '')
-                    ->where('channel', '<>', '0');
+                    ->where('channel', '<>', '0')
+                    ->where('created_at', '>=', $start_date . ' 00:00:00')
+                    ->where('created_at', '<=', $end_date . ' 23:59:59');
 
         // 添加渠道筛选
         if ($channel) {
@@ -186,25 +205,23 @@ class PromotionAnalysis extends Controller
             }
         }
 
-        // 添加日期范围
-        if ($start_date) {
-            $query->where('created_at', '>=', $start_date . ' 00:00:00');
-        }
-        if ($end_date) {
-            $query->where('created_at', '<=', $end_date . ' 23:59:59');
-        }
+        try {
+            // 按日期分组统计
+            $trend = $query->field([
+                    'DATE(created_at) as date',
+                    'COUNT(DISTINCT ipaddr) as unique_visitors',
+                    'COUNT(*) as total_actions'
+                ])
+                ->group('DATE(created_at)')
+                ->order('date asc')
+                ->select()
+                ->toArray();
 
-        // 按日期分组统计
-        $trend = $query->field([
-                'DATE(created_at) as date',
-                'COUNT(DISTINCT ipaddr) as unique_visitors',
-                'COUNT(*) as total_actions'
-            ])
-            ->group('DATE(created_at)')
-            ->order('date asc')
-            ->select()
-            ->toArray();
-
-        return $trend;
+            return $trend;
+        } catch (\Exception $e) {
+            // 如果查询出错，记录日志并返回空数组
+            trace('getDailyTrend查询出错: ' . $e->getMessage(), 'error');
+            return [];
+        }
     }
 }
