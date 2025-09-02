@@ -52,13 +52,13 @@
         {/foreach}
     </div>
 
-    <!-- 趋势图表 -->
+    <!-- 漏斗数据 -->
     <div class="layui-card" style="margin-top: 20px;">
         <div class="layui-card-header">
-            <h3>每日访问趋势</h3>
+            <h3>TG渠道页面漏斗分析</h3>
         </div>
         <div class="layui-card-body">
-            <div id="trendChart" style="height: 400px;"></div>
+            <div id="funnelChart" style="height: 500px;"></div>
         </div>
     </div>
 
@@ -102,7 +102,7 @@ layui.use(['layer'], function(){
 function loadECharts() {
     if (typeof echarts !== 'undefined') {
         // ECharts已经加载，直接初始化图表
-        initTrendChart();
+        initFunnelChart();
         return;
     }
     
@@ -111,7 +111,7 @@ function loadECharts() {
     script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
     script.onload = function() {
         console.log('ECharts加载成功');
-        initTrendChart();
+        initFunnelChart();
     };
     script.onerror = function() {
         console.error('ECharts加载失败');
@@ -123,10 +123,10 @@ function loadECharts() {
     document.head.appendChild(script);
 }
 
-// 初始化趋势图表
-function initTrendChart() {
+// 初始化漏斗图表
+function initFunnelChart() {
     try {
-        var chartDom = document.getElementById('trendChart');
+        var chartDom = document.getElementById('funnelChart');
         if (!chartDom) {
             console.error('找不到图表容器');
             return;
@@ -144,16 +144,16 @@ function initTrendChart() {
         // 显示加载动画
         myChart.showLoading();
         
-        var trendData = {$daily_trend|json_encode|raw};
-        console.log('趋势数据:', trendData);
+        var funnelData = {$funnel_data|json_encode|raw};
+        console.log('漏斗数据:', funnelData);
         
         // 检查数据是否为空
-        if (!trendData || !Array.isArray(trendData)) {
-            console.warn('趋势数据为空或格式错误');
+        if (!funnelData || !Array.isArray(funnelData) || funnelData.length === 0) {
+            console.warn('漏斗数据为空或格式错误');
             myChart.hideLoading();
             myChart.setOption({
                 title: {
-                    text: '暂无数据',
+                    text: '暂无TG渠道数据',
                     left: 'center',
                     top: 'middle',
                     textStyle: {
@@ -165,62 +165,62 @@ function initTrendChart() {
             return;
         }
         
-        var dates = [];
-        var visitors = [];
-        var actions = [];
-        
-        trendData.forEach(function(item) {
-            dates.push(item.date || '未知');
-            visitors.push(parseInt(item.unique_visitors) || 0);
-            actions.push(parseInt(item.total_actions) || 0);
+        // 准备漏斗图数据
+        var funnelChartData = [];
+        funnelData.forEach(function(item) {
+            funnelChartData.push({
+                name: item.page + ' (' + item.rate + '%)',
+                value: item.visitors
+            });
         });
         
         var option = {
             title: {
-                text: '每日访问趋势',
+                text: 'TG渠道页面漏斗分析',
                 left: 'center'
             },
             tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross'
+                trigger: 'item',
+                formatter: function(params) {
+                    var data = funnelData[params.dataIndex];
+                    return data.page + '<br/>独立访客: ' + data.visitors + '<br/>转化率: ' + data.rate + '%';
                 }
-            },
-            legend: {
-                data: ['独立访客', '总操作数'],
-                top: 30
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: dates
-            },
-            yAxis: {
-                type: 'value'
             },
             series: [
                 {
-                    name: '独立访客',
-                    type: 'line',
-                    data: visitors,
-                    smooth: true,
+                    name: '页面漏斗',
+                    type: 'funnel',
+                    left: '10%',
+                    top: 60,
+                    bottom: 60,
+                    width: '80%',
+                    min: 0,
+                    max: Math.max(...funnelData.map(item => item.visitors)),
+                    minSize: '0%',
+                    maxSize: '100%',
+                    sort: 'descending',
+                    gap: 2,
+                    label: {
+                        show: true,
+                        position: 'inside'
+                    },
+                    labelLine: {
+                        length: 10,
+                        lineStyle: {
+                            width: 1,
+                            type: 'solid'
+                        }
+                    },
                     itemStyle: {
-                        color: '#1E9FFF'
-                    }
-                },
-                {
-                    name: '总操作数',
-                    type: 'line',
-                    data: actions,
-                    smooth: true,
-                    itemStyle: {
-                        color: '#5FB878'
-                    }
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        label: {
+                            fontSize: 20
+                        }
+                    },
+                    data: funnelChartData
                 }
             ]
         };
@@ -229,13 +229,13 @@ function initTrendChart() {
         myChart.hideLoading();
         myChart.setOption(option);
         
-        console.log('图表初始化完成');
+        console.log('漏斗图初始化完成');
         
     } catch (error) {
-        console.error('图表初始化失败:', error);
-        var chartDom = document.getElementById('trendChart');
+        console.error('漏斗图初始化失败:', error);
+        var chartDom = document.getElementById('funnelChart');
         if (chartDom) {
-            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#f56c6c;">图表初始化失败: ' + error.message + '</div>';
+            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#f56c6c;">漏斗图初始化失败: ' + error.message + '</div>';
         }
     }
 }
