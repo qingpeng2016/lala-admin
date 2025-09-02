@@ -195,33 +195,53 @@ class PromotionAnalysis extends Controller
                 return [];
             }
 
-            // 2. 按页面分组统计独立访客数
-            $page_stats = $this->getBaseQuery()
-                ->where('channel', Enum::CHANNEL_TG)
-                ->where('current_page', '<>', '')
-                ->where('current_page', 'not null')
-                ->where('created_at', '>=', $start_date . ' 00:00:00')
-                ->where('created_at', '<=', $end_date . ' 23:59:59')
-                ->field([
-                    'current_page',
-                    'COUNT(DISTINCT ipaddr) as page_visitors'
-                ])
-                ->group('current_page')
-                ->order('page_visitors desc')
-                ->limit(10) // 只取前10个页面
-                ->select()
-                ->toArray();
+            // 2. 定义关键转化节点
+            $key_actions = [
+                '页面访问' => '页面访问',
+                '我的帳戶' => '我的帳戶',
+                '登入' => '登入',
+                'TG-联系客服' => 'TG-联系客服',
+                'TG-进入用户群' => 'TG-进入用户群',
+                'TG-用户Join' => 'TG-用户Join',
+                'TG-用户加入' => 'TG-用户加入'
+            ];
 
-            // 3. 计算漏斗率
             $funnel_data = [];
-            foreach ($page_stats as $item) {
-                $funnel_rate = round(($item['page_visitors'] / $total_tg_visitors) * 100, 2);
-                $funnel_data[] = [
-                    'page' => $item['current_page'],
-                    'visitors' => $item['page_visitors'],
-                    'rate' => $funnel_rate
-                ];
+            foreach ($key_actions as $action_key => $action_name) {
+                // 构建查询条件
+                $query = $this->getBaseQuery()
+                    ->where('channel', Enum::CHANNEL_TG)
+                    ->where('created_at', '>=', $start_date . ' 00:00:00')
+                    ->where('created_at', '<=', $end_date . ' 23:59:59');
+
+                // 根据不同的action类型设置查询条件
+                if ($action_key == '页面访问') {
+                    $query->where('action', '页面访问');
+                } elseif (strpos($action_key, 'TG-用户') === 0) {
+                    // TG-用户相关的操作（Join、加入等）
+                    $query->where('description', 'like', $action_key . '%');
+                } else {
+                    // 其他操作按description精确匹配或包含匹配
+                    $query->where('description', 'like', '%' . $action_key . '%');
+                }
+
+                // 统计独立访客数
+                $visitors = $query->count('DISTINCT ipaddr');
+
+                if ($visitors > 0) {
+                    $funnel_rate = round(($visitors / $total_tg_visitors) * 100, 2);
+                    $funnel_data[] = [
+                        'page' => $action_name,
+                        'visitors' => $visitors,
+                        'rate' => $funnel_rate
+                    ];
+                }
             }
+
+            // 按访客数降序排列
+            usort($funnel_data, function($a, $b) {
+                return $b['visitors'] - $a['visitors'];
+            });
 
             return $funnel_data;
 
