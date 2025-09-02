@@ -5,7 +5,7 @@ namespace app\lala_admin\controller;
 
 use think\admin\Controller;
 use app\lala_admin\model\PromotionAnalysis as PromotionAnalysisModel;
-use app\lala_admin\const;
+use app\lala_admin\const\EnumTool;
 /**
  * 推广分析管理
  */
@@ -83,7 +83,7 @@ class PromotionAnalysis extends Controller
         // 重新整理数据
         $result = [];
         foreach ($stats as $item) {
-            $channel = const\EnumTool::getChannelName($item['channel']);
+            $channel = EnumTool::getChannelName($item['channel']);
             if (!isset($result[$channel])) {
                 $result[$channel] = [
                     'unique_visitors' => 0,
