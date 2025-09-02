@@ -3,25 +3,13 @@
 
 
 {block name="content"}
-<div class="think-box-shadow">
-    <!-- 搜索表单 -->
-    <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
-        <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">开始日期</label>
-            <div class="layui-input-inline">
-                <input type="date" name="start_date" value="{$start_date}" class="layui-input">
-            </div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
         </div>
-        <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">结束日期</label>
-            <div class="layui-input-inline">
-                <input type="date" name="end_date" value="{$end_date}" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-form-item layui-inline">
-            <button class="layui-btn layui-btn-primary" onclick="searchData()"><i class="layui-icon">&#xe615;</i> 搜 索</button>
-        </div>
-    </form>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            {include file="promotion_analysis/index_search" /}
 
     <!-- TAB分页 -->
     <div class="layui-tab layui-tab-card" style="margin-top: 20px;">
