@@ -1,0 +1,218 @@
+{extend name="../../admin/view/main"}
+
+
+
+{block name="content"}
+<div class="think-box-shadow">
+    <!-- 搜索表单 -->
+    <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label">开始日期</label>
+            <div class="layui-input-inline">
+                <input type="date" name="start_date" value="{$start_date}" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label">结束日期</label>
+            <div class="layui-input-inline">
+                <input type="date" name="end_date" value="{$end_date}" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-inline">
+            <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+        </div>
+    </form>
+
+    <!-- 统计卡片 -->
+    <div class="layui-row layui-col-space15" style="margin-top: 20px;">
+        {foreach $channel_stats as $channel => $stats}
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h3>{$channel} 渠道统计</h3>
+                </div>
+                <div class="layui-card-body">
+                    <div class="layui-row">
+                        <div class="layui-col-md6">
+                            <div class="stat-item">
+                                <div class="stat-number">{$stats.unique_visitors}</div>
+                                <div class="stat-label">独立访客</div>
+                            </div>
+                        </div>
+                        <div class="layui-col-md6">
+                            <div class="stat-item">
+                                <div class="stat-number">{$stats.total_actions}</div>
+                                <div class="stat-label">总操作数</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {/foreach}
+    </div>
+
+    <!-- 趋势图表 -->
+    <div class="layui-card" style="margin-top: 20px;">
+        <div class="layui-card-header">
+            <h3>每日访问趋势</h3>
+        </div>
+        <div class="layui-card-body">
+            <div id="trendChart" style="height: 400px;"></div>
+        </div>
+    </div>
+
+    <!-- 统计说明 -->
+    <div class="layui-card" style="margin-top: 20px;">
+        <div class="layui-card-header">
+            <h3>统计说明</h3>
+        </div>
+        <div class="layui-card-body">
+            <div class="layui-row">
+                <div class="layui-col-md12">
+                    <p><strong>统计规则：</strong></p>
+                    <ul>
+                        <li>只统计 <code>is_manager=0</code> 且 <code>manager_id=0</code> 且 <code>userid=0</code> 的数据</li>
+                        <li>渠道不为空且不为0的数据</li>
+                        <li>独立访客：按IP地址去重统计</li>
+                        <li>总操作数：所有操作的总数</li>
+                        <li>TG渠道：<code>channel=211</code></li>
+                        <li>官方渠道：<code>channel</code> 为其他值</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('推广分析页面加载完成', {icon: 1, time: 2000});
+    
+    // 初始化趋势图表
+    initTrendChart();
+});
+
+// 初始化趋势图表
+function initTrendChart() {
+    var chartDom = document.getElementById('trendChart');
+    var myChart = echarts.init(chartDom);
+    
+    var trendData = {$daily_trend|json_encode|raw};
+    
+    var dates = [];
+    var visitors = [];
+    var actions = [];
+    
+    trendData.forEach(function(item) {
+        dates.push(item.date);
+        visitors.push(item.unique_visitors);
+        actions.push(item.total_actions);
+    });
+    
+    var option = {
+        title: {
+            text: '每日访问趋势',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        legend: {
+            data: ['独立访客', '总操作数'],
+            top: 30
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: dates
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: '独立访客',
+                type: 'line',
+                data: visitors,
+                smooth: true,
+                itemStyle: {
+                    color: '#1E9FFF'
+                }
+            },
+            {
+                name: '总操作数',
+                type: 'line',
+                data: actions,
+                smooth: true,
+                itemStyle: {
+                    color: '#5FB878'
+                }
+            }
+        ]
+    };
+    
+    myChart.setOption(option);
+}
+
+
+</script>
+
+<style>
+.stat-item {
+    text-align: center;
+    padding: 20px;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #1E9FFF;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.layui-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.layui-btn {
+    margin-right: 10px;
+}
+
+code {
+    background-color: #f5f5f5;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+</style>
+{/block}
