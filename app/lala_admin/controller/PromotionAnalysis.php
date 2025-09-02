@@ -144,11 +144,11 @@ class PromotionAnalysis extends Controller
             }
         }
         
-        // 移除所有渠道的重复统计（因为已经包含在各个具体渠道中）
-        unset($result['所有渠道']);
+        // 移除全部的重复统计（因为已经包含在各个具体渠道中）
+        unset($result['全部']);
         
-        // 添加所有渠道统计
-        $result['所有渠道'] = $all_data;
+        // 添加全部渠道统计
+        $result['全部'] = $all_data;
         
         // TG渠道放在最前面
         if ($tg_data) {

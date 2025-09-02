@@ -46,7 +46,7 @@ class Enum
     {
         return [
             self::CHANNEL_TG => 'TG',
-            'all' => '所有渠道'
+            'all' => '全部'
         ];
     }
 
@@ -60,8 +60,8 @@ class Enum
         if ($channel === self::CHANNEL_TG) {
             return 'TG';
         }
-        // 其他所有渠道都归为所有渠道
-        return '所有渠道';
+        // 其他所有渠道都归为全部
+        return '全部';
     }
 
     /**
