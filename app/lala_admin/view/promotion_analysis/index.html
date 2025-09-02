@@ -26,13 +26,17 @@
     <!-- TAB分页 -->
     <div class="layui-tab layui-tab-card" style="margin-top: 20px;">
         <ul class="layui-tab-title">
+            {php}$tab_index = 0;{/php}
             {foreach $channel_stats as $channel => $stats}
-            <li {if $channel@index == 0}class="layui-this"{/if}>{$channel} 渠道</li>
+            <li {if $tab_index == 0}class="layui-this"{/if}>{$channel} 渠道</li>
+            {php}$tab_index++;{/php}
             {/foreach}
         </ul>
         <div class="layui-tab-content">
+            {php}$content_index = 0;{/php}
             {foreach $channel_stats as $channel => $stats}
-            <div class="layui-tab-item {if $channel@index == 0}layui-show{/if}">
+            <div class="layui-tab-item {if $content_index == 0}layui-show{/if}">
+            {php}$content_index++;{/php}
                 <!-- 渠道统计卡片 -->
                 <div class="layui-card">
                     <div class="layui-card-header">
