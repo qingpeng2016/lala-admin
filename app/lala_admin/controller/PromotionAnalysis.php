@@ -350,7 +350,7 @@ class PromotionAnalysis extends Controller
                     ->join('tblinvoices i', 'c.id = i.userid')
                     ->where('c.affiliateid', '211')
                     ->where('i.date', $current_date)
-                    ->where('i.status', '<>', 'Cancelled')
+                    ->where('i.status', 'Paid')
                     ->field([
                         'COUNT(i.id) as order_count',
                         'SUM(i.total) as order_amount'
