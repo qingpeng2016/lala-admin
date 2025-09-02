@@ -22,13 +22,12 @@ class Enum
      * 渠道常量定义
      */
     const CHANNEL_TG = '211';           // TG渠道
-    const CHANNEL_OFFICIAL = 'official'; // 官方渠道
 
     /**
      * 获取所有统计时间范围
      * @return array
      */
-    public static function getStatTimeRanges(): array
+    public static function getStatTimeRanges()
     {
         return [
             self::STAT_TIME_TODAY => '今日',
@@ -41,14 +40,13 @@ class Enum
     }
 
     /**
-     * 获取所有渠道配置
+     * 获取所有渠道配置（用于下拉选择）
      * @return array
      */
-    public static function getChannelList(): array
+    public static function getChannelList()
     {
         return [
-            self::CHANNEL_TG => 'TG',
-            self::CHANNEL_OFFICIAL => '官方'
+            self::CHANNEL_TG => 'TG'
         ];
     }
 
@@ -57,10 +55,13 @@ class Enum
      * @param string $channel 渠道代码
      * @return string
      */
-    public static function getChannelName(string $channel): string
+    public static function getChannelName($channel)
     {
-        $channels = self::getChannelList();
-        return $channels[$channel] ?? $channel;
+        if ($channel === self::CHANNEL_TG) {
+            return 'TG';
+        }
+        // 其他所有渠道都归为官方
+        return '官方';
     }
 
     /**
@@ -68,7 +69,7 @@ class Enum
      * @param string $channel 渠道代码
      * @return bool
      */
-    public static function isTgChannel(string $channel): bool
+    public static function isTgChannel($channel)
     {
         return $channel === self::CHANNEL_TG;
     }

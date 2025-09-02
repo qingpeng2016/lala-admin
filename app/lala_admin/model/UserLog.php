@@ -27,7 +27,7 @@ class UserLog extends Model
      * 获取渠道列表
      * @return array
      */
-    public static function getChannelList(): array
+    public static function getChannelList()
     {
         return EnumTool::getChannelList();
     }
@@ -37,7 +37,7 @@ class UserLog extends Model
      * @param string $channel 渠道代码
      * @return string
      */
-    public static function getChannelName(string $channel): string
+    public static function getChannelName($channel)
     {
         return EnumTool::getChannelName($channel);
     }
@@ -47,7 +47,7 @@ class UserLog extends Model
      * @param string $channel 渠道代码
      * @return bool
      */
-    public static function isTgChannel(string $channel): bool
+    public static function isTgChannel($channel)
     {
         return EnumTool::isTgChannel($channel);
     }
@@ -56,7 +56,7 @@ class UserLog extends Model
      * 获取操作类型列表
      * @return array
      */
-    public static function getActionList(): array
+    public static function getActionList()
     {
         return [
             '页面访问' => '页面访问',

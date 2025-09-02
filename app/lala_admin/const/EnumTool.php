@@ -12,7 +12,7 @@ class EnumTool
      * 获取统计时间范围列表
      * @return array
      */
-    public static function getStatTimeRanges(): array
+    public static function getStatTimeRanges()
     {
         return Enum::getStatTimeRanges();
     }
@@ -21,7 +21,7 @@ class EnumTool
      * 获取渠道列表
      * @return array
      */
-    public static function getChannelList(): array
+    public static function getChannelList()
     {
         return Enum::getChannelList();
     }
@@ -31,7 +31,7 @@ class EnumTool
      * @param string $channel 渠道代码
      * @return string
      */
-    public static function getChannelName(string $channel): string
+    public static function getChannelName($channel)
     {
         return Enum::getChannelName($channel);
     }
@@ -41,7 +41,7 @@ class EnumTool
      * @param string $channel 渠道代码
      * @return bool
      */
-    public static function isTgChannel(string $channel): bool
+    public static function isTgChannel($channel)
     {
         return Enum::isTgChannel($channel);
     }
