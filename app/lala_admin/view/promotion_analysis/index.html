@@ -155,9 +155,18 @@ function searchData() {
         return encodeURIComponent(key) + '=' + encodeURIComponent(searchParams[key]);
     }).join('&');
     
-    // 跳转到搜索结果页面
-    var url = window.location.pathname + (queryString ? '?' + queryString : '');
-    window.location.href = url;
+    // 获取当前的hash路径
+    var currentHash = window.location.hash;
+    var hashPath = currentHash.split('?')[0]; // 获取hash路径部分，去掉参数
+    
+    // 构建新的URL，保持hash路由格式
+    var newUrl = window.location.origin + window.location.pathname + hashPath;
+    if (queryString) {
+        newUrl += '?' + queryString;
+    }
+    
+    // 跳转到新URL
+    window.location.href = newUrl;
 }
 
 
