@@ -243,5 +243,19 @@ li {
     color: #999;
     font-size: 16px;
 }
+
+/* 修复TAB右边框问题 */
+.layui-tab-title li:last-child {
+    border-right: 1px solid #e6e6e6;
+}
+
+.layui-tab-card .layui-tab-title li:last-child {
+    border-right: 1px solid #e6e6e6;
+}
+
+/* 确保TAB整体边框完整 */
+.layui-tab-card .layui-tab-title {
+    border-right: 1px solid #e6e6e6;
+}
 </style>
 {/block}
