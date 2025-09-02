@@ -149,9 +149,12 @@ layui.use(['layer', 'element', 'form'], function(){
             return encodeURIComponent(key) + '=' + encodeURIComponent(formData[key]);
         }).join('&');
         
-        // 重新加载页面带参数
-        var baseUrl = window.location.href.split('?')[0];
-        var newUrl = baseUrl + (queryString ? '?' + queryString : '');
+        // 正确处理hash路由URL
+        var fullUrl = window.location.href;
+        var baseWithHash = fullUrl.split('?')[0]; // 保留 admin.html# 部分
+        var newUrl = baseWithHash + (queryString ? '?' + queryString : '');
+        
+        console.log('跳转到:', newUrl); // 调试信息
         window.location.href = newUrl;
         
         return false; // 阻止默认提交
