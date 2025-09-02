@@ -4,7 +4,7 @@ declare (strict_types = 1);
 namespace app\lala_admin\model;
 
 use think\admin\Model;
-use app\lala_admin\const\EnumTool;
+use app\lala_admin\constant\EnumTool;
 
 /**
  * 用户日志模型

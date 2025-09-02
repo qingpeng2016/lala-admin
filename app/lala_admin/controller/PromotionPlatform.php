@@ -6,6 +6,8 @@ namespace app\lala_admin\controller;
 use think\admin\Controller;
 use think\facade\Db;
 use app\lala_admin\model\PromotionPlatform as PromotionPlatformModel;
+use app\lala_admin\constant\EnumTool;
+use app\lala_admin\constant\Enum;
 
 /**
  * 推广平台管理
