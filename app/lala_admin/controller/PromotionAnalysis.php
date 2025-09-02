@@ -136,9 +136,9 @@ class PromotionAnalysis extends Controller
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', '211');
             } else {
-                $query->where('channel', '<>', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', '<>', '211');
             }
         }
 
@@ -197,9 +197,9 @@ class PromotionAnalysis extends Controller
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', '211');
             } else {
-                $query->where('channel', '<>', \app\lala_admin\const\Enum::CHANNEL_TG);
+                $query->where('channel', '<>', '211');
             }
         }
 
