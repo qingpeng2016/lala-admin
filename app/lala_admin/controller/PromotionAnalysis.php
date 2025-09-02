@@ -113,8 +113,10 @@ class PromotionAnalysis extends Controller
             ->select()
             ->toArray();
 
-        // 重新整理数据
+        // 重新整理数据，TG渠道优先
         $result = [];
+        $tg_data = null;
+        
         foreach ($stats as $item) {
             $channel = EnumTool::getChannelName($item['channel']);
             if (!isset($result[$channel])) {
@@ -125,6 +127,17 @@ class PromotionAnalysis extends Controller
             }
             $result[$channel]['unique_visitors'] += $item['unique_visitors'];
             $result[$channel]['total_actions'] += $item['total_actions'];
+            
+            // 单独保存TG数据
+            if ($channel === 'TG') {
+                $tg_data = $result[$channel];
+                unset($result[$channel]);
+            }
+        }
+        
+        // TG渠道放在最前面
+        if ($tg_data) {
+            $result = ['TG' => $tg_data] + $result;
         }
 
         return $result;
