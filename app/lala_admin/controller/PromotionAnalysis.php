@@ -46,25 +46,7 @@ class PromotionAnalysis extends Controller
         return $this->fetch();
     }
 
-    /**
-     * 获取渠道列表
-     */
-    public static function getChannelList()
-    {
-        return \app\lala_admin\const\Enum::getChannelList();
-    }
 
-    /**
-     * 获取操作类型列表
-     */
-    public static function getActionList()
-    {
-        return [
-            '页面访问' => '页面访问',
-            '用户点击' => '用户点击',
-            '用户加入' => '用户加入'
-        ];
-    }
 
     /**
      * 获取渠道访问量统计
