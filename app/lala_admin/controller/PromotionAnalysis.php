@@ -66,25 +66,28 @@ class PromotionAnalysis extends Controller
         // 获取渠道统计
         $channel_stats = $this->getChannelStats($start_date, $end_date);
 
-        // 获取漏斗数据
-        $funnel_data = $this->getFunnelData($start_date, $end_date);
+        // 获取所有渠道的漏斗数据和投资回报数据
+        $funnel_data_all = [];
+        $roi_data_all = [];
         
-        // 获取全部渠道的漏斗数据
-        $all_funnel_data = $this->getAllFunnelData($start_date, $end_date);
-        
-        // 获取投资回报分析数据
-        $roi_data = $this->getRoiData($start_date, $end_date);
-        
-        // 获取全部渠道的投资回报分析数据
-        $all_roi_data = $this->getAllRoiData($start_date, $end_date);
+        foreach ($channel_stats as $channel_name => $stats) {
+            if ($channel_name === '全部') {
+                // 全部渠道：不限制channel条件
+                $funnel_data_all[$channel_name] = $this->getFunnelDataByChannel('', $start_date, $end_date);
+                $roi_data_all[$channel_name] = $this->getRoiDataByChannel('', $start_date, $end_date);
+            } else {
+                // 具体渠道：根据渠道名称获取对应的channel值
+                $channel_codes = $this->getChannelCodes($channel_name);
+                $funnel_data_all[$channel_name] = $this->getFunnelDataByChannel($channel_codes, $start_date, $end_date);
+                $roi_data_all[$channel_name] = $this->getRoiDataByChannel($channel_codes, $start_date, $end_date);
+            }
+        }
 
         // 分配变量到视图
         $this->assign([
             'channel_stats' => $channel_stats,
-            'funnel_data' => $funnel_data,
-            'all_funnel_data' => $all_funnel_data,
-            'roi_data' => $roi_data,
-            'all_roi_data' => $all_roi_data,
+            'funnel_data_all' => $funnel_data_all,
+            'roi_data_all' => $roi_data_all,
             'start_date' => $start_date,
             'end_date' => $end_date,
             'get' => $get
@@ -103,25 +106,29 @@ class PromotionAnalysis extends Controller
      */
     protected function getChannelStats($start_date = '', $end_date = '')
     {
-        // 1. 先获取TG渠道数据
-        $tg_query = $this->getBaseQuery()
-            ->where('channel', Enum::CHANNEL_TG);
+        // 1. 获取所有渠道的统计数据
+        $query = $this->getBaseQuery()
+            ->where('channel', '<>', '')
+            ->where('channel', '<>', '0');
 
         if ($start_date) {
-            $tg_query->where('created_at', '>=', $start_date . ' 00:00:00');
+            $query->where('created_at', '>=', $start_date . ' 00:00:00');
         }
         if ($end_date) {
-            $tg_query->where('created_at', '<=', $end_date . ' 23:59:59');
+            $query->where('created_at', '<=', $end_date . ' 23:59:59');
         }
 
-        $tg_stats = $tg_query->field([
+        $stats = $query->field([
+            'channel',
             'COUNT(DISTINCT ipaddr) as unique_visitors',
             'COUNT(*) as total_actions'
-        ])->find();
+        ])
+            ->group('channel')
+            ->select()
+            ->toArray();
 
         // 2. 获取全部渠道数据（不限制channel条件）
         $all_query = $this->getBaseQuery();
-
         if ($start_date) {
             $all_query->where('created_at', '>=', $start_date . ' 00:00:00');
         }
@@ -134,26 +141,250 @@ class PromotionAnalysis extends Controller
             'COUNT(*) as total_actions'
         ])->find();
 
-        // 3. 组装结果数据
+        // 3. 动态组装结果数据
         $result = [];
-        
-        // TG渠道数据
-        if ($tg_stats) {
-            $result['TG'] = [
-                'unique_visitors' => $tg_stats['unique_visitors'] ?? 0,
-                'total_actions' => $tg_stats['total_actions'] ?? 0
-            ];
+        $channel_order = []; // 用于排序
+
+        // 处理各个具体渠道
+        foreach ($stats as $item) {
+            $channel_name = EnumTool::getChannelName($item['channel']);
+            if (!isset($result[$channel_name])) {
+                $result[$channel_name] = [
+                    'unique_visitors' => 0,
+                    'total_actions' => 0
+                ];
+            }
+            $result[$channel_name]['unique_visitors'] += $item['unique_visitors'];
+            $result[$channel_name]['total_actions'] += $item['total_actions'];
+            
+            // 记录渠道排序权重
+            if ($channel_name === 'TG') {
+                $channel_order[$channel_name] = 1; // TG最高优先级
+            } else {
+                $channel_order[$channel_name] = 2; // 其他渠道次优先级
+            }
         }
-        
-        // 全部渠道数据
+
+        // 添加全部渠道数据
         if ($all_stats) {
             $result['全部'] = [
                 'unique_visitors' => $all_stats['unique_visitors'] ?? 0,
                 'total_actions' => $all_stats['total_actions'] ?? 0
             ];
+            $channel_order['全部'] = 3; // 全部渠道最低优先级
         }
 
+        // 按优先级排序
+        uksort($result, function($a, $b) use ($channel_order) {
+            return ($channel_order[$a] ?? 999) - ($channel_order[$b] ?? 999);
+        });
+
         return $result;
+    }
+
+    /**
+     * 根据渠道名称获取对应的channel代码数组
+     * @param string $channel_name 渠道名称
+     * @return array
+     */
+    private function getChannelCodes($channel_name)
+    {
+        // 从Enum配置中反向查找channel代码
+        $channel_list = EnumTool::getChannelList();
+        $codes = [];
+        
+        foreach ($channel_list as $code => $name) {
+            if ($name === $channel_name) {
+                $codes[] = $code;
+            }
+        }
+        
+        // 如果没找到配置，说明是动态生成的渠道名
+        // 需要从数据库中查找对应的channel值
+        if (empty($codes)) {
+            $channel_data = $this->getBaseQuery()
+                ->where('channel', '<>', '')
+                ->where('channel', '<>', '0')
+                ->field('DISTINCT channel')
+                ->select()
+                ->toArray();
+                
+            foreach ($channel_data as $item) {
+                if (EnumTool::getChannelName($item['channel']) === $channel_name) {
+                    $codes[] = $item['channel'];
+                }
+            }
+        }
+        
+        return $codes;
+    }
+
+    /**
+     * 根据渠道代码获取漏斗数据
+     * @param array|string $channel_codes 渠道代码数组，空表示所有渠道
+     * @param string $start_date 开始日期
+     * @param string $end_date 结束日期
+     * @return array
+     */
+    protected function getFunnelDataByChannel($channel_codes = '', $start_date = '', $end_date = '')
+    {
+        // 获取标准化的日期范围
+        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
+
+        try {
+            // 1. 构建查询条件
+            $query = $this->getBaseQuery()
+                ->where('created_at', '>=', $start_date . ' 00:00:00')
+                ->where('created_at', '<=', $end_date . ' 23:59:59');
+
+            // 添加渠道条件
+            if (!empty($channel_codes)) {
+                if (is_array($channel_codes)) {
+                    $query->whereIn('channel', $channel_codes);
+                } else {
+                    $query->where('channel', $channel_codes);
+                }
+            }
+
+            // 2. 获取总独立访客数
+            $total_visitors = $query->count('DISTINCT ipaddr');
+
+            if ($total_visitors == 0) {
+                return [];
+            }
+
+            // 3. 按 description 和 action 分组统计
+            $stats = $query->where('description', '<>', '')
+                ->where('description', 'not null')
+                ->field([
+                    'description',
+                    'action',
+                    'COUNT(DISTINCT ipaddr) as visitors'
+                ])
+                ->group('description, action')
+                ->order('visitors desc')
+                ->limit(15)
+                ->select()
+                ->toArray();
+
+            // 4. 计算转化率并格式化显示
+            $funnel_data = [];
+            foreach ($stats as $item) {
+                $funnel_rate = round(($item['visitors'] / $total_visitors) * 100, 2);
+                $funnel_data[] = [
+                    'page' => '(' . $item['action'] . ') ' . $item['description'],
+                    'visitors' => $item['visitors'],
+                    'rate' => $funnel_rate
+                ];
+            }
+
+            return $funnel_data;
+
+        } catch (\Exception $e) {
+            trace('getFunnelDataByChannel查询出错: ' . $e->getMessage(), 'error');
+            return [];
+        }
+    }
+
+    /**
+     * 根据渠道代码获取投资回报数据
+     * @param array|string $channel_codes 渠道代码数组，空表示所有渠道
+     * @param string $start_date 开始日期
+     * @param string $end_date 结束日期
+     * @return array
+     */
+    protected function getRoiDataByChannel($channel_codes = '', $start_date = '', $end_date = '')
+    {
+        // 获取标准化的日期范围
+        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
+
+        try {
+            $roi_data = [];
+            
+            // 按日期循环统计
+            $current_date = $start_date;
+            while ($current_date <= $end_date) {
+                // 1. 构建访问量查询
+                $visit_query = $this->getBaseQuery()
+                    ->where('created_at', '>=', $current_date . ' 00:00:00')
+                    ->where('created_at', '<=', $current_date . ' 23:59:59');
+
+                if (!empty($channel_codes)) {
+                    if (is_array($channel_codes)) {
+                        $visit_query->whereIn('channel', $channel_codes);
+                    } else {
+                        $visit_query->where('channel', $channel_codes);
+                    }
+                }
+
+                $visits = $visit_query->count('DISTINCT ipaddr');
+
+                // 2. 构建注册数查询
+                $register_query = \think\facade\Db::name('tblclients')
+                    ->where('datecreated', $current_date);
+
+                if (!empty($channel_codes)) {
+                    if (is_array($channel_codes)) {
+                        $register_query->whereIn('affiliateid', $channel_codes);
+                    } else {
+                        $register_query->where('affiliateid', $channel_codes);
+                    }
+                }
+
+                $registers = $register_query->count();
+
+                // 3. 构建订单查询
+                if (!empty($channel_codes)) {
+                    $order_query = \think\facade\Db::name('tblclients')
+                        ->alias('c')
+                        ->join('tblinvoices i', 'c.id = i.userid')
+                        ->where('i.date', $current_date)
+                        ->where('i.status', 'Paid');
+
+                    if (is_array($channel_codes)) {
+                        $order_query->whereIn('c.affiliateid', $channel_codes);
+                    } else {
+                        $order_query->where('c.affiliateid', $channel_codes);
+                    }
+                } else {
+                    // 全部渠道：直接查询所有订单
+                    $order_query = \think\facade\Db::name('tblinvoices')
+                        ->where('date', $current_date)
+                        ->where('status', 'Paid');
+                }
+
+                $order_stats = $order_query->field([
+                    'COUNT(' . (empty($channel_codes) ? 'id' : 'i.id') . ') as order_count',
+                    'SUM(' . (empty($channel_codes) ? 'total' : 'i.total') . ') as order_amount'
+                ])->find();
+
+                $orders = $order_stats['order_count'] ?? 0;
+                $order_amount = $order_stats['order_amount'] ?? 0;
+
+                // 4. 计算转化率
+                $register_rate = $visits > 0 ? round(($registers / $visits) * 100, 2) : 0;
+                $order_rate = $visits > 0 ? round(($orders / $visits) * 100, 2) : 0;
+
+                $roi_data[] = [
+                    'date' => $current_date,
+                    'visits' => $visits,
+                    'registers' => $registers,
+                    'register_rate' => $register_rate,
+                    'orders' => $orders,
+                    'order_rate' => $order_rate,
+                    'order_amount' => number_format($order_amount, 2)
+                ];
+
+                // 日期加一天
+                $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+            }
+
+            return array_reverse($roi_data); // 倒序显示，最新日期在前
+
+        } catch (\Exception $e) {
+            trace('getRoiDataByChannel查询出错: ' . $e->getMessage(), 'error');
+            return [];
+        }
     }
 
     /**
@@ -198,264 +429,5 @@ class PromotionAnalysis extends Controller
         return $result;
     }
 
-    /**
-     * 获取TG渠道的漏斗数据
-     * @param string $start_date 开始日期
-     * @param string $end_date 结束日期
-     * @return array
-     */
-    protected function getFunnelData($start_date = '', $end_date = '')
-    {
-        // 获取标准化的日期范围
-        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
 
-        try {
-            // 1. 先获取TG渠道的总独立访客数
-            $total_tg_visitors = $this->getBaseQuery()
-                ->where('channel', Enum::CHANNEL_TG)
-                ->where('created_at', '>=', $start_date . ' 00:00:00')
-                ->where('created_at', '<=', $end_date . ' 23:59:59')
-                ->count('DISTINCT ipaddr');
-
-            if ($total_tg_visitors == 0) {
-                return [];
-            }
-
-            // 2. 统一按 description 和 action 分组
-            $all_stats = $this->getBaseQuery()
-                ->where('channel', Enum::CHANNEL_TG)
-                ->where('description', '<>', '')
-                ->where('description', 'not null')
-                ->where('created_at', '>=', $start_date . ' 00:00:00')
-                ->where('created_at', '<=', $end_date . ' 23:59:59')
-                ->field([
-                    'description',
-                    'action',
-                    'COUNT(DISTINCT ipaddr) as visitors'
-                ])
-                ->group('description, action')
-                ->order('visitors desc')
-                ->limit(15)
-                ->select()
-                ->toArray();
-
-            // 3. 计算转化率并格式化显示
-            $funnel_data = [];
-            foreach ($all_stats as $item) {
-                $funnel_rate = round(($item['visitors'] / $total_tg_visitors) * 100, 2);
-                $funnel_data[] = [
-                    'page' => '(' . $item['action'] . ') ' . $item['description'],
-                    'visitors' => $item['visitors'],
-                    'rate' => $funnel_rate
-                ];
-            }
-
-            return $funnel_data;
-
-        } catch (\Exception $e) {
-            // 如果查询出错，记录日志并返回空数组
-            trace('getFunnelData查询出错: ' . $e->getMessage(), 'error');
-            return [];
-        }
-    }
-
-    /**
-     * 获取全部渠道漏斗数据
-     * @param string $start_date 开始日期
-     * @param string $end_date 结束日期
-     * @return array
-     */
-    protected function getAllFunnelData($start_date = '', $end_date = '')
-    {
-        // 获取标准化的日期范围
-        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
-
-        try {
-            // 1. 先获取所有渠道的总独立访客数
-            $total_visitors = $this->getBaseQuery()
-                ->where('created_at', '>=', $start_date . ' 00:00:00')
-                ->where('created_at', '<=', $end_date . ' 23:59:59')
-                ->count('DISTINCT ipaddr');
-
-            if ($total_visitors == 0) {
-                return [];
-            }
-
-            // 2. 统一按 description 和 action 分组
-            $all_stats = $this->getBaseQuery()
-                ->where('description', '<>', '')
-                ->where('description', 'not null')
-                ->where('created_at', '>=', $start_date . ' 00:00:00')
-                ->where('created_at', '<=', $end_date . ' 23:59:59')
-                ->field([
-                    'description',
-                    'action',
-                    'COUNT(DISTINCT ipaddr) as visitors'
-                ])
-                ->group('description, action')
-                ->order('visitors desc')
-                ->limit(15)
-                ->select()
-                ->toArray();
-
-            // 3. 计算转化率并格式化显示
-            $funnel_data = [];
-            foreach ($all_stats as $item) {
-                $funnel_rate = round(($item['visitors'] / $total_visitors) * 100, 2);
-                $funnel_data[] = [
-                    'page' => '(' . $item['action'] . ') ' . $item['description'],
-                    'visitors' => $item['visitors'],
-                    'rate' => $funnel_rate
-                ];
-            }
-
-            return $funnel_data;
-
-        } catch (\Exception $e) {
-            // 如果查询出错，记录日志并返回空数组
-            trace('getAllFunnelData查询出错: ' . $e->getMessage(), 'error');
-            return [];
-        }
-    }
-
-    /**
-     * 获取投资回报分析数据
-     * @param string $start_date 开始日期
-     * @param string $end_date 结束日期
-     * @return array
-     */
-    protected function getRoiData($start_date = '', $end_date = '')
-    {
-        // 获取标准化的日期范围
-        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
-
-        try {
-            $roi_data = [];
-            
-            // 按日期循环统计
-            $current_date = $start_date;
-            while ($current_date <= $end_date) {
-                // 1. 获取当日访问量（独立访客数）
-                $visits = $this->getBaseQuery()
-                    ->where('channel', Enum::CHANNEL_TG)
-                    ->where('created_at', '>=', $current_date . ' 00:00:00')
-                    ->where('created_at', '<=', $current_date . ' 23:59:59')
-                    ->count('DISTINCT ipaddr');
-
-                // 2. 获取当日注册数（TG渠道用户）
-                $registers = \think\facade\Db::name('tblclients')
-                    ->where('affiliateid', '211')
-                    ->where('datecreated', $current_date)
-                    ->count();
-
-                // 3. 获取当日下单数和下单金额（注册用户的订单）
-                $order_stats = \think\facade\Db::name('tblclients')
-                    ->alias('c')
-                    ->join('tblinvoices i', 'c.id = i.userid')
-                    ->where('c.affiliateid', '211')
-                    ->where('i.date', $current_date)
-                    ->where('i.status', 'Paid')
-                    ->field([
-                        'COUNT(i.id) as order_count',
-                        'SUM(i.total) as order_amount'
-                    ])
-                    ->find();
-
-                $orders = $order_stats['order_count'] ?? 0;
-                $order_amount = $order_stats['order_amount'] ?? 0;
-
-                // 4. 计算转化率
-                $register_rate = $visits > 0 ? round(($registers / $visits) * 100, 2) : 0;
-                $order_rate = $visits > 0 ? round(($orders / $visits) * 100, 2) : 0;
-
-                $roi_data[] = [
-                    'date' => $current_date,
-                    'visits' => $visits,
-                    'registers' => $registers,
-                    'register_rate' => $register_rate,
-                    'orders' => $orders,
-                    'order_rate' => $order_rate,
-                    'order_amount' => number_format($order_amount, 2)
-                ];
-
-                // 日期加一天
-                $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
-            }
-
-            return array_reverse($roi_data); // 倒序显示，最新日期在前
-
-        } catch (\Exception $e) {
-            // 如果查询出错，记录日志并返回空数组
-            trace('getRoiData查询出错: ' . $e->getMessage(), 'error');
-            return [];
-        }
-    }
-
-    /**
-     * 获取全部渠道投资回报分析数据
-     * @param string $start_date 开始日期
-     * @param string $end_date 结束日期
-     * @return array
-     */
-    protected function getAllRoiData($start_date = '', $end_date = '')
-    {
-        // 获取标准化的日期范围
-        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
-
-        try {
-            $roi_data = [];
-            
-            // 按日期循环统计
-            $current_date = $start_date;
-            while ($current_date <= $end_date) {
-                // 1. 获取当日访问量（所有渠道的独立访客数）
-                $visits = $this->getBaseQuery()
-                    ->where('created_at', '>=', $current_date . ' 00:00:00')
-                    ->where('created_at', '<=', $current_date . ' 23:59:59')
-                    ->count('DISTINCT ipaddr');
-
-                // 2. 获取当日注册数（所有渠道用户）
-                $registers = \think\facade\Db::name('tblclients')
-                    ->where('datecreated', $current_date)
-                    ->count();
-
-                // 3. 获取当日下单数和下单金额（所有用户的订单）
-                $order_stats = \think\facade\Db::name('tblinvoices')
-                    ->where('date', $current_date)
-                    ->where('status', 'Paid')
-                    ->field([
-                        'COUNT(id) as order_count',
-                        'SUM(total) as order_amount'
-                    ])
-                    ->find();
-
-                $orders = $order_stats['order_count'] ?? 0;
-                $order_amount = $order_stats['order_amount'] ?? 0;
-
-                // 4. 计算转化率
-                $register_rate = $visits > 0 ? round(($registers / $visits) * 100, 2) : 0;
-                $order_rate = $visits > 0 ? round(($orders / $visits) * 100, 2) : 0;
-
-                $roi_data[] = [
-                    'date' => $current_date,
-                    'visits' => $visits,
-                    'registers' => $registers,
-                    'register_rate' => $register_rate,
-                    'orders' => $orders,
-                    'order_rate' => $order_rate,
-                    'order_amount' => number_format($order_amount, 2)
-                ];
-
-                // 日期加一天
-                $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
-            }
-
-            return array_reverse($roi_data); // 倒序显示，最新日期在前
-
-        } catch (\Exception $e) {
-            // 如果查询出错，记录日志并返回空数组
-            trace('getAllRoiData查询出错: ' . $e->getMessage(), 'error');
-            return [];
-        }
-    }
 }
