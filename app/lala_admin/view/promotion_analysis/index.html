@@ -99,38 +99,77 @@
             <h3>投资回报分析</h3>
         </div>
         <div class="layui-card-body">
-            {if $roi_data}
-            <table class="layui-table" lay-skin="line">
-                <thead>
-                    <tr>
-                        <th style="width: 120px;">日期</th>
-                        <th style="width: 100px;">访问量</th>
-                        <th style="width: 100px;">注册数</th>
-                        <th style="width: 100px;">注册率</th>
-                        <th style="width: 100px;">下单数</th>
-                        <th style="width: 100px;">下单率</th>
-                        <th style="width: 120px;">下单金额</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {foreach $roi_data as $item}
-                    <tr>
-                        <td>{$item.date}</td>
-                        <td><span class="stat-number-small">{$item.visits}</span></td>
-                        <td><span class="stat-number-small">{$item.registers}</span></td>
-                        <td><span class="rate-badge">{$item.register_rate}%</span></td>
-                        <td><span class="stat-number-small">{$item.orders}</span></td>
-                        <td><span class="rate-badge">{$item.order_rate}%</span></td>
-                        <td><span class="amount-badge">¥{$item.order_amount}</span></td>
-                    </tr>
-                    {/foreach}
-                </tbody>
-            </table>
-            {else}
-            <div class="empty-data">
-                <p>暂无投资回报数据</p>
+            <!-- TG渠道投资回报分析 -->
+            <div id="tg-roi-analysis" style="display: block;">
+                {if $roi_data}
+                <table class="layui-table" lay-skin="line">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">日期</th>
+                            <th style="width: 100px;">访问量</th>
+                            <th style="width: 100px;">注册数</th>
+                            <th style="width: 100px;">注册率</th>
+                            <th style="width: 100px;">下单数</th>
+                            <th style="width: 100px;">下单率</th>
+                            <th style="width: 120px;">下单金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $roi_data as $item}
+                        <tr>
+                            <td>{$item.date}</td>
+                            <td><span class="stat-number-small">{$item.visits}</span></td>
+                            <td><span class="stat-number-small">{$item.registers}</span></td>
+                            <td><span class="rate-badge">{$item.register_rate}%</span></td>
+                            <td><span class="stat-number-small">{$item.orders}</span></td>
+                            <td><span class="rate-badge">{$item.order_rate}%</span></td>
+                            <td><span class="amount-badge">¥{$item.order_amount}</span></td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+                {else}
+                <div class="empty-data">
+                    <p>暂无TG渠道投资回报数据</p>
+                </div>
+                {/if}
             </div>
-            {/if}
+            
+            <!-- 全部渠道投资回报分析 -->
+            <div id="all-roi-analysis" style="display: none;">
+                {if $all_roi_data}
+                <table class="layui-table" lay-skin="line">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">日期</th>
+                            <th style="width: 100px;">访问量</th>
+                            <th style="width: 100px;">注册数</th>
+                            <th style="width: 100px;">注册率</th>
+                            <th style="width: 100px;">下单数</th>
+                            <th style="width: 100px;">下单率</th>
+                            <th style="width: 120px;">下单金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $all_roi_data as $item}
+                        <tr>
+                            <td>{$item.date}</td>
+                            <td><span class="stat-number-small">{$item.visits}</span></td>
+                            <td><span class="stat-number-small">{$item.registers}</span></td>
+                            <td><span class="rate-badge">{$item.register_rate}%</span></td>
+                            <td><span class="stat-number-small">{$item.orders}</span></td>
+                            <td><span class="rate-badge">{$item.order_rate}%</span></td>
+                            <td><span class="amount-badge">¥{$item.order_amount}</span></td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+                {else}
+                <div class="empty-data">
+                    <p>暂无全部渠道投资回报数据</p>
+                </div>
+                {/if}
+            </div>
         </div>
     </div>
 
@@ -160,10 +199,9 @@
 
 {block name="script"}
 <script>
-layui.use(['layer', 'element', 'form'], function(){
+layui.use(['layer', 'element'], function(){
     var layer = layui.layer;
     var element = layui.element;
-    var form = layui.form;
     
     // 页面加载完成后的初始化
     layer.msg('推广分析页面加载完成', {icon: 1, time: 2000});
@@ -171,29 +209,17 @@ layui.use(['layer', 'element', 'form'], function(){
     // TAB切换事件
     element.on('tab()', function(data){
         console.log('切换到第' + (data.index + 1) + '个TAB');
-    });
-    
-    // 表单提交事件
-    form.on('submit()', function(data){
-        // 获取表单数据
-        var formData = data.field;
         
-        // 构建查询字符串
-        var queryString = Object.keys(formData).filter(function(key) {
-            return formData[key] !== '';
-        }).map(function(key) {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(formData[key]);
-        }).join('&');
-        
-        // 正确处理hash路由URL
-        var fullUrl = window.location.href;
-        var baseWithHash = fullUrl.split('?')[0]; // 保留 admin.html# 部分
-        var newUrl = baseWithHash + (queryString ? '?' + queryString : '');
-        
-        console.log('跳转到:', newUrl); // 调试信息
-        window.location.href = newUrl;
-        
-        return false; // 阻止默认提交
+        // 根据TAB切换投资回报分析显示
+        if (data.index === 0) {
+            // TG渠道TAB
+            $('#tg-roi-analysis').show();
+            $('#all-roi-analysis').hide();
+        } else if (data.index === 1) {
+            // 全部渠道TAB
+            $('#tg-roi-analysis').hide();
+            $('#all-roi-analysis').show();
+        }
     });
     
 });

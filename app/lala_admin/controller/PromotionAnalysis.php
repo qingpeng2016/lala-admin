@@ -74,6 +74,9 @@ class PromotionAnalysis extends Controller
         
         // 获取投资回报分析数据
         $roi_data = $this->getRoiData($start_date, $end_date);
+        
+        // 获取全部渠道的投资回报分析数据
+        $all_roi_data = $this->getAllRoiData($start_date, $end_date);
 
         // 分配变量到视图
         $this->assign([
@@ -81,6 +84,7 @@ class PromotionAnalysis extends Controller
             'funnel_data' => $funnel_data,
             'all_funnel_data' => $all_funnel_data,
             'roi_data' => $roi_data,
+            'all_roi_data' => $all_roi_data,
             'start_date' => $start_date,
             'end_date' => $end_date,
             'get' => $get
@@ -383,6 +387,74 @@ class PromotionAnalysis extends Controller
         } catch (\Exception $e) {
             // 如果查询出错，记录日志并返回空数组
             trace('getRoiData查询出错: ' . $e->getMessage(), 'error');
+            return [];
+        }
+    }
+
+    /**
+     * 获取全部渠道投资回报分析数据
+     * @param string $start_date 开始日期
+     * @param string $end_date 结束日期
+     * @return array
+     */
+    protected function getAllRoiData($start_date = '', $end_date = '')
+    {
+        // 获取标准化的日期范围
+        list($start_date, $end_date) = $this->getDateRange($start_date, $end_date);
+
+        try {
+            $roi_data = [];
+            
+            // 按日期循环统计
+            $current_date = $start_date;
+            while ($current_date <= $end_date) {
+                // 1. 获取当日访问量（所有渠道的独立访客数）
+                $visits = $this->getBaseQuery()
+                    ->where('created_at', '>=', $current_date . ' 00:00:00')
+                    ->where('created_at', '<=', $current_date . ' 23:59:59')
+                    ->count('DISTINCT ipaddr');
+
+                // 2. 获取当日注册数（所有渠道用户）
+                $registers = \think\facade\Db::name('tblclients')
+                    ->where('datecreated', $current_date)
+                    ->count();
+
+                // 3. 获取当日下单数和下单金额（所有用户的订单）
+                $order_stats = \think\facade\Db::name('tblinvoices')
+                    ->where('date', $current_date)
+                    ->where('status', 'Paid')
+                    ->field([
+                        'COUNT(id) as order_count',
+                        'SUM(total) as order_amount'
+                    ])
+                    ->find();
+
+                $orders = $order_stats['order_count'] ?? 0;
+                $order_amount = $order_stats['order_amount'] ?? 0;
+
+                // 4. 计算转化率
+                $register_rate = $visits > 0 ? round(($registers / $visits) * 100, 2) : 0;
+                $order_rate = $visits > 0 ? round(($orders / $visits) * 100, 2) : 0;
+
+                $roi_data[] = [
+                    'date' => $current_date,
+                    'visits' => $visits,
+                    'registers' => $registers,
+                    'register_rate' => $register_rate,
+                    'orders' => $orders,
+                    'order_rate' => $order_rate,
+                    'order_amount' => number_format($order_amount, 2)
+                ];
+
+                // 日期加一天
+                $current_date = date('Y-m-d', strtotime($current_date . ' +1 day'));
+            }
+
+            return array_reverse($roi_data); // 倒序显示，最新日期在前
+
+        } catch (\Exception $e) {
+            // 如果查询出错，记录日志并返回空数组
+            trace('getAllRoiData查询出错: ' . $e->getMessage(), 'error');
             return [];
         }
     }
