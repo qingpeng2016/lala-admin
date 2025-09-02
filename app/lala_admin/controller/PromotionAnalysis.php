@@ -116,9 +116,18 @@ class PromotionAnalysis extends Controller
         // 重新整理数据，TG渠道优先
         $result = [];
         $tg_data = null;
+        $all_data = [
+            'unique_visitors' => 0,
+            'total_actions' => 0
+        ];
         
         foreach ($stats as $item) {
             $channel = EnumTool::getChannelName($item['channel']);
+            
+            // 累加到所有渠道统计
+            $all_data['unique_visitors'] += $item['unique_visitors'];
+            $all_data['total_actions'] += $item['total_actions'];
+            
             if (!isset($result[$channel])) {
                 $result[$channel] = [
                     'unique_visitors' => 0,
@@ -134,6 +143,12 @@ class PromotionAnalysis extends Controller
                 unset($result[$channel]);
             }
         }
+        
+        // 移除所有渠道的重复统计（因为已经包含在各个具体渠道中）
+        unset($result['所有渠道']);
+        
+        // 添加所有渠道统计
+        $result['所有渠道'] = $all_data;
         
         // TG渠道放在最前面
         if ($tg_data) {
