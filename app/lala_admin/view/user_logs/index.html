@@ -49,8 +49,18 @@
                                 <span class="layui-badge layui-bg-gray">{$vo.action}</span>
                             {/if}
                         </td>
-                        <td>{$vo.description}</td>
-                        <td>{$vo.current_page}</td>
+                        <td>
+                            <div class="text-ellipsis" title="{$vo.description}">
+                                {$vo.description|mb_substr=0,20,'utf-8'}
+                                {if mb_strlen($vo.description,'utf-8') > 20}...{/if}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-ellipsis" title="{$vo.current_page}">
+                                {$vo.current_page|mb_substr=0,30,'utf-8'}
+                                {if mb_strlen($vo.current_page,'utf-8') > 30}...{/if}
+                            </div>
+                        </td>
                         <td>{$vo.created_at}</td>
                     </tr>
                     {/foreach}
@@ -246,6 +256,19 @@ function downloadData() {
 .layui-badge.layui-bg-gray {
     background-color: #999 !important;
     color: #fff !important;
+}
+
+/* 文本截断样式 */
+.text-ellipsis {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: help;
+}
+
+.text-ellipsis:hover {
+    color: #1E9FFF;
 }
 </style>
 {/block} 
