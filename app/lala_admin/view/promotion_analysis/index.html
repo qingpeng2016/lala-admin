@@ -87,7 +87,6 @@
 {/block}
 
 {block name="script"}
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script>
 layui.use(['layer'], function(){
     var layer = layui.layer;
@@ -95,78 +94,150 @@ layui.use(['layer'], function(){
     // 页面加载完成后的初始化
     layer.msg('推广分析页面加载完成', {icon: 1, time: 2000});
     
-    // 初始化趋势图表
-    initTrendChart();
+    // 动态加载ECharts
+    loadECharts();
 });
+
+// 动态加载ECharts
+function loadECharts() {
+    if (typeof echarts !== 'undefined') {
+        // ECharts已经加载，直接初始化图表
+        initTrendChart();
+        return;
+    }
+    
+    // 创建script标签加载ECharts
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js';
+    script.onload = function() {
+        console.log('ECharts加载成功');
+        initTrendChart();
+    };
+    script.onerror = function() {
+        console.error('ECharts加载失败');
+        var chartDom = document.getElementById('trendChart');
+        if (chartDom) {
+            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#f56c6c;">ECharts加载失败，请检查网络连接</div>';
+        }
+    };
+    document.head.appendChild(script);
+}
 
 // 初始化趋势图表
 function initTrendChart() {
-    var chartDom = document.getElementById('trendChart');
-    var myChart = echarts.init(chartDom);
-    
-    var trendData = {$daily_trend|json_encode|raw};
-    
-    var dates = [];
-    var visitors = [];
-    var actions = [];
-    
-    trendData.forEach(function(item) {
-        dates.push(item.date);
-        visitors.push(item.unique_visitors);
-        actions.push(item.total_actions);
-    });
-    
-    var option = {
-        title: {
-            text: '每日访问趋势',
-            left: 'center'
-        },
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross'
-            }
-        },
-        legend: {
-            data: ['独立访客', '总操作数'],
-            top: 30
-        },
-        grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        },
-        xAxis: {
-            type: 'category',
-            data: dates
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [
-            {
-                name: '独立访客',
-                type: 'line',
-                data: visitors,
-                smooth: true,
-                itemStyle: {
-                    color: '#1E9FFF'
+    try {
+        var chartDom = document.getElementById('trendChart');
+        if (!chartDom) {
+            console.error('找不到图表容器');
+            return;
+        }
+        
+        // 检查ECharts是否加载成功
+        if (typeof echarts === 'undefined') {
+            console.error('ECharts未加载成功');
+            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#999;">图表加载失败，请刷新页面重试</div>';
+            return;
+        }
+        
+        var myChart = echarts.init(chartDom);
+        
+        // 显示加载动画
+        myChart.showLoading();
+        
+        var trendData = {$daily_trend|json_encode|raw};
+        console.log('趋势数据:', trendData);
+        
+        // 检查数据是否为空
+        if (!trendData || !Array.isArray(trendData)) {
+            console.warn('趋势数据为空或格式错误');
+            myChart.hideLoading();
+            myChart.setOption({
+                title: {
+                    text: '暂无数据',
+                    left: 'center',
+                    top: 'middle',
+                    textStyle: {
+                        color: '#999',
+                        fontSize: 16
+                    }
+                }
+            });
+            return;
+        }
+        
+        var dates = [];
+        var visitors = [];
+        var actions = [];
+        
+        trendData.forEach(function(item) {
+            dates.push(item.date || '未知');
+            visitors.push(parseInt(item.unique_visitors) || 0);
+            actions.push(parseInt(item.total_actions) || 0);
+        });
+        
+        var option = {
+            title: {
+                text: '每日访问趋势',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
                 }
             },
-            {
-                name: '总操作数',
-                type: 'line',
-                data: actions,
-                smooth: true,
-                itemStyle: {
-                    color: '#5FB878'
+            legend: {
+                data: ['独立访客', '总操作数'],
+                top: 30
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: dates
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '独立访客',
+                    type: 'line',
+                    data: visitors,
+                    smooth: true,
+                    itemStyle: {
+                        color: '#1E9FFF'
+                    }
+                },
+                {
+                    name: '总操作数',
+                    type: 'line',
+                    data: actions,
+                    smooth: true,
+                    itemStyle: {
+                        color: '#5FB878'
+                    }
                 }
-            }
-        ]
-    };
-    
-    myChart.setOption(option);
+            ]
+        };
+        
+        // 隐藏加载动画并设置选项
+        myChart.hideLoading();
+        myChart.setOption(option);
+        
+        console.log('图表初始化完成');
+        
+    } catch (error) {
+        console.error('图表初始化失败:', error);
+        var chartDom = document.getElementById('trendChart');
+        if (chartDom) {
+            chartDom.innerHTML = '<div style="text-align:center;padding:50px;color:#f56c6c;">图表初始化失败: ' + error.message + '</div>';
+        }
+    }
 }
 
 
