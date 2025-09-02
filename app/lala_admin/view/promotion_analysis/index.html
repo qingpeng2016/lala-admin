@@ -23,74 +23,86 @@
         </div>
     </form>
 
-    <!-- 统计卡片 -->
-    <div class="layui-row layui-col-space15" style="margin-top: 20px;">
-        {foreach $channel_stats as $channel => $stats}
-        <div class="layui-col-md6">
-            <div class="layui-card">
-                <div class="layui-card-header">
-                    <h3>{$channel} 渠道统计</h3>
-                </div>
-                <div class="layui-card-body">
-                    <div class="layui-row">
-                        <div class="layui-col-md6">
-                            <div class="stat-item">
-                                <div class="stat-number">{$stats.unique_visitors}</div>
-                                <div class="stat-label">独立访客</div>
+    <!-- TAB分页 -->
+    <div class="layui-tab layui-tab-card" style="margin-top: 20px;">
+        <ul class="layui-tab-title">
+            {foreach $channel_stats as $channel => $stats}
+            <li {if $channel@index == 0}class="layui-this"{/if}>{$channel} 渠道</li>
+            {/foreach}
+        </ul>
+        <div class="layui-tab-content">
+            {foreach $channel_stats as $channel => $stats}
+            <div class="layui-tab-item {if $channel@index == 0}layui-show{/if}">
+                <!-- 渠道统计卡片 -->
+                <div class="layui-card">
+                    <div class="layui-card-header">
+                        <h3>{$channel} 渠道统计概览</h3>
+                    </div>
+                    <div class="layui-card-body">
+                        <div class="layui-row layui-col-space15">
+                            <div class="layui-col-md6">
+                                <div class="stat-item">
+                                    <div class="stat-number">{$stats.unique_visitors}</div>
+                                    <div class="stat-label">独立访客</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="layui-col-md6">
-                            <div class="stat-item">
-                                <div class="stat-number">{$stats.total_actions}</div>
-                                <div class="stat-label">总操作数</div>
+                            <div class="layui-col-md6">
+                                <div class="stat-item">
+                                    <div class="stat-number">{$stats.total_actions}</div>
+                                    <div class="stat-label">总操作数</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        {/foreach}
-    </div>
 
-    <!-- 漏斗数据 -->
-    <div class="layui-card" style="margin-top: 20px;">
-        <div class="layui-card-header">
-            <h3>TG渠道页面漏斗分析</h3>
-        </div>
-        <div class="layui-card-body">
-            {if $funnel_data}
-            <table class="layui-table" lay-skin="line">
-                <thead>
-                    <tr>
-                        <th style="width: 60px;">排名</th>
-                        <th>关键转化节点</th>
-                        <th style="width: 120px;">独立访客</th>
-                        <th style="width: 120px;">转化率</th>
-                        <th style="width: 200px;">转化率条形图</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {foreach $funnel_data as $key => $item}
-                    <tr>
-                        <td>{$key + 1}</td>
-                        <td title="{$item.page}">{$item.page}</td>
-                        <td><span class="stat-number-small">{$item.visitors}</span></td>
-                        <td><span class="rate-badge">{$item.rate}%</span></td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: {$item.rate}%"></div>
-                                <span class="progress-text">{$item.rate}%</span>
-                            </div>
-                        </td>
-                    </tr>
-                    {/foreach}
-                </tbody>
-            </table>
-            {else}
-            <div class="empty-data">
-                <p>暂无TG渠道数据</p>
+                <!-- 漏斗数据 -->
+                <div class="layui-card" style="margin-top: 20px;">
+                    <div class="layui-card-header">
+                        <h3>{$channel} 渠道漏斗分析</h3>
+                    </div>
+                    <div class="layui-card-body">
+                        {if $channel == 'TG' && $funnel_data}
+                        <table class="layui-table" lay-skin="line">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">排名</th>
+                                    <th>关键转化节点</th>
+                                    <th style="width: 120px;">独立访客</th>
+                                    <th style="width: 120px;">转化率</th>
+                                    <th style="width: 200px;">转化率条形图</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {foreach $funnel_data as $key => $item}
+                                <tr>
+                                    <td>{$key + 1}</td>
+                                    <td title="{$item.page}">{$item.page}</td>
+                                    <td><span class="stat-number-small">{$item.visitors}</span></td>
+                                    <td><span class="rate-badge">{$item.rate}%</span></td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: {$item.rate}%"></div>
+                                            <span class="progress-text">{$item.rate}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {/foreach}
+                            </tbody>
+                        </table>
+                        {elseif $channel == 'TG'}
+                        <div class="empty-data">
+                            <p>暂无{$channel}渠道漏斗数据</p>
+                        </div>
+                        {else}
+                        <div class="empty-data">
+                            <p>{$channel} 渠道漏斗分析功能开发中...</p>
+                        </div>
+                        {/if}
+                    </div>
+                </div>
             </div>
-            {/if}
+            {/foreach}
         </div>
     </div>
 
@@ -120,11 +132,17 @@
 
 {block name="script"}
 <script>
-layui.use(['layer'], function(){
+layui.use(['layer', 'element'], function(){
     var layer = layui.layer;
+    var element = layui.element;
     
     // 页面加载完成后的初始化
     layer.msg('推广分析页面加载完成', {icon: 1, time: 2000});
+    
+    // TAB切换事件
+    element.on('tab()', function(data){
+        console.log('切换到第' + (data.index + 1) + '个TAB');
+    });
     
 });
 
