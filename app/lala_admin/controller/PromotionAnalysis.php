@@ -5,7 +5,7 @@ namespace app\lala_admin\controller;
 
 use think\admin\Controller;
 use app\lala_admin\model\PromotionAnalysis as PromotionAnalysisModel;
-use app\lala_admin\const\EnumTool;
+use app\lala_admin\constant\EnumTool;
 /**
  * 推广分析管理
  */

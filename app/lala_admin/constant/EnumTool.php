@@ -1,6 +1,6 @@
 <?php
 
-namespace app\lala_admin\const;
+namespace app\lala_admin\constant;
 
 /**
  * 枚举工具类
