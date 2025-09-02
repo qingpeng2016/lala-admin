@@ -95,56 +95,44 @@
             <h3>投资回报分析</h3>
         </div>
         <div class="layui-card-body">
-            <!-- TAB分页投资回报分析 -->
-            <div class="layui-tab layui-tab-brief">
-                <ul class="layui-tab-title">
-                    {php}$roi_tab_index = 0;{/php}
-                    {foreach $channel_stats as $channel => $stats}
-                    <li {if $roi_tab_index == 0}class="layui-this"{/if}>{$channel} 渠道</li>
-                    {php}$roi_tab_index++;{/php}
-                    {/foreach}
-                </ul>
-                <div class="layui-tab-content">
-                    {php}$roi_content_index = 0;{/php}
-                    {foreach $channel_stats as $channel => $stats}
-                    <div class="layui-tab-item {if $roi_content_index == 0}layui-show{/if}">
-                    {php}$roi_content_index++;{/php}
-                        {if isset($roi_data_all[$channel]) && !empty($roi_data_all[$channel])}
-                        <table class="layui-table" lay-skin="line">
-                            <thead>
-                                <tr>
-                                    <th style="width: 120px;">日期</th>
-                                    <th style="width: 100px;">访问量</th>
-                                    <th style="width: 100px;">注册数</th>
-                                    <th style="width: 100px;">注册率</th>
-                                    <th style="width: 100px;">下单数</th>
-                                    <th style="width: 100px;">下单率</th>
-                                    <th style="width: 120px;">下单金额</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {foreach $roi_data_all[$channel] as $item}
-                                <tr>
-                                    <td>{$item.date}</td>
-                                    <td><span class="stat-number-small">{$item.visits}</span></td>
-                                    <td><span class="stat-number-small">{$item.registers}</span></td>
-                                    <td><span class="rate-badge">{$item.register_rate}%</span></td>
-                                    <td><span class="stat-number-small">{$item.orders}</span></td>
-                                    <td><span class="rate-badge">{$item.order_rate}%</span></td>
-                                    <td><span class="amount-badge">¥{$item.order_amount}</span></td>
-                                </tr>
-                                {/foreach}
-                            </tbody>
-                        </table>
-                        {else}
-                        <div class="empty-data">
-                            <p>暂无{$channel}渠道投资回报数据</p>
-                        </div>
-                        {/if}
-                    </div>
-                    {/foreach}
+            {php}$roi_index = 0;{/php}
+            {foreach $channel_stats as $channel => $stats}
+            <div class="roi-content" id="roi-{$channel}" style="display: {if $roi_index == 0}block{else}none{/if};">
+                {php}$roi_index++;{/php}
+                {if isset($roi_data_all[$channel]) && !empty($roi_data_all[$channel])}
+                <table class="layui-table" lay-skin="line">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">日期</th>
+                            <th style="width: 100px;">访问量</th>
+                            <th style="width: 100px;">注册数</th>
+                            <th style="width: 100px;">注册率</th>
+                            <th style="width: 100px;">下单数</th>
+                            <th style="width: 100px;">下单率</th>
+                            <th style="width: 120px;">下单金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach $roi_data_all[$channel] as $item}
+                        <tr>
+                            <td>{$item.date}</td>
+                            <td><span class="stat-number-small">{$item.visits}</span></td>
+                            <td><span class="stat-number-small">{$item.registers}</span></td>
+                            <td><span class="rate-badge">{$item.register_rate}%</span></td>
+                            <td><span class="stat-number-small">{$item.orders}</span></td>
+                            <td><span class="rate-badge">{$item.order_rate}%</span></td>
+                            <td><span class="amount-badge">¥{$item.order_amount}</span></td>
+                        </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+                {else}
+                <div class="empty-data">
+                    <p>暂无{$channel}渠道投资回报数据</p>
                 </div>
+                {/if}
             </div>
+            {/foreach}
         </div>
     </div>
 
@@ -184,6 +172,21 @@ layui.use(['layer', 'element'], function(){
     // TAB切换事件
     element.on('tab()', function(data){
         console.log('切换到第' + (data.index + 1) + '个TAB');
+        
+        // 获取当前TAB对应的渠道名称
+        var channels = [];
+        {php}
+        $channel_names = array_keys($channel_stats);
+        echo 'channels = ' . json_encode($channel_names) . ';';
+        {/php}
+        
+        // 隐藏所有投资回报分析内容
+        $('.roi-content').hide();
+        
+        // 显示对应渠道的投资回报分析
+        if (channels[data.index]) {
+            $('#roi-' + channels[data.index]).show();
+        }
     });
     
 });
