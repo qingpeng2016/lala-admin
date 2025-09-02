@@ -372,7 +372,7 @@ class PromotionAnalysis extends Controller
                     'register_rate' => $register_rate,
                     'orders' => $orders,
                     'order_rate' => $order_rate,
-                    'order_amount' => number_format((float)$order_amount, 2)
+                    'order_amount' => number_format((float)$order_amount, 0)
                 ];
 
                 // 日期加一天
