@@ -93,6 +93,47 @@
         </div>
     </div>
 
+    <!-- 投资回报分析 -->
+    <div class="layui-card" style="margin-top: 20px;">
+        <div class="layui-card-header">
+            <h3>投资回报分析</h3>
+        </div>
+        <div class="layui-card-body">
+            {if $roi_data}
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 120px;">日期</th>
+                        <th style="width: 100px;">访问量</th>
+                        <th style="width: 100px;">注册数</th>
+                        <th style="width: 100px;">注册率</th>
+                        <th style="width: 100px;">下单数</th>
+                        <th style="width: 100px;">下单率</th>
+                        <th style="width: 120px;">下单金额</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $roi_data as $item}
+                    <tr>
+                        <td>{$item.date}</td>
+                        <td><span class="stat-number-small">{$item.visits}</span></td>
+                        <td><span class="stat-number-small">{$item.registers}</span></td>
+                        <td><span class="rate-badge">{$item.register_rate}%</span></td>
+                        <td><span class="stat-number-small">{$item.orders}</span></td>
+                        <td><span class="rate-badge">{$item.order_rate}%</span></td>
+                        <td><span class="amount-badge">¥{$item.order_amount}</span></td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            {else}
+            <div class="empty-data">
+                <p>暂无投资回报数据</p>
+            </div>
+            {/if}
+        </div>
+    </div>
+
     <!-- 统计说明 -->
     <div class="layui-card" style="margin-top: 20px;">
         <div class="layui-card-header">
@@ -275,6 +316,16 @@ li {
     border-left: 1px solid #e6e6e6;
     margin-left: 0;
     padding-left: 0;
+}
+
+/* 投资回报分析样式 */
+.amount-badge {
+    background: #FF5722;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
 }
 </style>
 {/block}
