@@ -99,68 +99,54 @@ class PromotionAnalysis extends Controller
      */
     protected function getChannelStats($start_date = '', $end_date = '')
     {
-        $query = $this->getBaseQuery()
-            ->where('channel', '<>', '')
-            ->where('channel', '<>', '0');
+        // 1. 先获取TG渠道数据
+        $tg_query = $this->getBaseQuery()
+            ->where('channel', Enum::CHANNEL_TG);
 
-        // 添加日期范围
         if ($start_date) {
-            $query->where('created_at', '>=', $start_date . ' 00:00:00');
+            $tg_query->where('created_at', '>=', $start_date . ' 00:00:00');
         }
         if ($end_date) {
-            $query->where('created_at', '<=', $end_date . ' 23:59:59');
+            $tg_query->where('created_at', '<=', $end_date . ' 23:59:59');
         }
 
-        // 按渠道分组统计，去重IP
-        $stats = $query->field([
-            'channel',
+        $tg_stats = $tg_query->field([
             'COUNT(DISTINCT ipaddr) as unique_visitors',
             'COUNT(*) as total_actions'
-        ])
-            ->group('channel')
-            ->select()
-            ->toArray();
+        ])->find();
 
-        // 重新整理数据，TG渠道优先
+        // 2. 获取全部渠道数据（不限制channel条件）
+        $all_query = $this->getBaseQuery();
+
+        if ($start_date) {
+            $all_query->where('created_at', '>=', $start_date . ' 00:00:00');
+        }
+        if ($end_date) {
+            $all_query->where('created_at', '<=', $end_date . ' 23:59:59');
+        }
+
+        $all_stats = $all_query->field([
+            'COUNT(DISTINCT ipaddr) as unique_visitors',
+            'COUNT(*) as total_actions'
+        ])->find();
+
+        // 3. 组装结果数据
         $result = [];
-        $tg_data = null;
-        $all_data = [
-            'unique_visitors' => 0,
-            'total_actions' => 0
-        ];
         
-        foreach ($stats as $item) {
-            $channel = EnumTool::getChannelName($item['channel']);
-            
-            // 累加到所有渠道统计
-            $all_data['unique_visitors'] += $item['unique_visitors'];
-            $all_data['total_actions'] += $item['total_actions'];
-            
-            if (!isset($result[$channel])) {
-                $result[$channel] = [
-                    'unique_visitors' => 0,
-                    'total_actions' => 0
-                ];
-            }
-            $result[$channel]['unique_visitors'] += $item['unique_visitors'];
-            $result[$channel]['total_actions'] += $item['total_actions'];
-            
-            // 单独保存TG数据
-            if ($channel === 'TG') {
-                $tg_data = $result[$channel];
-                unset($result[$channel]);
-            }
+        // TG渠道数据
+        if ($tg_stats) {
+            $result['TG'] = [
+                'unique_visitors' => $tg_stats['unique_visitors'] ?? 0,
+                'total_actions' => $tg_stats['total_actions'] ?? 0
+            ];
         }
         
-        // 移除全部的重复统计（因为已经包含在各个具体渠道中）
-        unset($result['全部']);
-        
-        // 添加全部渠道统计
-        $result['全部'] = $all_data;
-        
-        // TG渠道放在最前面
-        if ($tg_data) {
-            $result = ['TG' => $tg_data] + $result;
+        // 全部渠道数据
+        if ($all_stats) {
+            $result['全部'] = [
+                'unique_visitors' => $all_stats['unique_visitors'] ?? 0,
+                'total_actions' => $all_stats['total_actions'] ?? 0
+            ];
         }
 
         return $result;
