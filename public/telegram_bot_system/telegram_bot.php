@@ -192,7 +192,8 @@ class TelegramBot {
             'inline_keyboard' => [
                 [
                     ['text' => '联系客服', 'callback_data' => 'kefu'],
-                    ['text' => '进入用户群', 'callback_data' => 'usergroup']
+                    ['text' => '联系客服', 'callback_data' => 'kefu']
+                  /*  ['text' => '进入用户群', 'callback_data' => 'usergroup']*/
                 ]/*,
                 [
                     ['text' => '访问官网', 'url' => 'https://lala.gg/aff.php?aff=211'],
