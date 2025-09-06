@@ -16,7 +16,7 @@ class PromotionAnalysis extends Controller
     /**
      * 默认查询天数
      */
-    const DEFAULT_DAYS = 7;
+    const DEFAULT_DAYS = 30;
 
     /**
      * 获取基础查询条件
