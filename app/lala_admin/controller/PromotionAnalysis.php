@@ -138,6 +138,9 @@ class PromotionAnalysis extends Controller
             'COUNT(DISTINCT ipaddr) as unique_visitors',
             'COUNT(*) as total_actions'
         ])->find();
+        
+        // 调试信息：检查全部渠道数据是否正确
+        // trace('全部渠道统计: ' . json_encode($all_stats), 'info');
 
         // 3. 获取推广平台信息用于排序
         $platform_info = [];
@@ -199,6 +202,23 @@ class PromotionAnalysis extends Controller
         uksort($result, function($a, $b) use ($channel_order) {
             return ($channel_order[$a] ?? 999) - ($channel_order[$b] ?? 999);
         });
+
+        // 数据验证：全部渠道的数据应该是最多的
+        if (isset($result['全部渠道'])) {
+            $all_visitors = $result['全部渠道']['unique_visitors'];
+            $max_other_visitors = 0;
+            foreach ($result as $channel => $data) {
+                if ($channel !== '全部渠道') {
+                    $max_other_visitors = max($max_other_visitors, $data['unique_visitors']);
+                }
+            }
+            
+            // 如果全部渠道的数据少于其他渠道，记录警告
+            if ($all_visitors < $max_other_visitors) {
+                trace("数据异常：全部渠道独立访客({$all_visitors})少于其他渠道最大值({$max_other_visitors})", 'warning');
+                trace("各渠道数据: " . json_encode($result), 'info');
+            }
+        }
 
         return $result;
     }
