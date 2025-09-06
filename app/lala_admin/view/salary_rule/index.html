@@ -232,10 +232,7 @@
                             {$rule.maintainer|default='无'}
                         </td>
                         <td>
-                            <div class="text-ellipsis" title="{$rule.rule_description}">
-                                {$rule.rule_description|mb_substr=0,50,'utf-8'}
-                                {if mb_strlen($rule.rule_description,'utf-8') > 50}...{/if}
-                            </div>
+                            {$rule.rule_description}
                         </td>
                     </tr>
                     {/foreach}
