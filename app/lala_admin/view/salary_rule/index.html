@@ -29,9 +29,9 @@
                     <tr>
                         <th style="width: 50px;">ID</th>
                         <th style="width: 150px;">规则名称</th>
-                        <th style="width: 100px;">金额</th>
                         <th style="width: 100px;">单位类型</th>
-                        <th style="width: 400px;">规则描述</th>
+                        <th style="width: 300px;">规则描述</th>
+                        <th style="width: 100px;">金额</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,9 +40,6 @@
                         <td>{$vo.id}</td>
                         <td>{$vo.rule_name}</td>
                         <td>
-                            <span class="amount-text-green">¥{$vo.amount}</span>
-                        </td>
-                        <td>
                             <span class="layui-badge layui-bg-gray">{$vo.unit_text}</span>
                         </td>
                         <td>
@@ -50,6 +47,9 @@
                                 {$vo.description|mb_substr=0,50,'utf-8'}
                                 {if mb_strlen($vo.description,'utf-8') > 50}...{/if}
                             </div>
+                        </td>
+                        <td>
+                            <span class="rate-badge">¥{$vo.amount}</span>
                         </td>
                     </tr>
                     {/foreach}
