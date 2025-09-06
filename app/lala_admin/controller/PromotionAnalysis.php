@@ -141,30 +141,50 @@ class PromotionAnalysis extends Controller
             'COUNT(*) as total_actions'
         ])->find();
 
-        // 3. 动态组装结果数据
+        // 3. 获取推广平台信息用于排序
+        $platform_info = [];
+        try {
+            $platforms = \think\facade\Db::name('system_new_promotion_platforms')
+                ->where('status', 'active')
+                ->field('id, channel, platform_name')
+                ->order('id asc')
+                ->select()
+                ->toArray();
+            
+            foreach ($platforms as $platform) {
+                $platform_info[$platform['channel']] = [
+                    'name' => $platform['platform_name'],
+                    'order' => $platform['id']
+                ];
+            }
+        } catch (\Exception $e) {
+            // 查询失败时使用默认配置
+        }
+
+        // 4. 动态组装结果数据
         $result = [];
         $channel_order = []; // 用于排序
 
         // 处理各个具体渠道
         foreach ($stats as $item) {
-            $channel_name = EnumTool::getChannelName($item['channel']);
+            // 直接从推广平台信息获取渠道名称，如果没有则是官方渠道
+            if (isset($platform_info[$item['channel']])) {
+                $channel_name = $platform_info[$item['channel']]['name'];
+                $order = $platform_info[$item['channel']]['order'];
+            } else {
+                $channel_name = '官方渠道';
+                $order = 9999;
+            }
+            
             if (!isset($result[$channel_name])) {
                 $result[$channel_name] = [
                     'unique_visitors' => 0,
                     'total_actions' => 0
                 ];
+                $channel_order[$channel_name] = $order;
             }
             $result[$channel_name]['unique_visitors'] += $item['unique_visitors'];
             $result[$channel_name]['total_actions'] += $item['total_actions'];
-            
-            // 记录渠道排序权重
-            if ($channel_name === 'TG') {
-                $channel_order[$channel_name] = 1; // TG最高优先级
-            } elseif ($channel_name === '官方渠道') {
-                $channel_order[$channel_name] = 99; // 官方渠道最低优先级，放到最后
-            } else {
-                $channel_order[$channel_name] = 2; // 其他推广平台次优先级
-            }
         }
 
         // 添加全部渠道数据
