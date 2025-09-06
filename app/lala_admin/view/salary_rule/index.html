@@ -27,35 +27,23 @@
             <table class="layui-table" lay-skin="line">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">ID</th>
-                        <th style="width: 120px;">规则类型</th>
+                        <th style="width: 50px;">ID</th>
                         <th style="width: 150px;">规则名称</th>
                         <th style="width: 100px;">金额</th>
                         <th style="width: 100px;">单位类型</th>
-                        <th style="width: 80px;">状态</th>
-                        <th>规则描述</th>
+                        <th style="width: 400px;">规则描述</th>
                     </tr>
                 </thead>
                 <tbody>
                     {foreach $list as $vo}
                     <tr>
                         <td>{$vo.id}</td>
-                        <td>
-                            <span class="layui-badge layui-bg-blue">{$vo.rule_type_text}</span>
-                        </td>
                         <td>{$vo.rule_name}</td>
                         <td>
-                            <span class="amount-text">¥{$vo.amount}</span>
+                            <span class="amount-text-green">¥{$vo.amount}</span>
                         </td>
                         <td>
                             <span class="layui-badge layui-bg-gray">{$vo.unit_text}</span>
-                        </td>
-                        <td>
-                            {if $vo.status eq '1'}
-                                <span class="layui-badge layui-bg-green">{$vo.status_text}</span>
-                            {else}
-                                <span class="layui-badge layui-bg-orange">{$vo.status_text}</span>
-                            {/if}
                         </td>
                         <td>
                             <div class="text-ellipsis" title="{$vo.description}">
@@ -283,6 +271,11 @@ layui.use(['layer'], function(){
 .amount-text {
     font-weight: bold;
     color: #FF5722;
+}
+
+.amount-text-green {
+    font-weight: bold;
+    color: #009688;
 }
 
 .rate-badge {
