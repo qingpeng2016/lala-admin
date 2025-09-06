@@ -88,13 +88,13 @@ class Enum
             }
             
             // 如果没找到，返回官方渠道
-            return '官方渠道';
+            return '官方';
         } catch (\Exception $e) {
             // 如果数据库查询失败，使用原有逻辑
             if ($channel === '211') {
                 return 'TG';
             }
-            return '官方渠道';
+            return '官方';
         }
     }
 
