@@ -25,7 +25,7 @@ class SalaryRule extends Controller
         $get = $this->request->get();
         
         // 创建查询对象
-        $query = SalaryRuleModel::where('1', '1');
+        $query = SalaryRuleModel::order('sort_order asc, id asc');
         
         // 添加搜索条件
         if (isset($get['rule_type']) && $get['rule_type'] !== '') {
@@ -39,7 +39,7 @@ class SalaryRule extends Controller
         }
         
         // 执行分页查询
-        $result = $query->order('sort_order asc, id asc')->paginate([
+        $result = $query->paginate([
             'list_rows' => 20,
             'page' => $get['page'] ?? 1,
             'query' => $get,
