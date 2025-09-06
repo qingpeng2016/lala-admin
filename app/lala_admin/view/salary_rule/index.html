@@ -34,7 +34,6 @@
                         <th style="width: 100px;">单位类型</th>
                         <th style="width: 80px;">状态</th>
                         <th>规则描述</th>
-                        <th style="width: 120px;">创建时间</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,7 +63,6 @@
                                 {if mb_strlen($vo.description,'utf-8') > 50}...{/if}
                             </div>
                         </td>
-                        <td>{$vo.created_at}</td>
                     </tr>
                     {/foreach}
                 </tbody>
@@ -189,10 +187,10 @@
         </div>
     </div>
 
-    <!-- 单价规则 -->
+    <!-- 单价奖金规则 -->
     <div class="layui-card" style="margin-top: 20px;">
         <div class="layui-card-header">
-            <h3>单价规则</h3>
+            <h3>单价奖金规则</h3>
         </div>
         <div class="layui-card-body">
             <div class="price-description">
