@@ -405,9 +405,41 @@ class PromotionAnalysis extends Controller
         // 添加渠道筛选
         if ($channel) {
             if ($channel == 'TG') {
-                $query->where('channel', Enum::CHANNEL_TG);
+                // 动态获取TG渠道的channel值
+                try {
+                    $tgPlatform = \think\facade\Db::name('system_new_promotion_platforms')
+                        ->where('platform_name', 'TG')
+                        ->where('status', 'active')
+                        ->field('channel')
+                        ->find();
+                    
+                    if ($tgPlatform) {
+                        $query->where('channel', $tgPlatform['channel']);
+                    } else {
+                        // 如果没找到TG平台，使用原有逻辑
+                        $query->where('channel', '211');
+                    }
+                } catch (\Exception $e) {
+                    // 如果查询失败，使用原有逻辑
+                    $query->where('channel', '211');
+                }
             } else {
-                $query->where('channel', '<>', Enum::CHANNEL_TG);
+                // 非TG渠道：排除所有推广平台的渠道
+                try {
+                    $platformChannels = \think\facade\Db::name('system_new_promotion_platforms')
+                        ->where('status', 'active')
+                        ->column('channel');
+                    
+                    if (!empty($platformChannels)) {
+                        $query->where('channel', 'not in', $platformChannels);
+                    } else {
+                        // 如果没找到推广平台，使用原有逻辑
+                        $query->where('channel', '<>', '211');
+                    }
+                } catch (\Exception $e) {
+                    // 如果查询失败，使用原有逻辑
+                    $query->where('channel', '<>', '211');
+                }
             }
         }
 

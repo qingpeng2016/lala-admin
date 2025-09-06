@@ -2,6 +2,8 @@
 
 namespace app\lala_admin\constant;
 
+use think\facade\Db;
+
 /**
  * 系统常量定义
  */
@@ -17,10 +19,6 @@ class Enum
     const STAT_TIME_QUARTER = 'quarter';  // 本季度
     const STAT_TIME_YEAR = 'year';        // 本年
 
-    /**
-     * 渠道常量定义
-     */
-    const CHANNEL_TG = '211';           // TG渠道
 
     /**
      * 获取所有统计时间范围
@@ -44,10 +42,30 @@ class Enum
      */
     public static function getChannelList()
     {
-        return [
-            self::CHANNEL_TG => 'TG',
-            'all' => '全部'
-        ];
+        try {
+            // 从数据库获取推广平台信息
+            $platforms = Db::name('system_new_promotion_platforms')
+                ->where('status', 'active')
+                ->field('channel, platform_name')
+                ->select()
+                ->toArray();
+            
+            $channelList = [];
+            foreach ($platforms as $platform) {
+                $channelList[$platform['channel']] = $platform['platform_name'];
+            }
+            
+            // 添加特殊选项
+            $channelList['official'] = '官方渠道';
+            
+            return $channelList;
+        } catch (\Exception $e) {
+            // 如果数据库查询失败，返回默认配置
+            return [
+                '211' => 'TG',
+                'official' => '官方渠道'
+            ];
+        }
     }
 
     /**
@@ -57,11 +75,27 @@ class Enum
      */
     public static function getChannelName($channel)
     {
-        if ($channel === self::CHANNEL_TG) {
-            return 'TG';
+        try {
+            // 从数据库查询渠道名称
+            $platform = Db::name('system_new_promotion_platforms')
+                ->where('channel', $channel)
+                ->where('status', 'active')
+                ->field('platform_name')
+                ->find();
+            
+            if ($platform) {
+                return $platform['platform_name'];
+            }
+            
+            // 如果没找到，返回官方渠道
+            return '官方渠道';
+        } catch (\Exception $e) {
+            // 如果数据库查询失败，使用原有逻辑
+            if ($channel === '211') {
+                return 'TG';
+            }
+            return '官方渠道';
         }
-        // 其他所有渠道都归为全部
-        return '全部';
     }
 
     /**
@@ -71,6 +105,18 @@ class Enum
      */
     public static function isTgChannel($channel)
     {
-        return $channel === self::CHANNEL_TG;
+        try {
+            // 从数据库查询是否为TG平台
+            $platform = Db::name('system_new_promotion_platforms')
+                ->where('channel', $channel)
+                ->where('platform_name', 'TG')
+                ->where('status', 'active')
+                ->find();
+            
+            return !empty($platform);
+        } catch (\Exception $e) {
+            // 如果数据库查询失败，使用原有逻辑
+            return $channel === '211';
+        }
     }
 } 

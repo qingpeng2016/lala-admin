@@ -39,8 +39,19 @@ class UserLogs extends Controller
         }
         if (isset($get['channel']) && $get['channel'] !== '') {
             if ($get['channel'] === 'official') {
-                // 查询官方渠道（除211以外的所有渠道）
-                $query->where('channel', '<>', '211');
+                // 查询官方渠道（除推广平台以外的所有渠道）
+                try {
+                    $platformChannels = Db::name('system_new_promotion_platforms')
+                        ->where('status', 'active')
+                        ->column('channel');
+                    
+                    if (!empty($platformChannels)) {
+                        $query->where('channel', 'not in', $platformChannels);
+                    }
+                } catch (\Exception $e) {
+                    // 如果查询失败，使用原有逻辑
+                    $query->where('channel', '<>', '211');
+                }
             } else {
                 $query->where('channel', 'like', "%{$get['channel']}%");
             }
@@ -154,6 +165,25 @@ class UserLogs extends Controller
         // 添加搜索条件
         if (isset($get['userid']) && $get['userid'] !== '') {
             $query->where('userid', 'like', "%{$get['userid']}%");
+        }
+        if (isset($get['channel']) && $get['channel'] !== '') {
+            if ($get['channel'] === 'official') {
+                // 查询官方渠道（除推广平台以外的所有渠道）
+                try {
+                    $platformChannels = Db::name('system_new_promotion_platforms')
+                        ->where('status', 'active')
+                        ->column('channel');
+                    
+                    if (!empty($platformChannels)) {
+                        $query->where('channel', 'not in', $platformChannels);
+                    }
+                } catch (\Exception $e) {
+                    // 如果查询失败，使用原有逻辑
+                    $query->where('channel', '<>', '211');
+                }
+            } else {
+                $query->where('channel', 'like', "%{$get['channel']}%");
+            }
         }
         if (isset($get['action']) && $get['action'] !== '') {
             $query->where('action', $get['action']);
