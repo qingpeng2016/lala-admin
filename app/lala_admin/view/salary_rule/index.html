@@ -9,7 +9,7 @@
         <div class="layui-card-header">
             <h3>工资计算公式</h3>
         </div>
-        <div class="layui-card-body">
+        <div class="layui-card-body" style="padding: 15px 20px;">
             <div class="formula-container">
                 <div class="formula-text">
                     <strong>工资 = 底薪 + 提成 + 奖金 + 全勤奖 - 扣款</strong>
@@ -160,16 +160,20 @@ layui.use(['layer'], function(){
 <style>
 .formula-container {
     background: #f8f8f8;
-    padding: 20px;
+    padding: 15px;
     border-radius: 6px;
     border: 1px solid #e6e6e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
 }
 
 .formula-text {
     font-size: 18px;
-    color: #1E9FFF;
-    margin-bottom: 15px;
+    color: #000;
     text-align: center;
+    margin: 0;
 }
 
 .formula-detail ul {
