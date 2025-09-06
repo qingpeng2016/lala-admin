@@ -1,0 +1,33 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">规则类型</label>
+        <div class="layui-input-inline">
+            <select name="rule_type" class="layui-select">
+                <option value="">-- 全部类型 --</option>
+                {foreach $rule_type_list as $key => $value}
+                <option value="{$key}" {if input('get.rule_type') eq $key}selected{/if}>{$value}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">规则名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="rule_name" placeholder="请输入规则名称" value="{$get.rule_name|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline">
+            <select name="status" class="layui-select">
+                <option value="">-- 全部状态 --</option>
+                {foreach $status_list as $key => $value}
+                <option value="{$key}" {if input('get.status') eq $key}selected{/if}>{$value}</option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+</form>

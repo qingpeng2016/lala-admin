@@ -1,0 +1,240 @@
+{extend name="../../admin/view/main"}
+
+{block name="button"}
+<button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("add")}'>添加工资规则</button>
+{/block}
+
+{block name="content"}
+<div class="layui-fluid">
+    
+    <!-- 工资公式说明 -->
+    <div class="layui-card" style="margin-bottom: 15px;">
+        <div class="layui-card-header">
+            <h3>工资计算公式</h3>
+        </div>
+        <div class="layui-card-body">
+            <div class="formula-container">
+                <div class="formula-text">
+                    <strong>工资 = 底薪 + 提成 + 奖金 + 全勤奖 - 扣款</strong>
+                </div>
+                <div class="formula-detail">
+                    <ul>
+                        <li><strong>底薪</strong>：固定月薪</li>
+                        <li><strong>提成</strong>：根据新增/历史客户流水按比例计算</li>
+                        <li><strong>奖金</strong>：绩效奖金等</li>
+                        <li><strong>全勤奖</strong>：当月无迟到/早退/请假，奖励200元</li>
+                        <li><strong>扣款</strong>：迟到/早退每次扣50元等</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索表单 -->
+    {include file="salary_rule/index_search" /}
+    
+    <!-- 工资规则列表 -->
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <h3>工资规则配置</h3>
+        </div>
+        <div class="layui-card-body">
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 120px;">规则类型</th>
+                        <th style="width: 150px;">规则名称</th>
+                        <th style="width: 100px;">金额</th>
+                        <th style="width: 100px;">单位类型</th>
+                        <th style="width: 80px;">状态</th>
+                        <th>规则描述</th>
+                        <th style="width: 120px;">创建时间</th>
+                        <th style="width: 200px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>{$vo.id}</td>
+                        <td>
+                            <span class="layui-badge layui-bg-blue">{$vo.rule_type_text}</span>
+                        </td>
+                        <td>{$vo.rule_name}</td>
+                        <td>
+                            <span class="amount-text">¥{$vo.amount}</span>
+                        </td>
+                        <td>
+                            <span class="layui-badge layui-bg-gray">{$vo.unit_text}</span>
+                        </td>
+                        <td>
+                            {if $vo.status eq '1'}
+                                <span class="layui-badge layui-bg-green">{$vo.status_text}</span>
+                            {else}
+                                <span class="layui-badge layui-bg-orange">{$vo.status_text}</span>
+                            {/if}
+                        </td>
+                        <td>
+                            <div class="text-ellipsis" title="{$vo.description}">
+                                {$vo.description|mb_substr=0,50,'utf-8'}
+                                {if mb_strlen($vo.description,'utf-8') > 50}...{/if}
+                            </div>
+                        </td>
+                        <td>{$vo.created_at}</td>
+                        <td class='text-left' style="white-space: nowrap;">
+                            <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
+                            <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此工资规则吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
+
+    <!-- 提成规则展示 -->
+    <div class="layui-row layui-col-space15" style="margin-top: 20px;">
+        <!-- 新增客户提成规则 -->
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h3>新增客户提成规则</h3>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-table" lay-skin="line">
+                        <thead>
+                            <tr>
+                                <th>流水范围</th>
+                                <th>提成比例</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $commission_new as $rule}
+                            <tr>
+                                <td>
+                                    {if $rule.max_amount}
+                                        ¥{$rule.min_amount} - ¥{$rule.max_amount}
+                                    {else}
+                                        ≥ ¥{$rule.min_amount}
+                                    {/if}
+                                </td>
+                                <td>
+                                    <span class="rate-badge">{$rule.commission_rate}%</span>
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 历史客户提成规则 -->
+        <div class="layui-col-md6">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h3>历史客户提成规则</h3>
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-table" lay-skin="line">
+                        <thead>
+                            <tr>
+                                <th>流水范围</th>
+                                <th>提成比例</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {foreach $commission_old as $rule}
+                            <tr>
+                                <td>
+                                    {if $rule.max_amount}
+                                        ¥{$rule.min_amount} - ¥{$rule.max_amount}
+                                    {else}
+                                        ≥ ¥{$rule.min_amount}
+                                    {/if}
+                                </td>
+                                <td>
+                                    <span class="rate-badge">{$rule.commission_rate}%</span>
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('工资规则管理页面加载完成', {icon: 1, time: 2000});
+});
+</script>
+
+<style>
+.formula-container {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #e6e6e6;
+}
+
+.formula-text {
+    font-size: 18px;
+    color: #1E9FFF;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.formula-detail ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.formula-detail li {
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.amount-text {
+    font-weight: bold;
+    color: #FF5722;
+}
+
+.rate-badge {
+    background: #009688;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 45px;
+    text-align: center;
+}
+
+.text-ellipsis {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: help;
+}
+
+.text-ellipsis:hover {
+    color: #1E9FFF;
+}
+</style>
+{/block}
