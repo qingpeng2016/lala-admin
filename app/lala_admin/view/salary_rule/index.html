@@ -1,8 +1,5 @@
 {extend name="../../admin/view/main"}
 
-{block name="button"}
-<button class='layui-btn layui-btn-sm layui-btn-primary' data-modal='{:url("add")}'>添加工资规则</button>
-{/block}
 
 {block name="content"}
 <div class="layui-fluid">
@@ -47,7 +44,6 @@
                         <th style="width: 80px;">状态</th>
                         <th>规则描述</th>
                         <th style="width: 120px;">创建时间</th>
-                        <th style="width: 200px;">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,10 +74,6 @@
                             </div>
                         </td>
                         <td>{$vo.created_at}</td>
-                        <td class='text-left' style="white-space: nowrap;">
-                            <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
-                            <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此工资规则吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
-                        </td>
                     </tr>
                     {/foreach}
                 </tbody>
