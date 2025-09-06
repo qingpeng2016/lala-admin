@@ -191,7 +191,7 @@
         </div>
         <div class="layui-card-body">
             <div class="price-description">
-                <p><strong>最低成交价：</strong>100M/¥{if isset($price_rules[0])}{$price_rules[0].min_price_per_100m|number_format}{else}2000{/if}</p>
+                <p><strong>最低成交价：</strong>100M/¥{if isset($price_rules[0])}{$price_rules[0]['min_price_per_100m']|number_format}{else}2,000{/if}</p>
             </div>
             <table class="layui-table" lay-skin="line">
                 <thead>
