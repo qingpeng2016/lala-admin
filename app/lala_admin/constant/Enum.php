@@ -56,14 +56,14 @@ class Enum
             }
             
             // 添加特殊选项
-            $channelList['official'] = '官方渠道';
+            $channelList['official'] = '其他渠道';
             
             return $channelList;
         } catch (\Exception $e) {
             // 如果数据库查询失败，返回默认配置
             return [
                 '211' => 'TG',
-                'official' => '官方渠道'
+                'official' => '其他渠道'
             ];
         }
     }
@@ -87,14 +87,14 @@ class Enum
                 return $platform['platform_name'];
             }
             
-            // 如果没找到，返回官方渠道
-            return '官方';
+            // 如果没找到，返回其他渠道
+            return '其他';
         } catch (\Exception $e) {
             // 如果数据库查询失败，使用原有逻辑
             if ($channel === '211') {
                 return 'TG';
             }
-            return '官方';
+            return '其他';
         }
     }
 

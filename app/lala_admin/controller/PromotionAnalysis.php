@@ -167,12 +167,12 @@ class PromotionAnalysis extends Controller
 
         // 处理各个具体渠道
         foreach ($stats as $item) {
-            // 直接从推广平台信息获取渠道名称，如果没有则是官方渠道
+            // 直接从推广平台信息获取渠道名称，如果没有则是其他渠道
             if (isset($platform_info[$item['channel']])) {
                 $channel_name = $platform_info[$item['channel']]['name'];
                 $order = $platform_info[$item['channel']]['order'];
             } else {
-                $channel_name = '官方渠道';
+                $channel_name = '其他渠道';
                 $order = 9999;
             }
             

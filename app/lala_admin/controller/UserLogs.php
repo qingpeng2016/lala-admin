@@ -39,7 +39,7 @@ class UserLogs extends Controller
         }
         if (isset($get['channel']) && $get['channel'] !== '') {
             if ($get['channel'] === 'official') {
-                // 查询官方渠道（除推广平台以外的所有渠道）
+                // 查询其他渠道（除推广平台以外的所有渠道）
                 try {
                     $platformChannels = Db::name('system_new_promotion_platforms')
                         ->where('status', 'active')
@@ -168,7 +168,7 @@ class UserLogs extends Controller
         }
         if (isset($get['channel']) && $get['channel'] !== '') {
             if ($get['channel'] === 'official') {
-                // 查询官方渠道（除推广平台以外的所有渠道）
+                // 查询其他渠道（除推广平台以外的所有渠道）
                 try {
                     $platformChannels = Db::name('system_new_promotion_platforms')
                         ->where('status', 'active')
