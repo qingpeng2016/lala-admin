@@ -34,15 +34,15 @@
     <div class="layui-form-item layui-inline">
         <button type="button" class="layui-btn layui-btn-normal" onclick="createPaymentLink()"><i class="layui-icon">&#xe654;</i> 创建付款链接</button>
     </div>
-    <div class="layui-form-item layui-inline">
-        <button type="button" class="layui-btn layui-btn-warm" onclick="copyOfficialAddress()"><i class="layui-icon">&#xe62f;</i> 官方充值地址</button>
-    </div>
 </form>
 
 <!-- 官方充值地址 -->
 <div class="layui-card" style="margin-top: 15px;">
-    <div class="layui-card-header">
+    <div class="layui-card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h3>官方充值地址</h3>
+        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm" onclick="copyOfficialAddress()">
+            <i class="layui-icon">&#xe62f;</i> 复制地址
+        </button>
     </div>
     <div class="layui-card-body">
         <div class="address-container">
