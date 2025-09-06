@@ -71,7 +71,7 @@ class PromotionAnalysis extends Controller
         $roi_data_all = [];
         
         foreach ($channel_stats as $channel_name => $stats) {
-            if ($channel_name === '全部') {
+            if ($channel_name === '全部渠道') {
                 // 全部渠道：不限制channel条件
                 $funnel_data_all[$channel_name] = $this->getFunnelDataByChannel('', $start_date, $end_date);
                 $roi_data_all[$channel_name] = $this->getRoiDataByChannel('', $start_date, $end_date);
@@ -188,11 +188,11 @@ class PromotionAnalysis extends Controller
 
         // 添加全部渠道数据
         if ($all_stats) {
-            $result['全部'] = [
+            $result['全部渠道'] = [
                 'unique_visitors' => $all_stats['unique_visitors'] ?? 0,
                 'total_actions' => $all_stats['total_actions'] ?? 0
             ];
-            $channel_order['全部'] = 3; // 全部渠道最低优先级
+            $channel_order['全部渠道'] = 10000; // 全部渠道最低优先级，排在其他渠道后面
         }
 
         // 按优先级排序
