@@ -9,7 +9,7 @@
             {php}$tab_index = 0;{/php}
             {foreach $channel_stats as $channel => $stats}
             {if $channel neq '全部'}
-            <li {if $tab_index == 0}class="layui-this"{/if}>{$channel} 渠道</li>
+            <li {if $tab_index == 0}class="layui-this"{/if}>{$channel}</li>
             {php}$tab_index++;{/php}
             {/if}
             {/foreach}
