@@ -203,23 +203,6 @@ class PromotionAnalysis extends Controller
             return ($channel_order[$a] ?? 999) - ($channel_order[$b] ?? 999);
         });
 
-        // 数据验证：全部渠道的数据应该是最多的
-        if (isset($result['全部渠道'])) {
-            $all_visitors = $result['全部渠道']['unique_visitors'];
-            $max_other_visitors = 0;
-            foreach ($result as $channel => $data) {
-                if ($channel !== '全部渠道') {
-                    $max_other_visitors = max($max_other_visitors, $data['unique_visitors']);
-                }
-            }
-            
-            // 如果全部渠道的数据少于其他渠道，记录警告
-            if ($all_visitors < $max_other_visitors) {
-                trace("数据异常：全部渠道独立访客({$all_visitors})少于其他渠道最大值({$max_other_visitors})", 'warning');
-                trace("各渠道数据: " . json_encode($result), 'info');
-            }
-        }
-
         return $result;
     }
 
