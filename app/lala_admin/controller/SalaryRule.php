@@ -35,11 +35,19 @@ class SalaryRule extends Controller
         $commission_new = $this->getCommissionRules('new');
         $commission_old = $this->getCommissionRules('old');
         
+        // 获取月度奖金规则数据
+        $monthly_bonus = $this->getMonthlyBonusRules();
+        
+        // 获取单价规则数据
+        $price_rules = $this->getPriceRules();
+        
         // 分配变量到视图
         $this->assign([
             'list' => $list,
             'commission_new' => $commission_new,
-            'commission_old' => $commission_old
+            'commission_old' => $commission_old,
+            'monthly_bonus' => $monthly_bonus,
+            'price_rules' => $price_rules
         ]);
         
         return $this->fetch();
@@ -136,6 +144,40 @@ class SalaryRule extends Controller
         
         try {
             return Db::name($table)
+                ->where('status', 1)
+                ->order('sort_order asc')
+                ->select()
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * 获取月度奖金规则数据
+     * @return array
+     */
+    private function getMonthlyBonusRules()
+    {
+        try {
+            return Db::name('system_new_monthly_bonus_rules')
+                ->where('status', 1)
+                ->order('sort_order asc')
+                ->select()
+                ->toArray();
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+    
+    /**
+     * 获取单价规则数据
+     * @return array
+     */
+    private function getPriceRules()
+    {
+        try {
+            return Db::name('system_new_price_rules')
                 ->where('status', 1)
                 ->order('sort_order asc')
                 ->select()

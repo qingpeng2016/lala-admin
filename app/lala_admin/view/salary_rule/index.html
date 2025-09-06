@@ -144,6 +144,105 @@
             </div>
         </div>
     </div>
+
+    <!-- 月度奖金规则 -->
+    <div class="layui-card" style="margin-top: 20px;">
+        <div class="layui-card-header">
+            <h3>月度奖金规则</h3>
+        </div>
+        <div class="layui-card-body">
+            <div class="bonus-description">
+                <p><strong>计算条件：</strong>满足新增客户流水占比 <strong>或</strong> 新增流水金额任一条件，即可获得对应的历史客户流水奖金比例</p>
+            </div>
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th>新增客户流水占比</th>
+                        <th>新增流水金额</th>
+                        <th>历史客户流水奖金比例</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $monthly_bonus as $rule}
+                    <tr>
+                        <td>
+                            {if $rule.max_new_ratio}
+                                {$rule.min_new_ratio}% - {$rule.max_new_ratio}%
+                            {else}
+                                ≥ {$rule.min_new_ratio}%
+                            {/if}
+                        </td>
+                        <td>
+                            {if $rule.max_new_amount}
+                                ¥{$rule.min_new_amount|number_format} - ¥{$rule.max_new_amount|number_format}
+                            {else}
+                                ≥ ¥{$rule.min_new_amount|number_format}
+                            {/if}
+                        </td>
+                        <td>
+                            <span class="rate-badge bonus-rate">{$rule.history_bonus_rate}%</span>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 单价规则 -->
+    <div class="layui-card" style="margin-top: 20px;">
+        <div class="layui-card-header">
+            <h3>单价规则</h3>
+        </div>
+        <div class="layui-card-body">
+            <div class="price-description">
+                <p><strong>最低成交价：</strong>100M/¥2000</p>
+            </div>
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th>规则类型</th>
+                        <th>奖励比例</th>
+                        <th>是否算入历史流水</th>
+                        <th>维护人员</th>
+                        <th>规则说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $price_rules as $rule}
+                    <tr>
+                        <td>
+                            {if $rule.rule_type eq 'above_min'}
+                                <span class="layui-badge layui-bg-green">超过最低价</span>
+                            {else}
+                                <span class="layui-badge layui-bg-orange">低于最低价</span>
+                            {/if}
+                        </td>
+                        <td>
+                            <span class="rate-badge price-rate">{$rule.bonus_rate}%</span>
+                        </td>
+                        <td>
+                            {if $rule.is_history_user eq '1'}
+                                <span class="layui-badge layui-bg-blue">是</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">否</span>
+                            {/if}
+                        </td>
+                        <td>
+                            {$rule.maintainer|default='无'}
+                        </td>
+                        <td>
+                            <div class="text-ellipsis" title="{$rule.rule_description}">
+                                {$rule.rule_description|mb_substr=0,50,'utf-8'}
+                                {if mb_strlen($rule.rule_description,'utf-8') > 50}...{/if}
+                            </div>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {/block}
 
@@ -212,6 +311,27 @@ layui.use(['layer'], function(){
 
 .text-ellipsis:hover {
     color: #1E9FFF;
+}
+
+.bonus-description, .price-description {
+    background: #f0f8ff;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border-left: 4px solid #1E9FFF;
+}
+
+.bonus-description p, .price-description p {
+    margin: 0;
+    color: #333;
+}
+
+.bonus-rate {
+    background: #FF5722 !important;
+}
+
+.price-rate {
+    background: #673AB7 !important;
 }
 </style>
 {/block}
