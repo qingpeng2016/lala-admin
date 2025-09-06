@@ -160,8 +160,10 @@ class PromotionAnalysis extends Controller
             // 记录渠道排序权重
             if ($channel_name === 'TG') {
                 $channel_order[$channel_name] = 1; // TG最高优先级
+            } elseif ($channel_name === '官方渠道') {
+                $channel_order[$channel_name] = 99; // 官方渠道最低优先级，放到最后
             } else {
-                $channel_order[$channel_name] = 2; // 其他渠道次优先级
+                $channel_order[$channel_name] = 2; // 其他推广平台次优先级
             }
         }
 
