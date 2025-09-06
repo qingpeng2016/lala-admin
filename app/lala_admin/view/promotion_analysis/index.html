@@ -20,10 +20,10 @@
             {if $channel neq '全部'}
             <div class="layui-tab-item {if $content_index == 0}layui-show{/if}">
             {php}$content_index++;{/php}
-                <!-- 渠道统计卡片 -->
+                <!-- 统计卡片 -->
                 <div class="layui-card">
                     <div class="layui-card-header">
-                        <h3>{$channel} 渠道统计概览</h3>
+                        <h3>{$channel} 统计概览</h3>
                     </div>
                     <div class="layui-card-body">
                         <div class="layui-row layui-col-space15">
@@ -46,7 +46,7 @@
                 <!-- 漏斗数据 -->
                 <div class="layui-card" style="margin-top: 20px;">
                     <div class="layui-card-header">
-                        <h3>{$channel} 渠道漏斗分析</h3>
+                        <h3>{$channel} 漏斗分析</h3>
                     </div>
                     <div class="layui-card-body">
                         {if isset($funnel_data_all[$channel]) && !empty($funnel_data_all[$channel])}
@@ -82,7 +82,7 @@
                         </table>
                         {else}
                         <div class="empty-data">
-                            <p>暂无{$channel}渠道漏斗数据</p>
+                            <p>暂无{$channel}漏斗数据</p>
                         </div>
                         {/if}
                     </div>
@@ -135,7 +135,7 @@
                 </table>
                 {else}
                 <div class="empty-data">
-                    <p>暂无{$channel}渠道投资回报数据</p>
+                    <p>暂无{$channel}投资回报数据</p>
                 </div>
                 {/if}
             </div>
