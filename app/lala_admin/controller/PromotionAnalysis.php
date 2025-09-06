@@ -106,10 +106,8 @@ class PromotionAnalysis extends Controller
      */
     protected function getChannelStats($start_date = '', $end_date = '')
     {
-        // 1. 获取所有渠道的统计数据
-        $query = $this->getBaseQuery()
-            ->where('channel', '<>', '')
-            ->where('channel', '<>', '0');
+        // 1. 获取所有渠道的统计数据（包括空channel，因为可能是其他渠道）
+        $query = $this->getBaseQuery();
 
         if ($start_date) {
             $query->where('created_at', '>=', $start_date . ' 00:00:00');
@@ -168,10 +166,11 @@ class PromotionAnalysis extends Controller
         // 处理各个具体渠道
         foreach ($stats as $item) {
             // 直接从推广平台信息获取渠道名称，如果没有则是其他渠道
-            if (isset($platform_info[$item['channel']])) {
+            if (isset($platform_info[$item['channel']]) && !empty($item['channel'])) {
                 $channel_name = $platform_info[$item['channel']]['name'];
                 $order = $platform_info[$item['channel']]['order'];
             } else {
+                // 空channel、'0'或不在推广平台表中的都归为其他渠道
                 $channel_name = '其他渠道';
                 $order = 9999;
             }
