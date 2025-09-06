@@ -1,0 +1,236 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+        
+        <!-- 基本信息 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>基本信息</legend>
+        </fieldset>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">员工ID</label>
+            <div class="layui-input-block">
+                <input name="employee_id" value='{$vo.employee_id|default=""}' required placeholder="请输入员工ID" class="layui-input" lay-verify="required">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">员工姓名</label>
+            <div class="layui-input-block">
+                <input name="employee_name" value='{$vo.employee_name|default=""}' required placeholder="请输入员工姓名" class="layui-input" lay-verify="required">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">员工类型</label>
+            <div class="layui-input-block">
+                <select name="employee_type" required lay-verify="required" lay-filter="employee_type">
+                    <option value="">请选择员工类型</option>
+                    {foreach $employee_type_list as $key => $value}
+                    <option value="{$key}" {if isset($vo.employee_type) and $vo.employee_type eq $key}selected{/if}>{$value}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">工资月份</label>
+            <div class="layui-input-block">
+                <input name="salary_month" value='{$vo.salary_month|default=""}' required placeholder="格式：2024-01" class="layui-input" lay-verify="required">
+                <div class="layui-form-mid layui-word-aux">格式：YYYY-MM</div>
+            </div>
+        </div>
+        
+        <!-- 基础工资 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>基础工资</legend>
+        </fieldset>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">底薪</label>
+            <div class="layui-input-block">
+                <input name="base_salary" value='{$vo.base_salary|default="0.00"}' placeholder="请输入底薪" class="layui-input" lay-verify="number">
+            </div>
+        </div>
+        
+        <!-- 基础福利（仅全职员工） -->
+        <fieldset class="layui-elem-field layui-field-title" id="welfare_section">
+            <legend>基础福利（仅全职员工）</legend>
+        </fieldset>
+        
+        <div class="layui-form-item" id="welfare_fields">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">全勤奖</label>
+                    <div class="layui-input-block">
+                        <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0.00"}' placeholder="全勤奖" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">餐补</label>
+                    <div class="layui-input-block">
+                        <input name="meal_allowance" value='{$vo.meal_allowance|default="0.00"}' placeholder="餐补" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10" style="margin-top: 15px;">
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">晚班交通补助</label>
+                    <div class="layui-input-block">
+                        <input name="night_transport" value='{$vo.night_transport|default="0.00"}' placeholder="晚班交通补助" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">迟到/早退扣款</label>
+                    <div class="layui-input-block">
+                        <input name="late_penalty" value='{$vo.late_penalty|default="0.00"}' placeholder="迟到/早退扣款" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 提成明细 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>提成明细</legend>
+        </fieldset>
+        
+        <div class="layui-form-item">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">新增客户提成</label>
+                    <div class="layui-input-block">
+                        <input name="new_customer_commission" value='{$vo.new_customer_commission|default="0.00"}' placeholder="新增客户提成" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">历史客户提成</label>
+                    <div class="layui-input-block">
+                        <input name="old_customer_commission" value='{$vo.old_customer_commission|default="0.00"}' placeholder="历史客户提成" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-row layui-col-space10" style="margin-top: 15px;">
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">月度奖金</label>
+                    <div class="layui-input-block">
+                        <input name="monthly_bonus" value='{$vo.monthly_bonus|default="0.00"}' placeholder="月度奖金" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">单价奖金</label>
+                    <div class="layui-input-block">
+                        <input name="price_bonus" value='{$vo.price_bonus|default="0.00"}' placeholder="单价奖金" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 最终工资 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>最终工资</legend>
+        </fieldset>
+        
+        <div class="layui-form-item">
+            <div class="layui-row layui-col-space10">
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">其他扣款</label>
+                    <div class="layui-input-block">
+                        <input name="deductions" value='{$vo.deductions|default="0.00"}' placeholder="其他扣款" class="layui-input" lay-verify="number">
+                    </div>
+                </div>
+                <div class="layui-col-md6">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        {foreach $status_list as $key => $value}
+                        <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq '0'}checked{/if}>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea name="remark" placeholder="请输入备注" class="layui-textarea" rows="3">{$vo.remark|default=""}</textarea>
+            </div>
+        </div>
+        
+        <div class="hr-line-dashed"></div>
+        {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type='submit' lay-submit lay-filter="formSubmit">保存数据</button>
+            <button class="layui-btn layui-btn-danger" type='button' data-close>取消编辑</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+    
+    // 监听员工类型变化
+    form.on('select(employee_type)', function(data){
+        var employeeType = data.value;
+        var welfareSection = document.getElementById('welfare_section');
+        var welfareFields = document.getElementById('welfare_fields');
+        
+        if (employeeType === 'full_time') {
+            welfareSection.style.display = 'block';
+            welfareFields.style.display = 'block';
+        } else {
+            welfareSection.style.display = 'none';
+            welfareFields.style.display = 'none';
+            // 清空福利字段
+            $('input[name="attendance_bonus"]').val('0.00');
+            $('input[name="meal_allowance"]').val('0.00');
+            $('input[name="night_transport"]').val('0.00');
+            $('input[name="late_penalty"]').val('0.00');
+        }
+    });
+    
+    // 页面加载时检查员工类型
+    var currentEmployeeType = $('select[name="employee_type"]').val();
+    if (currentEmployeeType && currentEmployeeType !== 'full_time') {
+        document.getElementById('welfare_section').style.display = 'none';
+        document.getElementById('welfare_fields').style.display = 'none';
+    }
+    
+    // 自定义验证规则
+    form.verify({
+        number: function(value) {
+            if (value && !/^\d+(\.\d{1,2})?$/.test(value)) {
+                return '请输入有效的数字格式（最多2位小数）';
+            }
+        }
+    });
+    
+    // 监听表单提交
+    form.on('submit(formSubmit)', function(data){
+        // 验证工资月份格式
+        var salaryMonth = data.field.salary_month;
+        if (salaryMonth && !/^\d{4}-\d{2}$/.test(salaryMonth)) {
+            layer.msg('工资月份格式错误，请使用YYYY-MM格式', {icon: 2});
+            return false;
+        }
+        
+        return true;
+    });
+});
+</script>
+
+<style>
+.layui-elem-field {
+    margin-top: 20px;
+}
+
+.layui-field-title legend {
+    color: #009688;
+    font-weight: bold;
+}
+</style>
+{/block}
