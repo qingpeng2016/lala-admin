@@ -210,34 +210,59 @@ class PromotionAnalysis extends Controller
      */
     private function getChannelCodes($channel_name)
     {
-        // 从Enum配置中反向查找channel代码
-        $channel_list = EnumTool::getChannelList();
-        $codes = [];
-        
-        foreach ($channel_list as $code => $name) {
-            if ($name === $channel_name) {
-                $codes[] = $code;
-            }
+        if ($channel_name === '其他渠道') {
+            // 其他渠道：获取所有非推广平台的channel值（包括空值）
+            return $this->getOtherChannelCodes();
         }
         
-        // 如果没找到配置，说明是动态生成的渠道名
-        // 需要从数据库中查找对应的channel值
-        if (empty($codes)) {
-            $channel_data = $this->getBaseQuery()
-                ->where('channel', '<>', '')
-                ->where('channel', '<>', '0')
+        // 推广平台渠道：从推广平台表中获取对应的channel值
+        try {
+            $platform = \think\facade\Db::name('system_new_promotion_platforms')
+                ->where('platform_name', $channel_name)
+                ->where('status', 'active')
+                ->field('channel')
+                ->find();
+            
+            if ($platform) {
+                return [$platform['channel']];
+            }
+        } catch (\Exception $e) {
+            // 查询失败
+        }
+        
+        return [];
+    }
+    
+    /**
+     * 获取其他渠道的所有channel代码
+     * @return array
+     */
+    private function getOtherChannelCodes()
+    {
+        try {
+            // 获取所有推广平台的channel
+            $platformChannels = \think\facade\Db::name('system_new_promotion_platforms')
+                ->where('status', 'active')
+                ->column('channel');
+            
+            // 获取所有存在的channel值
+            $allChannels = $this->getBaseQuery()
                 ->field('DISTINCT channel')
                 ->select()
-                ->toArray();
-                
-            foreach ($channel_data as $item) {
-                if (EnumTool::getChannelName($item['channel']) === $channel_name) {
-                    $codes[] = $item['channel'];
+                ->column('channel');
+            
+            // 过滤出非推广平台的channel（包括空值）
+            $otherChannels = [];
+            foreach ($allChannels as $channel) {
+                if (!in_array($channel, $platformChannels)) {
+                    $otherChannels[] = $channel;
                 }
             }
+            
+            return $otherChannels;
+        } catch (\Exception $e) {
+            return ['', '0']; // 默认返回空值
         }
-        
-        return $codes;
     }
 
     /**
