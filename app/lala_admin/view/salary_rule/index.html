@@ -30,9 +30,6 @@
         </div>
     </div>
 
-    <!-- 搜索表单 -->
-    {include file="salary_rule/index_search" /}
-    
     <!-- 工资规则列表 -->
     <div class="layui-card">
         <div class="layui-card-header">
@@ -89,13 +86,6 @@
                     {/foreach}
                 </tbody>
             </table>
-            
-            <!-- 分页 -->
-            {if $pagehtml}
-            <div class="layui-card-body">
-                {$pagehtml|raw}
-            </div>
-            {/if}
         </div>
     </div>
 

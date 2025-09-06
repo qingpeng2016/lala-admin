@@ -21,31 +21,8 @@ class SalaryRule extends Controller
     {
         $this->title = '工资规则管理';
         
-        // 获取请求参数
-        $get = $this->request->get();
-        
-        // 创建查询对象
-        $query = SalaryRuleModel::order('sort_order asc, id asc');
-        
-        // 添加搜索条件
-        if (isset($get['rule_type']) && $get['rule_type'] !== '') {
-            $query->where('rule_type', $get['rule_type']);
-        }
-        if (isset($get['rule_name']) && $get['rule_name'] !== '') {
-            $query->where('rule_name', 'like', "%{$get['rule_name']}%");
-        }
-        if (isset($get['status']) && $get['status'] !== '') {
-            $query->where('status', $get['status']);
-        }
-        
-        // 执行分页查询
-        $result = $query->paginate([
-            'list_rows' => 20,
-            'page' => $get['page'] ?? 1,
-            'query' => $get,
-        ], false);
-        
-        $list = $result->items();
+        // 直接获取所有工资规则数据
+        $list = SalaryRuleModel::order('sort_order asc, id asc')->select()->toArray();
         
         // 处理数据
         foreach ($list as &$item) {
@@ -61,11 +38,6 @@ class SalaryRule extends Controller
         // 分配变量到视图
         $this->assign([
             'list' => $list,
-            'pagehtml' => $result->render(),
-            'get' => $get,
-            'rule_type_list' => SalaryRuleModel::getRuleTypeList(),
-            'unit_type_list' => SalaryRuleModel::getUnitTypeList(),
-            'status_list' => SalaryRuleModel::getStatusList(),
             'commission_new' => $commission_new,
             'commission_old' => $commission_old
         ]);
