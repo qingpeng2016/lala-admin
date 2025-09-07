@@ -328,10 +328,10 @@ class EmployeeSalary extends Controller
     private function getWelfareByEmployeeType($employee_type)
     {
         $welfare_data = [
-            'attendance_bonus' => '0.00',
-            'meal_allowance' => '0.00', 
-            'night_transport' => '0.00',
-            'late_penalty' => '0.00'
+            'attendance_bonus' => '0',
+            'meal_allowance' => '0', 
+            'night_transport' => '0',
+            'late_penalty' => '0'
         ];
         
         // 如果是全职员工，从system_new_salary_rules表获取规则
@@ -345,7 +345,7 @@ class EmployeeSalary extends Controller
             
             foreach ($rules as $rule) {
                 if (isset($welfare_data[$rule['rule_type']])) {
-                    $welfare_data[$rule['rule_type']] = number_format(floatval($rule['amount']), 2);
+                    $welfare_data[$rule['rule_type']] = intval($rule['amount']);
                 }
             }
         }

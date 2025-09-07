@@ -20,10 +20,10 @@
                         data-usertype="{$employee.usertype}" 
                         data-base-salary="{$employee.base_salary|default='0.00'}"
                         data-employee-type="{$employee.employee_type|default=''}"
-                        data-attendance-bonus="{$employee.attendance_bonus|default='0.00'}"
-                        data-meal-allowance="{$employee.meal_allowance|default='0.00'}"
-                        data-night-transport="{$employee.night_transport|default='0.00'}"
-                        data-late-penalty="{$employee.late_penalty|default='0.00'}"
+                        data-attendance-bonus="{$employee.attendance_bonus|default='0'}"
+                        data-meal-allowance="{$employee.meal_allowance|default='0'}"
+                        data-night-transport="{$employee.night_transport|default='0'}"
+                        data-late-penalty="{$employee.late_penalty|default='0'}"
                         {if isset($vo.employee_id) and $vo.employee_id eq $employee.id}selected{/if}>
                         {$employee.nickname} (ID: {$employee.id})
                     </option>
@@ -96,13 +96,13 @@
                 <div class="layui-col-md6">
                     <label class="layui-form-label">全勤奖</label>
                     <div class="layui-input-block">
-                        <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0.00"}' placeholder="全勤奖" class="layui-input" lay-verify="number" readonly>
+                        <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0"}' placeholder="全勤奖" class="layui-input" lay-verify="number" readonly>
                     </div>
                 </div>
                 <div class="layui-col-md6">
                     <label class="layui-form-label">餐补</label>
                     <div class="layui-input-block">
-                        <input name="meal_allowance" value='{$vo.meal_allowance|default="0.00"}' placeholder="餐补" class="layui-input" lay-verify="number" readonly>
+                        <input name="meal_allowance" value='{$vo.meal_allowance|default="0"}' placeholder="餐补" class="layui-input" lay-verify="number" readonly>
                     </div>
                 </div>
             </div>
@@ -110,13 +110,13 @@
                 <div class="layui-col-md6">
                     <label class="layui-form-label">晚班交通补助</label>
                     <div class="layui-input-block">
-                        <input name="night_transport" value='{$vo.night_transport|default="0.00"}' placeholder="晚班交通补助" class="layui-input" lay-verify="number" readonly>
+                        <input name="night_transport" value='{$vo.night_transport|default="0"}' placeholder="晚班交通补助" class="layui-input" lay-verify="number" readonly>
                     </div>
                 </div>
                 <div class="layui-col-md6">
                     <label class="layui-form-label">迟到/早退扣款</label>
                     <div class="layui-input-block">
-                        <input name="late_penalty" value='{$vo.late_penalty|default="0.00"}' placeholder="迟到/早退扣款" class="layui-input" lay-verify="number" readonly>
+                        <input name="late_penalty" value='{$vo.late_penalty|default="0"}' placeholder="迟到/早退扣款" class="layui-input" lay-verify="number" readonly>
                     </div>
                 </div>
             </div>
@@ -230,10 +230,10 @@ layui.use(['form'], function(){
             form.render('select'); // 重新渲染select
             
             // 直接从option的data属性获取基础福利数据
-            var attendanceBonus = selectedOption.data('attendance-bonus') || '0.00';
-            var mealAllowance = selectedOption.data('meal-allowance') || '0.00';
-            var nightTransport = selectedOption.data('night-transport') || '0.00';
-            var latePenalty = selectedOption.data('late-penalty') || '0.00';
+            var attendanceBonus = selectedOption.data('attendance-bonus') || '0';
+            var mealAllowance = selectedOption.data('meal-allowance') || '0';
+            var nightTransport = selectedOption.data('night-transport') || '0';
+            var latePenalty = selectedOption.data('late-penalty') || '0';
             
             // 填充基础福利字段
             $('input[name="attendance_bonus"]').val(attendanceBonus);
@@ -258,10 +258,10 @@ layui.use(['form'], function(){
         form.render('select');
         
         // 清空福利字段
-        $('input[name="attendance_bonus"]').val('0.00');
-        $('input[name="meal_allowance"]').val('0.00');
-        $('input[name="night_transport"]').val('0.00');
-        $('input[name="late_penalty"]').val('0.00');
+        $('input[name="attendance_bonus"]').val('0');
+        $('input[name="meal_allowance"]').val('0');
+        $('input[name="night_transport"]').val('0');
+        $('input[name="late_penalty"]').val('0');
         
         toggleWelfareFields('');
     }
