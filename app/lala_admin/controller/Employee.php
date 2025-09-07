@@ -75,6 +75,11 @@ class Employee extends Controller
             
             // 格式化用户类型
             $item['usertype_text'] = $this->getUserTypeText($item['usertype']);
+            
+            // 设置员工类型（如果system_user表中没有此字段，设置默认值）
+            if (!isset($item['employee_type']) || empty($item['employee_type'])) {
+                $item['employee_type'] = 'full_time'; // 默认为全职
+            }
         }
         
         // 分配变量到视图

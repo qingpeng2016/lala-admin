@@ -15,6 +15,7 @@
                     <tr>
                         <th style="width: 60px;">ID</th>
                         <th style="width: 120px;">用户名</th>
+                        <th style="width: 100px;">员工类型</th>
                         <th style="width: 100px;">基础工资</th>
                         <th style="width: 120px;">昵称</th>
                         <th style="width: 100px;">用户类型</th>
@@ -32,6 +33,7 @@
                     <tr>
                         <td>{$vo.id}</td>
                         <td>{$vo.username}</td>
+                        <td>{$vo.employee_type|default='-'}</td>
                         <td>
                             <span class="salary-badge">¥{$vo.base_salary|number_format|default='0'}</span>
                         </td>
