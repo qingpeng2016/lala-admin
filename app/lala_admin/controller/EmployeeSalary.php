@@ -123,9 +123,9 @@ class EmployeeSalary extends Controller
             // 计算工资总额
             $data = $this->calculateSalary($data);
             
-            // 设置默认状态
+            // 设置默认状态为已审核
             if (!isset($data['status'])) {
-                $data['status'] = '0';
+                $data['status'] = '1';
             }
             
             $id = Db::name('system_new_employee_salary')->insertGetId($data);

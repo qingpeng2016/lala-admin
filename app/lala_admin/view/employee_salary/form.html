@@ -175,7 +175,7 @@
                     <label class="layui-form-label">状态</label>
                     <div class="layui-input-block">
                         {foreach $status_list as $key => $value}
-                        <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq '0'}checked{/if}>
+                        <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq '1'}checked{/if}>
                         {/foreach}
                     </div>
                 </div>

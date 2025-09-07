@@ -48,7 +48,6 @@ class EmployeeSalary extends Model
     public static function getStatusList()
     {
         return [
-            '0' => '待审核',
             '1' => '已审核',
             '2' => '已发放'
         ];
