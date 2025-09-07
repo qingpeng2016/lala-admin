@@ -75,13 +75,6 @@ class Employee extends Controller
             
             // 格式化用户类型
             $item['usertype_text'] = $this->getUserTypeText($item['usertype']);
-            
-            // 获取基础工资（从工资表中获取最新记录）
-            $salary = Db::name('system_new_employee_salary')
-                ->where('employee_id', $item['id'])
-                ->order('salary_month desc, id desc')
-                ->value('base_salary');
-            $item['base_salary'] = $salary ?: 0;
         }
         
         // 分配变量到视图
@@ -181,13 +174,6 @@ class Employee extends Controller
             // 格式化状态和用户类型
             $item['status_text'] = $this->getStatusText($item['status']);
             $item['usertype_text'] = $this->getUserTypeText($item['usertype']);
-            
-            // 获取基础工资（从工资表中获取最新记录）
-            $salary = Db::name('system_new_employee_salary')
-                ->where('employee_id', $item['id'])
-                ->order('salary_month desc, id desc')
-                ->value('base_salary');
-            $item['base_salary'] = $salary ?: 0;
         }
         
         // 设置CSV文件名
