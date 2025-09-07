@@ -345,7 +345,7 @@ class EmployeeSalary extends Controller
             
             foreach ($rules as $rule) {
                 if (isset($welfare_data[$rule['rule_type']])) {
-                    $welfare_data[$rule['rule_type']] = number_format($rule['amount'], 2);
+                    $welfare_data[$rule['rule_type']] = number_format(floatval($rule['amount']), 2);
                 }
             }
         }
