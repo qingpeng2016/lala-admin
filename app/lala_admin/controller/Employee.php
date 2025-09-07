@@ -117,7 +117,7 @@ class Employee extends Controller
     }
     
     /**
-     * 获取用户类型文本
+     * 获取用户类型文本1
      * @param string $usertype
      * @return string
      */
