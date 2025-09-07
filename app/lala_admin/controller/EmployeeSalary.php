@@ -137,9 +137,20 @@ class EmployeeSalary extends Controller
         }
         
         $this->title = '添加工资记录';
+        
+        // 获取员工列表
+        $employees = Db::name('system_user')
+            ->where('is_deleted', 0)
+            ->where('status', 1)
+            ->field('id,nickname,usertype,base_salary')
+            ->order('sort desc, id desc')
+            ->select()
+            ->toArray();
+        
         $this->assign([
             'employee_type_list' => EmployeeSalaryModel::getEmployeeTypeList(),
-            'status_list' => EmployeeSalaryModel::getStatusList()
+            'status_list' => EmployeeSalaryModel::getStatusList(),
+            'employees' => $employees
         ]);
         return $this->fetch('form');
     }
@@ -187,10 +198,21 @@ class EmployeeSalary extends Controller
         }
         
         $this->title = '编辑工资记录';
+        
+        // 获取员工列表
+        $employees = Db::name('system_user')
+            ->where('is_deleted', 0)
+            ->where('status', 1)
+            ->field('id,nickname,usertype,base_salary')
+            ->order('sort desc, id desc')
+            ->select()
+            ->toArray();
+        
         $this->assign([
             'vo' => $info,
             'employee_type_list' => EmployeeSalaryModel::getEmployeeTypeList(),
-            'status_list' => EmployeeSalaryModel::getStatusList()
+            'status_list' => EmployeeSalaryModel::getStatusList(),
+            'employees' => $employees
         ]);
         return $this->fetch('form');
     }
@@ -233,6 +255,40 @@ class EmployeeSalary extends Controller
         } else {
             return json(['code' => 0, 'info' => '状态更新失败']);
         }
+    }
+
+    /**
+     * 获取员工信息API
+     * @auth true
+     */
+    public function getEmployeeInfo()
+    {
+        $employee_id = $this->request->param('employee_id');
+        if (empty($employee_id)) {
+            return json(['code' => 0, 'info' => '参数错误']);
+        }
+        
+        $employee = Db::name('system_user')
+            ->where('id', $employee_id)
+            ->where('is_deleted', 0)
+            ->where('status', 1)
+            ->field('id,nickname,usertype,base_salary')
+            ->find();
+        
+        if (!$employee) {
+            return json(['code' => 0, 'info' => '员工不存在']);
+        }
+        
+        // 映射员工类型
+        $employee_type_map = [
+            'admin' => 'full_time',     // 管理员 -> 全职员工
+            'user' => 'part_time',      // 普通用户 -> 普通兼职
+            'vip' => 'part_time_base'   // VIP用户 -> 底薪兼职
+        ];
+        
+        $employee['employee_type'] = $employee_type_map[$employee['usertype']] ?? 'full_time';
+        
+        return json(['code' => 1, 'data' => $employee]);
     }
 
     /**

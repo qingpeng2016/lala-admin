@@ -10,16 +10,35 @@
         </fieldset>
         
         <div class="layui-form-item">
+            <label class="layui-form-label">选择员工</label>
+            <div class="layui-input-block">
+                <select name="employee_select" lay-filter="employee_select" lay-search>
+                    <option value="">请选择员工</option>
+                    {foreach $employees as $employee}
+                    <option value="{$employee.id}" 
+                        data-nickname="{$employee.nickname}" 
+                        data-usertype="{$employee.usertype}" 
+                        data-base-salary="{$employee.base_salary|default='0.00'}"
+                        {if isset($vo.employee_id) and $vo.employee_id eq $employee.id}selected{/if}>
+                        {$employee.nickname} (ID: {$employee.id})
+                    </option>
+                    {/foreach}
+                </select>
+                <div class="layui-form-mid layui-word-aux">选择员工后自动填充基本信息</div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
             <label class="layui-form-label">员工ID</label>
             <div class="layui-input-block">
-                <input name="employee_id" value='{$vo.employee_id|default=""}' required placeholder="请输入员工ID" class="layui-input" lay-verify="required">
+                <input name="employee_id" value='{$vo.employee_id|default=""}' required placeholder="请输入员工ID" class="layui-input" lay-verify="required" readonly>
             </div>
         </div>
         
         <div class="layui-form-item">
             <label class="layui-form-label">员工姓名</label>
             <div class="layui-input-block">
-                <input name="employee_name" value='{$vo.employee_name|default=""}' required placeholder="请输入员工姓名" class="layui-input" lay-verify="required">
+                <input name="employee_name" value='{$vo.employee_name|default=""}' required placeholder="请输入员工姓名" class="layui-input" lay-verify="required" readonly>
             </div>
         </div>
         
@@ -51,7 +70,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">底薪</label>
             <div class="layui-input-block">
-                <input name="base_salary" value='{$vo.base_salary|default="0.00"}' placeholder="请输入底薪" class="layui-input" lay-verify="number">
+                <input name="base_salary" value='{$vo.base_salary|default="0.00"}' placeholder="请输入底薪" class="layui-input" lay-verify="number" readonly>
             </div>
         </div>
         
@@ -173,9 +192,48 @@
 layui.use(['form'], function(){
     var form = layui.form;
     
-    // 监听员工类型变化
-    form.on('select(employee_type)', function(data){
-        var employeeType = data.value;
+    // 监听员工选择变化
+    form.on('select(employee_select)', function(data){
+        var employeeId = data.value;
+        if (employeeId) {
+            // 获取选中的option元素
+            var selectedOption = $(data.elem).find('option:selected');
+            var nickname = selectedOption.data('nickname');
+            var usertype = selectedOption.data('usertype');
+            var baseSalary = selectedOption.data('base-salary') || '0.00';
+            
+            // 映射员工类型
+            var employeeTypeMap = {
+                'admin': 'full_time',     // 管理员 -> 全职员工
+                'user': 'part_time',      // 普通用户 -> 普通兼职
+                'vip': 'part_time_base'   // VIP用户 -> 底薪兼职
+            };
+            var employeeType = employeeTypeMap[usertype] || 'full_time';
+            
+            // 填充基本信息
+            $('input[name="employee_id"]').val(employeeId);
+            $('input[name="employee_name"]').val(nickname);
+            $('input[name="base_salary"]').val(baseSalary);
+            
+            // 设置员工类型
+            $('select[name="employee_type"]').val(employeeType);
+            form.render('select'); // 重新渲染select
+            
+            // 触发员工类型变化事件
+            toggleWelfareFields(employeeType);
+        } else {
+            // 清空所有字段
+            $('input[name="employee_id"]').val('');
+            $('input[name="employee_name"]').val('');
+            $('input[name="base_salary"]').val('0.00');
+            $('select[name="employee_type"]').val('');
+            form.render('select');
+            toggleWelfareFields('');
+        }
+    });
+    
+    // 员工类型变化处理函数
+    function toggleWelfareFields(employeeType) {
         var welfareSection = document.getElementById('welfare_section');
         var welfareFields = document.getElementById('welfare_fields');
         
@@ -191,13 +249,22 @@ layui.use(['form'], function(){
             $('input[name="night_transport"]').val('0.00');
             $('input[name="late_penalty"]').val('0.00');
         }
+    }
+
+    // 监听员工类型变化
+    form.on('select(employee_type)', function(data){
+        toggleWelfareFields(data.value);
     });
     
     // 页面加载时检查员工类型
     var currentEmployeeType = $('select[name="employee_type"]').val();
-    if (currentEmployeeType && currentEmployeeType !== 'full_time') {
-        document.getElementById('welfare_section').style.display = 'none';
-        document.getElementById('welfare_fields').style.display = 'none';
+    toggleWelfareFields(currentEmployeeType);
+    
+    // 如果是编辑模式，根据已有的员工ID设置员工选择框
+    var currentEmployeeId = $('input[name="employee_id"]').val();
+    if (currentEmployeeId) {
+        $('select[name="employee_select"]').val(currentEmployeeId);
+        form.render('select');
     }
     
     // 自定义验证规则
@@ -231,6 +298,19 @@ layui.use(['form'], function(){
 .layui-field-title legend {
     color: #009688;
     font-weight: bold;
+}
+
+/* 只读字段样式 */
+.layui-input[readonly] {
+    background-color: #f8f8f8;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* 员工选择提示样式 */
+.layui-word-aux {
+    color: #999;
+    font-size: 12px;
 }
 </style>
 {/block}
