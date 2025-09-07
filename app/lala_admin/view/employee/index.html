@@ -15,12 +15,11 @@
                     <tr>
                         <th style="width: 60px;">ID</th>
                         <th style="width: 120px;">用户名</th>
-                        <th style="width: 100px;">员工类型</th>
-                        <th style="width: 100px;">基础工资</th>
                         <th style="width: 120px;">昵称</th>
-                        <th style="width: 100px;">用户类型</th>
+                        <th style="width: 100px;">员工类型</th>
                         <th style="width: 120px;">手机号</th>
                         <th style="width: 150px;">邮箱</th>
+                        <th style="width: 100px;">基础工资</th>
                         <th style="width: 80px;">状态</th>
                         <th style="width: 80px;">登录次数</th>
                         <th style="width: 120px;">最后登录IP</th>
@@ -33,14 +32,13 @@
                     <tr>
                         <td>{$vo.id}</td>
                         <td>{$vo.username}</td>
+                        <td>{$vo.nickname}</td>
                         <td>{$vo.employee_type|default='-'}</td>
+                        <td>{$vo.contact_phone|default='-'}</td>
+                        <td>{$vo.contact_mail|default='-'}</td>
                         <td>
                             <span class="salary-badge">¥{$vo.base_salary|number_format|default='0'}</span>
                         </td>
-                        <td>{$vo.nickname}</td>
-                        <td>{$vo.usertype_text}</td>
-                        <td>{$vo.contact_phone|default='-'}</td>
-                        <td>{$vo.contact_mail|default='-'}</td>
                         <td>
                             {if $vo.status eq 1}
                                 <span class="layui-badge layui-bg-green">启用</span>
