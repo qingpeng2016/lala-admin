@@ -142,7 +142,7 @@ class EmployeeSalary extends Controller
         $employees = Db::name('system_user')
             ->where('is_deleted', 0)
             ->where('status', 1)
-            ->field('id,nickname,usertype,base_salary')
+            ->field('id,nickname,usertype,base_salary,employee_type')
             ->order('sort desc, id desc')
             ->select()
             ->toArray();
@@ -207,7 +207,7 @@ class EmployeeSalary extends Controller
         $employees = Db::name('system_user')
             ->where('is_deleted', 0)
             ->where('status', 1)
-            ->field('id,nickname,usertype,base_salary')
+            ->field('id,nickname,usertype,base_salary,employee_type')
             ->order('sort desc, id desc')
             ->select()
             ->toArray();
@@ -280,23 +280,65 @@ class EmployeeSalary extends Controller
             ->where('id', $employee_id)
             ->where('is_deleted', 0)
             ->where('status', 1)
-            ->field('id,nickname,usertype,base_salary')
+            ->field('id,nickname,usertype,base_salary,employee_type')
             ->find();
         
         if (!$employee) {
             return json(['code' => 0, 'info' => '员工不存在']);
         }
         
-        // 映射员工类型
+        // 根据employee_type获取基础福利
+        $welfare_data = $this->getWelfareByEmployeeType($employee['employee_type']);
+        
+        // 映射员工类型到工资系统的类型
         $employee_type_map = [
             'admin' => 'full_time',     // 管理员 -> 全职员工
             'user' => 'part_time',      // 普通用户 -> 普通兼职
             'vip' => 'part_time_base'   // VIP用户 -> 底薪兼职
         ];
         
-        $employee['employee_type'] = $employee_type_map[$employee['usertype']] ?? 'full_time';
+        // 如果employee_type字段为空，使用usertype映射
+        if (empty($employee['employee_type'])) {
+            $employee['employee_type'] = $employee_type_map[$employee['usertype']] ?? 'full_time';
+        }
+        
+        // 合并福利数据
+        $employee = array_merge($employee, $welfare_data);
         
         return json(['code' => 1, 'data' => $employee]);
+    }
+
+    /**
+     * 根据员工类型获取基础福利
+     * @param string $employee_type
+     * @return array
+     */
+    private function getWelfareByEmployeeType($employee_type)
+    {
+        $welfare_data = [
+            'attendance_bonus' => '0.00',
+            'meal_allowance' => '0.00', 
+            'night_transport' => '0.00',
+            'late_penalty' => '0.00'
+        ];
+        
+        // 如果是正式员工，从system_new_salary_rules表获取规则
+        if ($employee_type === '正式员工') {
+            $rules = Db::name('system_new_salary_rules')
+                ->where('status', 1)
+                ->whereIn('rule_type', ['attendance_bonus', 'meal_allowance', 'night_transport', 'late_penalty'])
+                ->field('rule_type,amount')
+                ->select()
+                ->toArray();
+            
+            foreach ($rules as $rule) {
+                if (isset($welfare_data[$rule['rule_type']])) {
+                    $welfare_data[$rule['rule_type']] = number_format($rule['amount'], 2);
+                }
+            }
+        }
+        
+        return $welfare_data;
     }
 
     /**
