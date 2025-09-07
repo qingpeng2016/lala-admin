@@ -120,6 +120,9 @@ class EmployeeSalary extends Controller
                 $this->error('该员工本月工资记录已存在');
             }
             
+            // 移除前端辅助字段，不保存到数据库
+            unset($data['employee_select']);
+            
             // 处理福利计算字段
             $data = $this->processWelfareCalculation($data);
             
@@ -192,6 +195,9 @@ class EmployeeSalary extends Controller
             if (empty($data['salary_month'])) {
                 $this->error('工资月份不能为空');
             }
+            
+            // 移除前端辅助字段，不保存到数据库
+            unset($data['employee_select']);
             
             // 处理福利计算字段
             $data = $this->processWelfareCalculation($data);
