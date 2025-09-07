@@ -57,8 +57,15 @@
         <div class="layui-form-item">
             <label class="layui-form-label">工资月份</label>
             <div class="layui-input-block">
-                <input name="salary_month" value='{$vo.salary_month|default=""}' required placeholder="格式：2024-01" class="layui-input" lay-verify="required">
-                <div class="layui-form-mid layui-word-aux">格式：YYYY-MM</div>
+                <select name="salary_month" required lay-verify="required">
+                    {foreach $month_options as $option}
+                    <option value="{$option.value}" 
+                        {if isset($vo.salary_month) and $vo.salary_month eq $option.value}selected{elseif !isset($vo.salary_month) and $option.is_current}selected{/if}>
+                        {$option.text}
+                    </option>
+                    {/foreach}
+                </select>
+                <div class="layui-form-mid layui-word-aux">默认选择本月，可选择上个月或下个月</div>
             </div>
         </div>
         
@@ -278,13 +285,7 @@ layui.use(['form'], function(){
     
     // 监听表单提交
     form.on('submit(formSubmit)', function(data){
-        // 验证工资月份格式
-        var salaryMonth = data.field.salary_month;
-        if (salaryMonth && !/^\d{4}-\d{2}$/.test(salaryMonth)) {
-            layer.msg('工资月份格式错误，请使用YYYY-MM格式', {icon: 2});
-            return false;
-        }
-        
+        // 工资月份现在是下拉选择，无需验证格式
         return true;
     });
 });

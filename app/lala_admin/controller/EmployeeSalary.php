@@ -147,10 +147,14 @@ class EmployeeSalary extends Controller
             ->select()
             ->toArray();
         
+        // 生成月份选项（上个月、本月、下个月）
+        $month_options = $this->generateMonthOptions();
+        
         $this->assign([
             'employee_type_list' => EmployeeSalaryModel::getEmployeeTypeList(),
             'status_list' => EmployeeSalaryModel::getStatusList(),
-            'employees' => $employees
+            'employees' => $employees,
+            'month_options' => $month_options
         ]);
         return $this->fetch('form');
     }
@@ -208,11 +212,15 @@ class EmployeeSalary extends Controller
             ->select()
             ->toArray();
         
+        // 生成月份选项（上个月、本月、下个月）
+        $month_options = $this->generateMonthOptions();
+        
         $this->assign([
             'vo' => $info,
             'employee_type_list' => EmployeeSalaryModel::getEmployeeTypeList(),
             'status_list' => EmployeeSalaryModel::getStatusList(),
-            'employees' => $employees
+            'employees' => $employees,
+            'month_options' => $month_options
         ]);
         return $this->fetch('form');
     }
@@ -289,6 +297,47 @@ class EmployeeSalary extends Controller
         $employee['employee_type'] = $employee_type_map[$employee['usertype']] ?? 'full_time';
         
         return json(['code' => 1, 'data' => $employee]);
+    }
+
+    /**
+     * 生成月份选项（上个月、本月、下个月）
+     * @return array
+     */
+    private function generateMonthOptions()
+    {
+        $options = [];
+        
+        // 获取当前时间
+        $currentTime = time();
+        
+        // 上个月
+        $lastMonth = date('Y-m', strtotime('-1 month', $currentTime));
+        $lastMonthText = date('Y年m月', strtotime('-1 month', $currentTime));
+        $options[] = [
+            'value' => $lastMonth,
+            'text' => $lastMonthText . '（上个月）',
+            'is_current' => false
+        ];
+        
+        // 本月（默认选中）
+        $currentMonth = date('Y-m', $currentTime);
+        $currentMonthText = date('Y年m月', $currentTime);
+        $options[] = [
+            'value' => $currentMonth,
+            'text' => $currentMonthText . '（本月）',
+            'is_current' => true
+        ];
+        
+        // 下个月
+        $nextMonth = date('Y-m', strtotime('+1 month', $currentTime));
+        $nextMonthText = date('Y年m月', strtotime('+1 month', $currentTime));
+        $options[] = [
+            'value' => $nextMonth,
+            'text' => $nextMonthText . '（下个月）',
+            'is_current' => false
+        ];
+        
+        return $options;
     }
 
     /**
