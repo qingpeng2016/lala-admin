@@ -20,6 +20,10 @@
                         data-usertype="{$employee.usertype}" 
                         data-base-salary="{$employee.base_salary|default='0.00'}"
                         data-employee-type="{$employee.employee_type|default=''}"
+                        data-attendance-bonus="{$employee.attendance_bonus|default='0.00'}"
+                        data-meal-allowance="{$employee.meal_allowance|default='0.00'}"
+                        data-night-transport="{$employee.night_transport|default='0.00'}"
+                        data-late-penalty="{$employee.late_penalty|default='0.00'}"
                         {if isset($vo.employee_id) and $vo.employee_id eq $employee.id}selected{/if}>
                         {$employee.nickname} (ID: {$employee.id})
                     </option>
@@ -230,8 +234,17 @@ layui.use(['form'], function(){
             $('select[name="employee_type"]').val(employeeType);
             form.render('select'); // 重新渲染select
             
-            // 根据员工ID获取基础福利规则
-            fillWelfareData(employeeId);
+            // 直接从option的data属性获取基础福利数据
+            var attendanceBonus = selectedOption.data('attendance-bonus') || '0.00';
+            var mealAllowance = selectedOption.data('meal-allowance') || '0.00';
+            var nightTransport = selectedOption.data('night-transport') || '0.00';
+            var latePenalty = selectedOption.data('late-penalty') || '0.00';
+            
+            // 填充基础福利字段
+            $('input[name="attendance_bonus"]').val(attendanceBonus);
+            $('input[name="meal_allowance"]').val(mealAllowance);
+            $('input[name="night_transport"]').val(nightTransport);
+            $('input[name="late_penalty"]').val(latePenalty);
             
             // 触发员工类型变化事件
             toggleWelfareFields(employeeType);
@@ -240,45 +253,6 @@ layui.use(['form'], function(){
             clearAllFields();
         }
     });
-    
-    // 根据员工ID获取完整员工信息包括基础福利
-    function fillWelfareData(employeeId) {
-        if (!employeeId) return;
-        
-        // 调用后端API获取员工信息和基础福利规则
-        $.ajax({
-            url: '{:url("getEmployeeInfo")}',
-            type: 'GET',
-            data: { employee_id: employeeId },
-            dataType: 'json',
-            success: function(res) {
-                if (res.code === 1 && res.data) {
-                    var data = res.data;
-                    
-                    // 填充基础福利数据
-                    $('input[name="attendance_bonus"]').val(data.attendance_bonus || '0.00');
-                    $('input[name="meal_allowance"]').val(data.meal_allowance || '0.00');
-                    $('input[name="night_transport"]').val(data.night_transport || '0.00');
-                    $('input[name="late_penalty"]').val(data.late_penalty || '0.00');
-                } else {
-                    layer.msg(res.info || '获取员工信息失败', {icon: 2});
-                    // 失败时设为0
-                    $('input[name="attendance_bonus"]').val('0.00');
-                    $('input[name="meal_allowance"]').val('0.00');
-                    $('input[name="night_transport"]').val('0.00');
-                    $('input[name="late_penalty"]').val('0.00');
-                }
-            },
-            error: function() {
-                layer.msg('网络错误，请重试', {icon: 2});
-                // 错误时设为0
-                $('input[name="attendance_bonus"]').val('0.00');
-                $('input[name="meal_allowance"]').val('0.00');
-                $('input[name="night_transport"]').val('0.00');
-                $('input[name="late_penalty"]').val('0.00');
-            }
-        });
-    }
     
     // 清空所有字段
     function clearAllFields() {

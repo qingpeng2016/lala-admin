@@ -147,6 +147,12 @@ class EmployeeSalary extends Controller
             ->select()
             ->toArray();
         
+        // 为每个员工获取基础福利数据
+        foreach ($employees as &$employee) {
+            $welfare_data = $this->getWelfareByEmployeeType($employee['employee_type']);
+            $employee = array_merge($employee, $welfare_data);
+        }
+        
         // 生成月份选项（上个月、本月、下个月）
         $month_options = $this->generateMonthOptions();
         
@@ -211,6 +217,12 @@ class EmployeeSalary extends Controller
             ->order('sort desc, id desc')
             ->select()
             ->toArray();
+        
+        // 为每个员工获取基础福利数据
+        foreach ($employees as &$employee) {
+            $welfare_data = $this->getWelfareByEmployeeType($employee['employee_type']);
+            $employee = array_merge($employee, $welfare_data);
+        }
         
         // 生成月份选项（上个月、本月、下个月）
         $month_options = $this->generateMonthOptions();
