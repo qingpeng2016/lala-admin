@@ -102,19 +102,23 @@
             
             <!-- 餐补 -->
             <div class="layui-form-item">
-                <label class="layui-form-label">餐补</label>
-                <div class="layui-input-block">
-                    <div class="layui-row layui-col-space5">
-                        <div class="layui-col-md3">
-                            <input name="meal_allowance_amount" value='{$vo.meal_allowance_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
-                        </div>
-                        <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
-                        <div class="layui-col-md3">
-                            <input name="meal_allowance_days" value='{$vo.meal_allowance_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
-                        </div>
-                        <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
-                        <div class="layui-col-md3">
-                            <input name="meal_allowance" value='{$vo.meal_allowance|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                <div class="layui-row">
+                    <div class="layui-col-md2">
+                        <label class="layui-form-label" style="text-align: right; line-height: 38px;">餐补</label>
+                    </div>
+                    <div class="layui-col-md10">
+                        <div class="layui-row layui-col-space5">
+                            <div class="layui-col-md3">
+                                <input name="meal_allowance_amount" value='{$vo.meal_allowance_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
+                            <div class="layui-col-md3">
+                                <input name="meal_allowance_days" value='{$vo.meal_allowance_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
+                            <div class="layui-col-md3">
+                                <input name="meal_allowance" value='{$vo.meal_allowance|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -122,19 +126,23 @@
             
             <!-- 晚班交通补助 -->
             <div class="layui-form-item">
-                <label class="layui-form-label">晚班交通补助</label>
-                <div class="layui-input-block">
-                    <div class="layui-row layui-col-space5">
-                        <div class="layui-col-md3">
-                            <input name="night_transport_amount" value='{$vo.night_transport_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
-                        </div>
-                        <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
-                        <div class="layui-col-md3">
-                            <input name="night_transport_days" value='{$vo.night_transport_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
-                        </div>
-                        <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
-                        <div class="layui-col-md3">
-                            <input name="night_transport" value='{$vo.night_transport|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                <div class="layui-row">
+                    <div class="layui-col-md2">
+                        <label class="layui-form-label" style="text-align: right; line-height: 38px;">晚班交通补助</label>
+                    </div>
+                    <div class="layui-col-md10">
+                        <div class="layui-row layui-col-space5">
+                            <div class="layui-col-md3">
+                                <input name="night_transport_amount" value='{$vo.night_transport_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
+                            <div class="layui-col-md3">
+                                <input name="night_transport_days" value='{$vo.night_transport_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
+                            <div class="layui-col-md3">
+                                <input name="night_transport" value='{$vo.night_transport|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,19 +150,23 @@
             
             <!-- 迟到/早退扣款 -->
             <div class="layui-form-item">
-                <label class="layui-form-label">迟到/早退扣款</label>
-                <div class="layui-input-block">
-                    <div class="layui-row layui-col-space5">
-                        <div class="layui-col-md3">
-                            <input name="late_penalty_amount" value='{$vo.late_penalty_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
-                        </div>
-                        <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
-                        <div class="layui-col-md3">
-                            <input name="late_penalty_days" value='{$vo.late_penalty_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
-                        </div>
-                        <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
-                        <div class="layui-col-md3">
-                            <input name="late_penalty" value='{$vo.late_penalty|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                <div class="layui-row">
+                    <div class="layui-col-md2">
+                        <label class="layui-form-label" style="text-align: right; line-height: 38px;">迟到/早退扣款</label>
+                    </div>
+                    <div class="layui-col-md10">
+                        <div class="layui-row layui-col-space5">
+                            <div class="layui-col-md3">
+                                <input name="late_penalty_amount" value='{$vo.late_penalty_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
+                            <div class="layui-col-md3">
+                                <input name="late_penalty_days" value='{$vo.late_penalty_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
+                            <div class="layui-col-md3">
+                                <input name="late_penalty" value='{$vo.late_penalty|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                            </div>
                         </div>
                     </div>
                 </div>
