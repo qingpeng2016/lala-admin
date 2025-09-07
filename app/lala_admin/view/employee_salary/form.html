@@ -215,14 +215,9 @@ layui.use(['form'], function(){
             var baseSalary = selectedOption.data('base-salary') || '0.00';
             var employeeType = selectedOption.data('employee-type') || '';
             
-            // 如果employee_type为空，使用usertype映射
+            // 如果employee_type为空，设置默认值
             if (!employeeType) {
-                var employeeTypeMap = {
-                    'admin': 'full_time',     // 管理员 -> 全职员工
-                    'user': 'part_time',      // 普通用户 -> 普通兼职
-                    'vip': 'part_time_base'   // VIP用户 -> 底薪兼职
-                };
-                employeeType = employeeTypeMap[usertype] || 'full_time';
+                employeeType = '全职员工'; // 默认为全职员工
             }
             
             // 填充基本信息
@@ -276,7 +271,7 @@ layui.use(['form'], function(){
         var welfareSection = document.getElementById('welfare_section');
         var welfareFields = document.getElementById('welfare_fields');
         
-        if (employeeType === 'full_time') {
+        if (employeeType === '全职员工') {
             welfareSection.style.display = 'block';
             welfareFields.style.display = 'block';
         } else {

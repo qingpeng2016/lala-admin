@@ -334,8 +334,8 @@ class EmployeeSalary extends Controller
             'late_penalty' => '0.00'
         ];
         
-        // 如果是正式员工，从system_new_salary_rules表获取规则
-        if ($employee_type === '正式员工') {
+        // 如果是全职员工，从system_new_salary_rules表获取规则
+        if ($employee_type === '全职员工') {
             $rules = Db::name('system_new_salary_rules')
                 ->where('status', 1)
                 ->whereIn('rule_type', ['attendance_bonus', 'meal_allowance', 'night_transport', 'late_penalty'])

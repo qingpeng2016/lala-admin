@@ -35,9 +35,9 @@ class EmployeeSalary extends Model
     public static function getEmployeeTypeList()
     {
         return [
-            'full_time' => '全职员工',
-            'part_time_base' => '底薪兼职',
-            'part_time' => '普通兼职'
+            '全职员工' => '全职员工',
+            '普通兼职' => '普通兼职',
+            '底薪兼职' => '底薪兼职'
         ];
     }
 
