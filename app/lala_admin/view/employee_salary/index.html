@@ -73,13 +73,7 @@
                     <td>{$vo.employee_id}</td>
                     <td>{$vo.employee_name}</td>
                     <td>
-                        {if $vo.employee_type eq 'full_time'}
-                            <span class="layui-badge layui-bg-blue">{$vo.employee_type_text}</span>
-                        {elseif $vo.employee_type eq 'part_time_base'}
-                            <span class="layui-badge layui-bg-orange">{$vo.employee_type_text}</span>
-                        {else}
-                            <span class="layui-badge layui-bg-gray">{$vo.employee_type_text}</span>
-                        {/if}
+                        {$vo.employee_type_text}
                     </td>
                     <td>{$vo.salary_month}</td>
                     <td>
