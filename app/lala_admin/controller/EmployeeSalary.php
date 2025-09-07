@@ -430,9 +430,8 @@ class EmployeeSalary extends Controller
         // 计算应发工资总额
         $total_salary = $base_salary + $welfare_total + $commission_total;
         
-        // 计算实发工资
-        $deductions = floatval($data['deductions'] ?? 0);
-        $actual_salary = $total_salary - $deductions;
+        // 计算实发工资（不再使用扣款）
+        $actual_salary = $total_salary;
         
         $data['total_salary'] = $total_salary;
         $data['actual_salary'] = $actual_salary;

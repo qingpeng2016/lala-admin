@@ -219,21 +219,11 @@
         </fieldset>
         
         <div class="layui-form-item">
-            <div class="layui-row layui-col-space10">
-                <div class="layui-col-md6">
-                    <label class="layui-form-label">其他扣款</label>
-                    <div class="layui-input-block">
-                        <input name="deductions" value='{$vo.deductions|default="0.00"}' placeholder="其他扣款" class="layui-input" lay-verify="number">
-                    </div>
-                </div>
-                <div class="layui-col-md6">
-                    <label class="layui-form-label">状态</label>
-                    <div class="layui-input-block">
-                        {foreach $status_list as $key => $value}
-                        <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq '1'}checked{/if}>
-                        {/foreach}
-                    </div>
-                </div>
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                {foreach $status_list as $key => $value}
+                <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq '1'}checked{/if}>
+                {/foreach}
             </div>
         </div>
         
