@@ -290,21 +290,36 @@ layui.use(['form'], function(){
             var nightTransport = selectedOption.data('night-transport') || '0';
             var latePenalty = selectedOption.data('late-penalty') || '0';
             
-            // 填充基础福利字段
-            $('input[name="attendance_bonus"]').val(attendanceBonus);
-            
-            // 对于需要计算的字段，只填充金额，天数留空
-            $('input[name="meal_allowance_amount"]').val(mealAllowance);
-            $('input[name="meal_allowance_days"]').val('');
-            $('input[name="meal_allowance"]').val('0');
-            
-            $('input[name="night_transport_amount"]').val(nightTransport);
-            $('input[name="night_transport_days"]').val('');
-            $('input[name="night_transport"]').val('0');
-            
-            $('input[name="late_penalty_amount"]').val(latePenalty);
-            $('input[name="late_penalty_days"]').val('');
-            $('input[name="late_penalty"]').val('0');
+            // 根据员工类型填充基础福利字段
+            if (employeeType === '全职员工') {
+                // 全职员工：填充规则数据
+                $('input[name="attendance_bonus"]').val(attendanceBonus);
+                
+                // 对于需要计算的字段，只填充金额，天数留空
+                $('input[name="meal_allowance_amount"]').val(mealAllowance);
+                $('input[name="meal_allowance_days"]').val('');
+                $('input[name="meal_allowance"]').val('0');
+                
+                $('input[name="night_transport_amount"]').val(nightTransport);
+                $('input[name="night_transport_days"]').val('');
+                $('input[name="night_transport"]').val('0');
+                
+                $('input[name="late_penalty_amount"]').val(latePenalty);
+                $('input[name="late_penalty_days"]').val('');
+                $('input[name="late_penalty"]').val('0');
+            } else {
+                // 兼职员工：所有基础福利都设为0
+                $('input[name="attendance_bonus"]').val('0');
+                $('input[name="meal_allowance_amount"]').val('0');
+                $('input[name="meal_allowance_days"]').val('0');
+                $('input[name="meal_allowance"]').val('0');
+                $('input[name="night_transport_amount"]').val('0');
+                $('input[name="night_transport_days"]').val('0');
+                $('input[name="night_transport"]').val('0');
+                $('input[name="late_penalty_amount"]').val('0');
+                $('input[name="late_penalty_days"]').val('0');
+                $('input[name="late_penalty"]').val('0');
+            }
             
             // 触发员工类型变化事件
             toggleWelfareFields(employeeType);
@@ -363,15 +378,31 @@ layui.use(['form'], function(){
         
         if (employeeType === '全职员工') {
             legend.textContent = '基础福利（仅全职员工）';
+            // 全职员工的基础福利字段允许修改
+            welfareInputs.forEach(function(input) {
+                input.prop('readonly', false);
+                input.removeClass('readonly').addClass('editable');
+            });
         } else {
             legend.textContent = '基础福利（兼职员工无福利）';
+            // 兼职员工的基础福利字段不允许修改，固定为0
+            welfareInputs.forEach(function(input) {
+                input.prop('readonly', true);
+                input.removeClass('editable').addClass('readonly');
+            });
+            
+            // 将兼职员工的所有基础福利设为0
+            $('input[name="attendance_bonus"]').val('0');
+            $('input[name="meal_allowance_amount"]').val('0');
+            $('input[name="meal_allowance_days"]').val('0');
+            $('input[name="meal_allowance"]').val('0');
+            $('input[name="night_transport_amount"]').val('0');
+            $('input[name="night_transport_days"]').val('0');
+            $('input[name="night_transport"]').val('0');
+            $('input[name="late_penalty_amount"]').val('0');
+            $('input[name="late_penalty_days"]').val('0');
+            $('input[name="late_penalty"]').val('0');
         }
-        
-        // 所有员工类型的基础福利字段都允许修改
-        welfareInputs.forEach(function(input) {
-            input.prop('readonly', false);
-            input.removeClass('readonly').addClass('editable');
-        });
     }
 
     // 监听员工类型变化
