@@ -91,12 +91,16 @@
             <legend>基础福利（仅全职员工）</legend>
         </fieldset>
         
-        <div class="layui-form-item" id="welfare_fields">
+        <div id="welfare_fields">
             <!-- 全勤奖 -->
             <div class="layui-form-item">
-                <label class="layui-form-label">全勤奖</label>
-                <div class="layui-input-block">
-                    <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0"}' placeholder="全勤奖" class="layui-input" lay-verify="number">
+                <div class="layui-row">
+                    <div class="layui-col-md2">
+                        <label class="layui-form-label" style="text-align: right; line-height: 38px;">全勤奖</label>
+                    </div>
+                    <div class="layui-col-md10">
+                        <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0"}' placeholder="全勤奖" class="layui-input" lay-verify="number">
+                    </div>
                 </div>
             </div>
             
