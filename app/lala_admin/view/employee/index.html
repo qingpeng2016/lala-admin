@@ -14,8 +14,8 @@
                 <thead>
                     <tr>
                         <th style="width: 60px;">ID</th>
-                        <th style="width: 80px;">头像</th>
                         <th style="width: 120px;">用户名</th>
+                        <th style="width: 100px;">基础工资</th>
                         <th style="width: 120px;">昵称</th>
                         <th style="width: 100px;">用户类型</th>
                         <th style="width: 120px;">手机号</th>
@@ -31,10 +31,10 @@
                     {foreach $list as $vo}
                     <tr>
                         <td>{$vo.id}</td>
-                        <td>
-                            <img data-tips-image style="height:32px;width:32px" src="{$vo.headimg_url}" alt="头像">
-                        </td>
                         <td>{$vo.username}</td>
+                        <td>
+                            <span class="salary-badge">¥{$vo.base_salary|number_format|default='0'}</span>
+                        </td>
                         <td>{$vo.nickname}</td>
                         <td>{$vo.usertype_text}</td>
                         <td>{$vo.contact_phone|default='-'}</td>
@@ -181,6 +181,19 @@ layui.use(['layer'], function(){
 .layui-badge.layui-bg-red {
     background-color: #FF5722 !important;
     color: #fff !important;
+}
+
+/* 基础工资样式 */
+.salary-badge {
+    background: #009688;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    font-size: 12px;
 }
 </style>
 {/block}

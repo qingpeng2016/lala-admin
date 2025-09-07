@@ -73,15 +73,15 @@ class Employee extends Controller
             // 格式化状态
             $item['status_text'] = $this->getStatusText($item['status']);
             
-            // 格式化头像
-            if (!empty($item['headimg'])) {
-                $item['headimg_url'] = $item['headimg'];
-            } else {
-                $item['headimg_url'] = '/static/theme/img/avatar.png';
-            }
-            
             // 格式化用户类型
             $item['usertype_text'] = $this->getUserTypeText($item['usertype']);
+            
+            // 获取基础工资（从工资表中获取最新记录）
+            $salary = Db::name('system_new_employee_salary')
+                ->where('employee_id', $item['id'])
+                ->order('salary_month desc, id desc')
+                ->value('base_salary');
+            $item['base_salary'] = $salary ?: 0;
         }
         
         // 分配变量到视图
@@ -181,6 +181,13 @@ class Employee extends Controller
             // 格式化状态和用户类型
             $item['status_text'] = $this->getStatusText($item['status']);
             $item['usertype_text'] = $this->getUserTypeText($item['usertype']);
+            
+            // 获取基础工资（从工资表中获取最新记录）
+            $salary = Db::name('system_new_employee_salary')
+                ->where('employee_id', $item['id'])
+                ->order('salary_month desc, id desc')
+                ->value('base_salary');
+            $item['base_salary'] = $salary ?: 0;
         }
         
         // 设置CSV文件名
@@ -199,6 +206,7 @@ class Employee extends Controller
         $headers = [
             'ID',
             '用户名',
+            '基础工资',
             '昵称',
             '用户类型',
             '手机号',
@@ -218,6 +226,7 @@ class Employee extends Controller
             $row = [
                 $this->escapeCsvField("=\"" . ($item['id'] ?? '') . "\""), // 强制文本格式
                 $this->escapeCsvField($item['username'] ?? ''),
+                $this->escapeCsvField($item['base_salary'] ?? '0'),
                 $this->escapeCsvField($item['nickname'] ?? ''),
                 $this->escapeCsvField($item['usertype_text'] ?? ''),
                 $this->escapeCsvField($item['contact_phone'] ?? ''),
