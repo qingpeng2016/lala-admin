@@ -57,7 +57,7 @@
                     <th style="width: 100px;">员工类型</th>
                     <th style="width: 100px;">工资月份</th>
                     <th style="width: 100px;">底薪</th>
-                    <th style="width: 100px;">基础福利</th>
+                    <th style="width: 120px;">基础福利明细</th>
                     <th style="width: 100px;">提成合计</th>
                     <th style="width: 100px;">应发工资</th>
                     <th style="width: 100px;">实发工资</th>
@@ -73,27 +73,39 @@
                     <td>{$vo.employee_id}</td>
                     <td>{$vo.employee_name}</td>
                     <td>
-                        {$vo.employee_type}
+                        <span class="employee-type-badge employee-type-{$vo.employee_type}">{$vo.employee_type}</span>
                     </td>
                     <td>{$vo.salary_month}</td>
                     <td>
-                        ¥{$vo.base_salary|number_format}
+                        ¥{$vo.base_salary_formatted}
                     </td>
                     <td>
-                        {if $vo.employee_type eq 'full_time'}
-                            ¥{$vo.welfare_total|number_format}
+                        {if $vo.employee_type eq '全职员工'}
+                            <div class="welfare-detail">
+                                <div class="welfare-item">全勤奖: ¥{$vo.attendance_bonus}</div>
+                                <div class="welfare-item">餐补: ¥{$vo.meal_allowance} <small>({$vo.meal_allowance_amount}×{$vo.meal_allowance_days}天)</small></div>
+                                <div class="welfare-item">晚班补助: ¥{$vo.night_transport} <small>({$vo.night_transport_amount}×{$vo.night_transport_days}天)</small></div>
+                                <div class="welfare-item penalty">迟到扣款: -¥{$vo.late_penalty} <small>({$vo.late_penalty_amount}×{$vo.late_penalty_days}天)</small></div>
+                                <div class="welfare-total">合计: ¥{$vo.welfare_total_formatted}</div>
+                            </div>
                         {else}
-                            <span class="layui-badge layui-bg-gray">-</span>
+                            <span class="layui-badge layui-bg-gray">无福利</span>
                         {/if}
                     </td>
                     <td>
-                        ¥{$vo.commission_total|number_format}
+                        <div class="commission-detail">
+                            <div class="commission-item">新客: ¥{$vo.new_customer_commission}</div>
+                            <div class="commission-item">历史: ¥{$vo.old_customer_commission}</div>
+                            <div class="commission-item">月度: ¥{$vo.monthly_bonus}</div>
+                            <div class="commission-item">单价: ¥{$vo.price_bonus}</div>
+                            <div class="commission-total">合计: ¥{$vo.commission_total_formatted}</div>
+                        </div>
                     </td>
                     <td>
-                        ¥{$vo.total_salary|number_format}
+                        <span class="total-salary-badge">¥{$vo.total_salary_formatted}</span>
                     </td>
                     <td>
-                        <span class="actual-salary-badge">¥{$vo.actual_salary|number_format}</span>
+                        <span class="actual-salary-badge">¥{$vo.actual_salary_formatted}</span>
                     </td>
                     <td>
                         {if $vo.status eq '0'}
@@ -107,9 +119,7 @@
                     <td>{$vo.created_at|default='-'}</td>
                     <td class='text-left' style="white-space: nowrap;">
                         <a class="layui-btn layui-btn-sm" data-modal='{:url("edit")}?id={$vo.id}'>编辑</a>
-                        {if $vo.status eq '0'}
-                            <a class="layui-btn layui-btn-sm layui-btn-normal" onclick="updateStatus({$vo.id}, '1')">审核</a>
-                        {elseif $vo.status eq '1'}
+                        {if $vo.status eq '1'}
                             <a class="layui-btn layui-btn-sm layui-btn-warm" onclick="updateStatus({$vo.id}, '2')">发放</a>
                         {/if}
                         <a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此工资记录吗？" data-action='{:url("delete")}?id={$vo.id}'>删除</a>
@@ -182,7 +192,78 @@ function updateStatus(id, status) {
 </script>
 
 <style>
-/* 实发工资样式 */
+/* 员工类型标签 */
+.employee-type-badge {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+}
+.employee-type-badge.employee-type-全职员工 {
+    background: #009688;
+}
+.employee-type-badge.employee-type-普通兼职 {
+    background: #FF9800;
+}
+.employee-type-badge.employee-type-底薪兼职 {
+    background: #607D8B;
+}
+
+/* 福利明细样式 */
+.welfare-detail {
+    font-size: 11px;
+    line-height: 1.3;
+}
+.welfare-item {
+    margin-bottom: 2px;
+    color: #666;
+}
+.welfare-item small {
+    color: #999;
+    font-size: 10px;
+}
+.welfare-item.penalty {
+    color: #f56c6c;
+}
+.welfare-total {
+    margin-top: 3px;
+    font-weight: bold;
+    color: #009688;
+    border-top: 1px solid #eee;
+    padding-top: 2px;
+}
+
+/* 提成明细样式 */
+.commission-detail {
+    font-size: 11px;
+    line-height: 1.3;
+}
+.commission-item {
+    margin-bottom: 2px;
+    color: #666;
+}
+.commission-total {
+    margin-top: 3px;
+    font-weight: bold;
+    color: #1890ff;
+    border-top: 1px solid #eee;
+    padding-top: 2px;
+}
+
+/* 工资标签样式 */
+.total-salary-badge {
+    background: #1890ff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    font-size: 12px;
+}
+
 .actual-salary-badge {
     background: #4CAF50;
     color: white;
@@ -193,6 +274,12 @@ function updateStatus(id, status) {
     min-width: 60px;
     text-align: center;
     font-size: 12px;
+}
+
+/* 表格行高调整 */
+.layui-table tbody tr td {
+    padding: 8px 15px;
+    vertical-align: top;
 }
 
 /* 分页样式修复 */

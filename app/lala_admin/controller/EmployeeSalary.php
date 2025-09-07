@@ -65,7 +65,7 @@ class EmployeeSalary extends Controller
             $item['status_text'] = EmployeeSalaryModel::getStatusText($item['status']);
             
             // 计算基础福利合计（仅全职员工）
-            if ($item['employee_type'] === 'full_time') {
+            if ($item['employee_type'] === '全职员工') {
                 $item['welfare_total'] = $item['attendance_bonus'] + $item['meal_allowance'] + $item['night_transport'] - $item['late_penalty'];
             } else {
                 $item['welfare_total'] = 0;
@@ -73,6 +73,13 @@ class EmployeeSalary extends Controller
             
             // 计算提成合计
             $item['commission_total'] = $item['new_customer_commission'] + $item['old_customer_commission'] + $item['monthly_bonus'] + $item['price_bonus'];
+            
+            // 格式化金额显示
+            $item['base_salary_formatted'] = number_format($item['base_salary'], 2);
+            $item['welfare_total_formatted'] = number_format($item['welfare_total'], 2);
+            $item['commission_total_formatted'] = number_format($item['commission_total'], 2);
+            $item['total_salary_formatted'] = number_format($item['total_salary'], 2);
+            $item['actual_salary_formatted'] = number_format($item['actual_salary'], 2);
         }
         
         // 分配变量到视图
@@ -289,48 +296,6 @@ class EmployeeSalary extends Controller
         }
     }
 
-    /**
-     * 获取员工信息API
-     * @auth true
-     */
-    public function getEmployeeInfo()
-    {
-        $employee_id = $this->request->param('employee_id');
-        if (empty($employee_id)) {
-            return json(['code' => 0, 'info' => '参数错误']);
-        }
-        
-        $employee = Db::name('system_user')
-            ->where('id', $employee_id)
-            ->where('is_deleted', 0)
-            ->where('status', 1)
-            ->field('id,nickname,usertype,base_salary,employee_type')
-            ->find();
-        
-        if (!$employee) {
-            return json(['code' => 0, 'info' => '员工不存在']);
-        }
-        
-        // 根据employee_type获取基础福利
-        $welfare_data = $this->getWelfareByEmployeeType($employee['employee_type']);
-        
-        // 映射员工类型到工资系统的类型
-        $employee_type_map = [
-            'admin' => 'full_time',     // 管理员 -> 全职员工
-            'user' => 'part_time',      // 普通用户 -> 普通兼职
-            'vip' => 'part_time_base'   // VIP用户 -> 底薪兼职
-        ];
-        
-        // 如果employee_type字段为空，使用usertype映射
-        if (empty($employee['employee_type'])) {
-            $employee['employee_type'] = $employee_type_map[$employee['usertype']] ?? 'full_time';
-        }
-        
-        // 合并福利数据
-        $employee = array_merge($employee, $welfare_data);
-        
-        return json(['code' => 1, 'data' => $employee]);
-    }
 
     /**
      * 处理福利计算字段
@@ -449,7 +414,7 @@ class EmployeeSalary extends Controller
         
         // 基础福利（仅全职员工）
         $welfare_total = 0;
-        if ($data['employee_type'] === 'full_time') {
+        if ($data['employee_type'] === '全职员工') {
             $welfare_total = floatval($data['attendance_bonus'] ?? 0) 
                            + floatval($data['meal_allowance'] ?? 0) 
                            + floatval($data['night_transport'] ?? 0) 
