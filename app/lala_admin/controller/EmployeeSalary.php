@@ -66,20 +66,20 @@ class EmployeeSalary extends Controller
             
             // 计算基础福利合计（仅全职员工）
             if ($item['employee_type'] === '全职员工') {
-                $item['welfare_total'] = $item['attendance_bonus'] + $item['meal_allowance'] + $item['night_transport'] - $item['late_penalty'];
+                $item['welfare_total'] = floatval($item['attendance_bonus']) + floatval($item['meal_allowance']) + floatval($item['night_transport']) - floatval($item['late_penalty']);
             } else {
                 $item['welfare_total'] = 0;
             }
             
             // 计算提成合计
-            $item['commission_total'] = $item['new_customer_commission'] + $item['old_customer_commission'] + $item['monthly_bonus'] + $item['price_bonus'];
+            $item['commission_total'] = floatval($item['new_customer_commission']) + floatval($item['old_customer_commission']) + floatval($item['monthly_bonus']) + floatval($item['price_bonus']);
             
             // 格式化金额显示
-            $item['base_salary_formatted'] = number_format($item['base_salary'], 2);
-            $item['welfare_total_formatted'] = number_format($item['welfare_total'], 2);
-            $item['commission_total_formatted'] = number_format($item['commission_total'], 2);
-            $item['total_salary_formatted'] = number_format($item['total_salary'], 2);
-            $item['actual_salary_formatted'] = number_format($item['actual_salary'], 2);
+            $item['base_salary_formatted'] = number_format(floatval($item['base_salary']), 2);
+            $item['welfare_total_formatted'] = number_format(floatval($item['welfare_total']), 2);
+            $item['commission_total_formatted'] = number_format(floatval($item['commission_total']), 2);
+            $item['total_salary_formatted'] = number_format(floatval($item['total_salary']), 2);
+            $item['actual_salary_formatted'] = number_format(floatval($item['actual_salary']), 2);
         }
         
         // 分配变量到视图
