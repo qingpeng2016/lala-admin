@@ -60,6 +60,7 @@
                     <th style="width: 120px;">基础福利明细</th>
                     <th style="width: 100px;">提成合计</th>
                     <th style="width: 100px;">应发工资</th>
+                    <th style="width: 80px;">其他扣款</th>
                     <th style="width: 100px;">实发工资</th>
                     <th style="width: 80px;">状态</th>
                     <th style="width: 150px;">创建时间</th>
@@ -103,6 +104,13 @@
                     </td>
                     <td>
                         <span class="total-salary-badge">¥{$vo.total_salary_formatted}</span>
+                    </td>
+                    <td>
+                        {if $vo.deductions > 0}
+                            <span class="deductions-badge">-¥{$vo.deductions|number_format}</span>
+                        {else}
+                            <span class="layui-badge layui-bg-gray">-</span>
+                        {/if}
                     </td>
                     <td>
                         <span class="actual-salary-badge">¥{$vo.actual_salary_formatted}</span>
@@ -266,6 +274,18 @@ function updateStatus(id, status) {
 
 .actual-salary-badge {
     background: #4CAF50;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.deductions-badge {
+    background: #f56c6c;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
