@@ -83,23 +83,23 @@
                     </td>
                     <td>{$vo.salary_month}</td>
                     <td>
-                        <span class="amount-badge">¥{$vo.base_salary|number_format}</span>
+                        ¥{$vo.base_salary|number_format}
                     </td>
                     <td>
                         {if $vo.employee_type eq 'full_time'}
-                            <span class="amount-badge welfare-badge">¥{$vo.welfare_total|number_format}</span>
+                            ¥{$vo.welfare_total|number_format}
                         {else}
                             <span class="layui-badge layui-bg-gray">-</span>
                         {/if}
                     </td>
                     <td>
-                        <span class="amount-badge commission-badge">¥{$vo.commission_total|number_format}</span>
+                        ¥{$vo.commission_total|number_format}
                     </td>
                     <td>
-                        <span class="amount-badge total-badge">¥{$vo.total_salary|number_format}</span>
+                        ¥{$vo.total_salary|number_format}
                     </td>
                     <td>
-                        <span class="amount-badge actual-badge">¥{$vo.actual_salary|number_format}</span>
+                        <span class="actual-salary-badge">¥{$vo.actual_salary|number_format}</span>
                     </td>
                     <td>
                         {if $vo.status eq '0'}
@@ -188,9 +188,9 @@ function updateStatus(id, status) {
 </script>
 
 <style>
-/* 金额样式 */
-.amount-badge {
-    background: #009688;
+/* 实发工资样式 */
+.actual-salary-badge {
+    background: #4CAF50;
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
@@ -199,22 +199,6 @@ function updateStatus(id, status) {
     min-width: 60px;
     text-align: center;
     font-size: 12px;
-}
-
-.welfare-badge {
-    background: #FF5722 !important;
-}
-
-.commission-badge {
-    background: #673AB7 !important;
-}
-
-.total-badge {
-    background: #FF9800 !important;
-}
-
-.actual-badge {
-    background: #4CAF50 !important;
 }
 
 /* 分页样式修复 */
