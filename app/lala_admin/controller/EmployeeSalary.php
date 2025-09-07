@@ -120,6 +120,9 @@ class EmployeeSalary extends Controller
                 $this->error('该员工本月工资记录已存在');
             }
             
+            // 处理福利计算字段
+            $data = $this->processWelfareCalculation($data);
+            
             // 计算工资总额
             $data = $this->calculateSalary($data);
             
@@ -189,6 +192,9 @@ class EmployeeSalary extends Controller
             if (empty($data['salary_month'])) {
                 $this->error('工资月份不能为空');
             }
+            
+            // 处理福利计算字段
+            $data = $this->processWelfareCalculation($data);
             
             // 计算工资总额
             $data = $this->calculateSalary($data);
@@ -318,6 +324,37 @@ class EmployeeSalary extends Controller
         $employee = array_merge($employee, $welfare_data);
         
         return json(['code' => 1, 'data' => $employee]);
+    }
+
+    /**
+     * 处理福利计算字段
+     * @param array $data
+     * @return array
+     */
+    private function processWelfareCalculation($data)
+    {
+        // 餐补 = 金额 × 天数
+        if (isset($data['meal_allowance_amount']) && isset($data['meal_allowance_days'])) {
+            $amount = floatval($data['meal_allowance_amount']);
+            $days = floatval($data['meal_allowance_days']);
+            $data['meal_allowance'] = $amount * $days;
+        }
+        
+        // 晚班交通补助 = 金额 × 天数
+        if (isset($data['night_transport_amount']) && isset($data['night_transport_days'])) {
+            $amount = floatval($data['night_transport_amount']);
+            $days = floatval($data['night_transport_days']);
+            $data['night_transport'] = $amount * $days;
+        }
+        
+        // 迟到/早退扣款 = 金额 × 天数
+        if (isset($data['late_penalty_amount']) && isset($data['late_penalty_days'])) {
+            $amount = floatval($data['late_penalty_amount']);
+            $days = floatval($data['late_penalty_days']);
+            $data['late_penalty'] = $amount * $days;
+        }
+        
+        return $data;
     }
 
     /**

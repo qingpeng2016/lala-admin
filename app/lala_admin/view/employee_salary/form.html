@@ -96,13 +96,25 @@
                 <div class="layui-col-md6">
                     <label class="layui-form-label">全勤奖</label>
                     <div class="layui-input-block">
-                        <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0"}' placeholder="全勤奖" class="layui-input" lay-verify="number" readonly>
+                        <input name="attendance_bonus" value='{$vo.attendance_bonus|default="0"}' placeholder="全勤奖" class="layui-input" lay-verify="number">
                     </div>
                 </div>
                 <div class="layui-col-md6">
                     <label class="layui-form-label">餐补</label>
                     <div class="layui-input-block">
-                        <input name="meal_allowance" value='{$vo.meal_allowance|default="0"}' placeholder="餐补" class="layui-input" lay-verify="number" readonly>
+                        <div class="layui-row layui-col-space5">
+                            <div class="layui-col-md4">
+                                <input name="meal_allowance_amount" value='{$vo.meal_allowance_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
+                            <div class="layui-col-md4">
+                                <input name="meal_allowance_days" value='{$vo.meal_allowance_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
+                            <div class="layui-col-md2">
+                                <input name="meal_allowance" value='{$vo.meal_allowance|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,13 +122,37 @@
                 <div class="layui-col-md6">
                     <label class="layui-form-label">晚班交通补助</label>
                     <div class="layui-input-block">
-                        <input name="night_transport" value='{$vo.night_transport|default="0"}' placeholder="晚班交通补助" class="layui-input" lay-verify="number" readonly>
+                        <div class="layui-row layui-col-space5">
+                            <div class="layui-col-md4">
+                                <input name="night_transport_amount" value='{$vo.night_transport_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
+                            <div class="layui-col-md4">
+                                <input name="night_transport_days" value='{$vo.night_transport_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
+                            <div class="layui-col-md2">
+                                <input name="night_transport" value='{$vo.night_transport|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="layui-col-md6">
                     <label class="layui-form-label">迟到/早退扣款</label>
                     <div class="layui-input-block">
-                        <input name="late_penalty" value='{$vo.late_penalty|default="0"}' placeholder="迟到/早退扣款" class="layui-input" lay-verify="number" readonly>
+                        <div class="layui-row layui-col-space5">
+                            <div class="layui-col-md4">
+                                <input name="late_penalty_amount" value='{$vo.late_penalty_amount|default="0"}' placeholder="金额" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">×</div>
+                            <div class="layui-col-md4">
+                                <input name="late_penalty_days" value='{$vo.late_penalty_days|default=""}' placeholder="天数" class="layui-input" lay-verify="number">
+                            </div>
+                            <div class="layui-col-md1" style="text-align: center; line-height: 38px;">=</div>
+                            <div class="layui-col-md2">
+                                <input name="late_penalty" value='{$vo.late_penalty|default="0"}' placeholder="总额" class="layui-input" readonly style="background-color: #f0f0f0;">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -237,9 +273,19 @@ layui.use(['form'], function(){
             
             // 填充基础福利字段
             $('input[name="attendance_bonus"]').val(attendanceBonus);
-            $('input[name="meal_allowance"]').val(mealAllowance);
-            $('input[name="night_transport"]').val(nightTransport);
-            $('input[name="late_penalty"]').val(latePenalty);
+            
+            // 对于需要计算的字段，只填充金额，天数留空
+            $('input[name="meal_allowance_amount"]').val(mealAllowance);
+            $('input[name="meal_allowance_days"]').val('');
+            $('input[name="meal_allowance"]').val('0');
+            
+            $('input[name="night_transport_amount"]').val(nightTransport);
+            $('input[name="night_transport_days"]').val('');
+            $('input[name="night_transport"]').val('0');
+            
+            $('input[name="late_penalty_amount"]').val(latePenalty);
+            $('input[name="late_penalty_days"]').val('');
+            $('input[name="late_penalty"]').val('0');
             
             // 触发员工类型变化事件
             toggleWelfareFields(employeeType);
@@ -259,8 +305,17 @@ layui.use(['form'], function(){
         
         // 清空福利字段
         $('input[name="attendance_bonus"]').val('0');
+        
+        $('input[name="meal_allowance_amount"]').val('0');
+        $('input[name="meal_allowance_days"]').val('');
         $('input[name="meal_allowance"]').val('0');
+        
+        $('input[name="night_transport_amount"]').val('0');
+        $('input[name="night_transport_days"]').val('');
         $('input[name="night_transport"]').val('0');
+        
+        $('input[name="late_penalty_amount"]').val('0');
+        $('input[name="late_penalty_days"]').val('');
         $('input[name="late_penalty"]').val('0');
         
         toggleWelfareFields('');
@@ -275,18 +330,64 @@ layui.use(['form'], function(){
         welfareSection.style.display = 'block';
         welfareFields.style.display = 'block';
         
-        // 根据员工类型设置标题提示
+        // 根据员工类型设置标题提示和字段状态
         var legend = welfareSection.querySelector('legend');
+        var welfareInputs = [
+            $('input[name="attendance_bonus"]'),
+            $('input[name="meal_allowance_amount"]'),
+            $('input[name="meal_allowance_days"]'),
+            $('input[name="night_transport_amount"]'),
+            $('input[name="night_transport_days"]'),
+            $('input[name="late_penalty_amount"]'),
+            $('input[name="late_penalty_days"]')
+        ];
+        
         if (employeeType === '全职员工') {
             legend.textContent = '基础福利（仅全职员工）';
+            // 全职员工的基础福利字段设为只读（从规则表自动填充）
+            welfareInputs.forEach(function(input) {
+                input.prop('readonly', true);
+                input.removeClass('editable').addClass('readonly');
+            });
         } else {
             legend.textContent = '基础福利（兼职员工无福利）';
+            // 兼职员工的基础福利字段允许修改
+            welfareInputs.forEach(function(input) {
+                input.prop('readonly', false);
+                input.removeClass('readonly').addClass('editable');
+            });
         }
     }
 
     // 监听员工类型变化
     form.on('select(employee_type)', function(data){
         toggleWelfareFields(data.value);
+    });
+    
+    // 自动计算福利金额的函数
+    function calculateWelfareAmount(type) {
+        var amountInput = $('input[name="' + type + '_amount"]');
+        var daysInput = $('input[name="' + type + '_days"]');
+        var totalInput = $('input[name="' + type + '"]');
+        
+        var amount = parseFloat(amountInput.val()) || 0;
+        var days = parseFloat(daysInput.val()) || 0;
+        var total = amount * days;
+        
+        totalInput.val(total);
+    }
+    
+    // 监听金额和天数变化，自动计算总额
+    $(document).on('input', 'input[name="meal_allowance_amount"], input[name="meal_allowance_days"]', function() {
+        calculateWelfareAmount('meal_allowance');
+    });
+    
+    $(document).on('input', 'input[name="night_transport_amount"], input[name="night_transport_days"]', function() {
+        calculateWelfareAmount('night_transport');
+    });
+    
+    $(document).on('input', 'input[name="late_penalty_amount"], input[name="late_penalty_days"]', function() {
+        calculateWelfareAmount('late_penalty');
     });
     
     // 页面加载时检查员工类型
@@ -328,10 +429,17 @@ layui.use(['form'], function(){
 }
 
 /* 只读字段样式 */
-.layui-input[readonly] {
+.layui-input[readonly], .layui-input.readonly {
     background-color: #f8f8f8;
     color: #666;
     cursor: not-allowed;
+}
+
+/* 可编辑字段样式 */
+.layui-input.editable {
+    background-color: #fff;
+    color: #333;
+    cursor: text;
 }
 
 /* 员工选择提示样式 */
