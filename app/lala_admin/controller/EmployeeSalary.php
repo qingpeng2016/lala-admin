@@ -288,6 +288,11 @@ class EmployeeSalary extends Controller
             return json(['code' => 0, 'info' => '参数错误']);
         }
         
+        // 验证状态值
+        if (!in_array($status, ['1', '2'])) {
+            return json(['code' => 0, 'info' => '状态值无效']);
+        }
+        
         $result = Db::name('system_new_employee_salary')->where('id', $id)->update(['status' => $status]);
         if ($result !== false) {
             return json(['code' => 1, 'info' => '状态更新成功']);
