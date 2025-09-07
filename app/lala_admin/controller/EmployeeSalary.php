@@ -52,12 +52,12 @@ class EmployeeSalary extends Controller
         // 格式化数据
         $list = $result->items();
         foreach ($list as &$item) {
-            // 格式化时间
+            // 格式化时间（只显示日期）
             if (!empty($item['created_at'])) {
-                $item['created_at'] = date('Y-m-d H:i:s', strtotime($item['created_at']));
+                $item['created_at'] = date('Y-m-d', strtotime($item['created_at']));
             }
             if (!empty($item['updated_at'])) {
-                $item['updated_at'] = date('Y-m-d H:i:s', strtotime($item['updated_at']));
+                $item['updated_at'] = date('Y-m-d', strtotime($item['updated_at']));
             }
             
             // 格式化员工类型和状态
