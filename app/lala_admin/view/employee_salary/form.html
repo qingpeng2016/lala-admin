@@ -271,12 +271,16 @@ layui.use(['form'], function(){
         var welfareSection = document.getElementById('welfare_section');
         var welfareFields = document.getElementById('welfare_fields');
         
+        // 所有员工类型都显示基础福利区域
+        welfareSection.style.display = 'block';
+        welfareFields.style.display = 'block';
+        
+        // 根据员工类型设置标题提示
+        var legend = welfareSection.querySelector('legend');
         if (employeeType === '全职员工') {
-            welfareSection.style.display = 'block';
-            welfareFields.style.display = 'block';
+            legend.textContent = '基础福利（仅全职员工）';
         } else {
-            welfareSection.style.display = 'none';
-            welfareFields.style.display = 'none';
+            legend.textContent = '基础福利（兼职员工无福利）';
         }
     }
 
