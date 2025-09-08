@@ -9,23 +9,6 @@
     <!-- 搜索表单 -->
     <form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
         <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">员工姓名</label>
-            <div class="layui-input-inline">
-                <input name="employee_name" value="{:input('get.employee_name')}" placeholder="请输入员工姓名" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">员工类型</label>
-            <div class="layui-input-inline">
-                <select name="employee_type" class="layui-select">
-                    <option value="">-- 全部类型 --</option>
-                    {foreach $employee_type_list as $key => $value}
-                    <option value="{$key}" {if input('get.employee_type') eq $key}selected{/if}>{$value}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item layui-inline">
             <label class="layui-form-label">工资月份</label>
             <div class="layui-input-inline">
                 <input name="salary_month" value="{:input('get.salary_month')}" placeholder="2024-01" class="layui-input">
