@@ -29,8 +29,10 @@ class Employee extends Controller
         // 创建查询对象
         $query = Db::name('system_user');
         
-        // 添加基础条件：只查询未删除的记录
-        $query->where('is_deleted', 0);
+        // 添加基础条件：只查询未删除的记录，且employee_type不为空
+        $query->where('is_deleted', 0)
+              ->where('employee_type', '<>', '')
+              ->whereNotNull('employee_type');
         
         // 添加搜索条件
         if (isset($get['username']) && $get['username'] !== '') {
@@ -76,10 +78,7 @@ class Employee extends Controller
             // 格式化用户类型
             $item['usertype_text'] = $this->getUserTypeText($item['usertype']);
             
-            // 设置员工类型（如果system_user表中没有此字段，设置默认值）
-            if (!isset($item['employee_type']) || empty($item['employee_type'])) {
-                $item['employee_type'] = 'full_time'; // 默认为全职
-            }
+            // 员工类型已经在查询条件中过滤，这里不需要设置默认值
         }
         
         // 分配变量到视图
@@ -143,8 +142,10 @@ class Employee extends Controller
         // 创建查询对象
         $query = Db::name('system_user');
         
-        // 添加基础条件：只查询未删除的记录
-        $query->where('is_deleted', 0);
+        // 添加基础条件：只查询未删除的记录，且employee_type不为空
+        $query->where('is_deleted', 0)
+              ->where('employee_type', '<>', '')
+              ->whereNotNull('employee_type');
         
         // 添加搜索条件
         if (isset($get['username']) && $get['username'] !== '') {
