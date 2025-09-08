@@ -27,6 +27,10 @@ class EmployeeSalary extends Controller
         // 创建查询对象
         $query = Db::name('system_new_employee_salary');
         
+        // 添加基础条件：只查询当前登录用户的工资记录
+        $current_user_id = session('user.id') ?? 0;
+        $query->where('employee_id', $current_user_id);
+        
         // 添加搜索条件
         if (isset($get['employee_name']) && $get['employee_name'] !== '') {
             $query->where('employee_name', 'like', "%{$get['employee_name']}%");
