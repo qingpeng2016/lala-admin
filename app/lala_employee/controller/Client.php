@@ -29,6 +29,28 @@ class Client extends Controller
         // 创建查询对象
         $query = Db::name('tblclients');
         
+        // 添加基础条件：只查询当前登录用户关联的客户
+        $current_user_id = session('user.id') ?? 0;
+        $user_info = Db::name('system_user')->where('id', $current_user_id)->find();
+        $affiliate_id = $user_info['affiliate_id'] ?? 0;
+        
+        if (!$affiliate_id) {
+            // 如果没有affiliate_id，返回空结果
+            $this->assign([
+                'list' => [],
+                'pagehtml' => '',
+                'get' => $get,
+                'status_list' => [
+                    'Active' => '活跃',
+                    'Inactive' => '非活跃',
+                    'Closed' => '已关闭'
+                ]
+            ]);
+            return $this->fetch();
+        }
+        
+        $query->where('affiliateid', $affiliate_id);
+        
         // 添加搜索条件
         if (isset($get['id']) && $get['id'] !== '') {
             $query->where('id', $get['id']);
