@@ -29,8 +29,10 @@ class Employee extends Controller
         // 创建查询对象
         $query = Db::name('system_user');
         
-        // 添加基础条件：只查询未删除的记录
-        $query->where('is_deleted', 0);
+        // 添加基础条件：只查询未删除的记录，且为当前登录用户
+        $current_user_id = session('user.id') ?? 0;
+        $query->where('is_deleted', 0)
+              ->where('id', $current_user_id);
         
         // 添加搜索条件
         if (isset($get['username']) && $get['username'] !== '') {
@@ -143,8 +145,10 @@ class Employee extends Controller
         // 创建查询对象
         $query = Db::name('system_user');
         
-        // 添加基础条件：只查询未删除的记录
-        $query->where('is_deleted', 0);
+        // 添加基础条件：只查询未删除的记录，且为当前登录用户
+        $current_user_id = session('user.id') ?? 0;
+        $query->where('is_deleted', 0)
+              ->where('id', $current_user_id);
         
         // 添加搜索条件
         if (isset($get['username']) && $get['username'] !== '') {
