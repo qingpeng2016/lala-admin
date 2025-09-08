@@ -1,0 +1,423 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+        </div>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            {include file="hosting/index_search" /}
+            
+            <!-- 数据列表 -->
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">选择</th>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 120px;">产品</th>
+                        <th style="width: 80px;">用户ID</th>
+                        <th style="width: 200px;">邮箱</th>
+                        <th style="width: 100px;">首付金额</th>
+                        <th style="width: 100px;">总金额</th>
+                        <th style="width: 100px;">计费周期</th>
+                        <th style="width: 120px;">注册日期</th>
+                        <th style="width: 120px;">下次到期</th>
+                        <th style="width: 150px;">创建时间</th>
+                        <th style="width: 80px;">状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>
+                            {if $vo.domainstatus eq 'Active'}
+                                <input type="checkbox" name="selected_items" value="{$vo.id}" lay-skin="primary" class="item-checkbox" data-product="{$vo.product_name|default='-'}" data-billingcycle="{$vo.billingcycle}" data-amount="{$vo.amount_formatted}" data-nextduedate="{$vo.nextduedate|default='-'}">
+                            {/if}
+                        </td>
+                        <td>{$vo.id}</td>
+                        <td>{$vo.product_name|default='-'}</td>
+                        <td>{$vo.userid}</td>
+                        <td>{$vo.email|default='-'}</td>
+                        <td>{$vo.firstpaymentamount_formatted}</td>
+                        <td>{$vo.amount_formatted}</td>
+                        <td>{$vo.billingcycle}</td>
+                        <td>{$vo.regdate|default='-'}</td>
+                        <td>{$vo.nextduedate|default='-'}</td>
+                        <td>{$vo.created_at|default='-'}</td>
+                        <td>
+                            {if $vo.domainstatus eq 'Active'}
+                                <span class="layui-badge layui-bg-green">活跃</span>
+                            {elseif $vo.domainstatus eq 'Pending'}
+                                <span class="layui-badge layui-bg-orange">待处理</span>
+                            {elseif $vo.domainstatus eq 'Suspended'}
+                                <span class="layui-badge layui-bg-red">已暂停</span>
+                            {elseif $vo.domainstatus eq 'Terminated'}
+                                <span class="layui-badge layui-bg-gray">已终止</span>
+                            {elseif $vo.domainstatus eq 'Cancelled'}
+                                <span class="layui-badge layui-bg-gray">已取消</span>
+                            {elseif $vo.domainstatus eq 'Fraud'}
+                                <span class="layui-badge layui-bg-black">欺诈</span>
+                            {elseif $vo.domainstatus eq 'Completed'}
+                                <span class="layui-badge layui-bg-blue">已完成</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">{$vo.domainstatus_text}</span>
+                            {/if}
+                        </td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer', 'form'], function(){
+    var layer = layui.layer;
+    var form = layui.form;
+    
+    // 页面加载完成后的初始化
+    layer.msg('持有商品管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+});
+
+// 创建付款链接
+function createPaymentLink() {
+    var selectedItems = [];
+    $('.item-checkbox:checked').each(function(){
+        selectedItems.push({
+            id: $(this).val(),
+            product: $(this).data('product'),
+            billingcycle: $(this).data('billingcycle'),
+            amount: $(this).data('amount'),
+            nextduedate: $(this).data('nextduedate')
+        });
+    });
+    
+    if (selectedItems.length === 0) {
+        layer.msg('请先选择要创建付款链接的商品', {icon: 2, time: 2000});
+        return;
+    }
+    
+    // 构建弹窗内容
+    var content = '<div class="layui-form" style="padding: 20px 40px 20px 20px;">';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">付款方式</label>';
+    content += '<div class="layui-input-block">';
+    content += '<select id="paymentMethod" class="layui-select">';
+    content += '<option value="coolpaybitocin" selected>比特币</option>';
+    content += '<option value="coolpaywechat">微信</option>';
+    content += '<option value="coolpayalipay">支付宝</option>';
+    content += '</select>';
+    content += '</div>';
+    content += '</div>';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">调整金额</label>';
+    content += '<div class="layui-input-block">';
+    content += '<input type="number" id="adjustAmount" class="layui-input" placeholder="请输入调整金额，正数为加钱，负数为减钱" value="0" step="0.01">';
+    content += '</div>';
+    content += '</div>';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">备注</label>';
+    content += '<div class="layui-input-block">';
+    content += '<textarea id="paymentNote" class="layui-textarea" placeholder="请输入付款备注" rows="5"></textarea>';
+    content += '</div>';
+    content += '</div>';
+    content += '<div class="layui-form-item">';
+    content += '<label class="layui-form-label">选中商品</label>';
+    content += '<div class="layui-input-block">';
+    content += '<div style="border: 1px solid #e6e6e6; padding: 10px; background: #f8f8f8;">';
+    
+    selectedItems.forEach(function(item, index) {
+        content += '<div style="margin-bottom: 10px; padding: 8px; border-bottom: 1px solid #ddd; background: white;">';
+        content += '<div><strong>商品 ' + (index + 1) + ' (ID: ' + item.id + '):</strong> 产品: ' + item.product + '、计费周期: ' + item.billingcycle + '、总金额: ' + item.amount + '、下次到期: ' + item.nextduedate + '</div>';
+        content += '</div>';
+    });
+    
+    content += '</div>';
+    content += '</div>';
+    content += '</div>';
+    
+    // 显示弹窗
+    layer.open({
+        type: 1,
+        title: '创建付款链接',
+        area: ['800px', '600px'],
+        content: content,
+        btn: ['确认创建', '取消'],
+        success: function(layero, index) {
+            // 重新渲染表单，确保下拉菜单正常显示
+            layui.form.render('select');
+        },
+        yes: function(index, layero) {
+            var paymentMethod = $('#paymentMethod').val();
+            var adjustAmount = $('#adjustAmount').val();
+            var paymentNote = $('#paymentNote').val();
+            
+            // 获取选中的商品ID
+            var selectedIds = [];
+            $('.item-checkbox:checked').each(function(){
+                selectedIds.push($(this).val());
+            });
+            
+            // 计算总金额
+            var totalAmount = 0;
+            selectedItems.forEach(function(item) {
+                totalAmount += parseFloat(item.amount);
+            });
+            
+            // 如果调整金额不为0，则加到总金额中
+            var finalAmount = totalAmount;
+            if (adjustAmount && adjustAmount != '0') {
+                finalAmount = totalAmount + parseFloat(adjustAmount);
+            }
+            
+            // 构建确认信息
+            var confirmContent = '<div style="padding: 20px;">';
+            confirmContent += '<p style="margin-bottom: 15px; font-size: 14px;">请确认以下信息：</p>';
+            confirmContent += '<div style="background: #f8f8f8; padding: 15px; border-radius: 4px; margin-bottom: 15px;">';
+            confirmContent += '<p><strong>选中商品数量：</strong>' + selectedIds.length + ' 个</p>';
+            confirmContent += '<p><strong>商品ID：</strong>' + selectedIds.join(', ') + '</p>';
+            confirmContent += '<p><strong>商品总金额：</strong>' + totalAmount.toFixed(2) + '</p>';
+            if (adjustAmount && adjustAmount != '0') {
+                confirmContent += '<p><strong>调整金额：</strong>' + adjustAmount + '</p>';
+                confirmContent += '<p><strong>最终金额：</strong>' + finalAmount.toFixed(2) + '</p>';
+            }
+            if (paymentNote) {
+                confirmContent += '<p><strong>备注：</strong>' + paymentNote + '</p>';
+            }
+            confirmContent += '</div>';
+            confirmContent += '</div>';
+            
+            // 显示二次确认弹框
+            layer.confirm(confirmContent, {
+                title: '确认创建付款链接',
+                area: ['400px', '300px'],
+                btn: ['确定创建', '取消'],
+                yes: function(confirmIndex) {
+                    layer.close(confirmIndex);
+                    
+                    // 显示加载提示
+                    var loadingIndex = layer.load(1, {shade: [0.1, '#fff']});
+                    
+                    // 调用后端接口
+                    $.ajax({
+                        url: '{:url("createPaymentLink")}',
+                        type: 'POST',
+                        data: {
+                            hosting_ids: selectedIds,
+                            payment_method: paymentMethod,
+                            adjust_amount: adjustAmount,
+                            payment_note: paymentNote
+                        },
+                        dataType: 'json',
+                        success: function(res) {
+                            layer.close(loadingIndex);
+                            layer.close(index);
+                            
+                            if (res.code === 1) {
+                                layer.msg(res.msg, {icon: 1, time: 3000});
+                                
+                                // 显示详细结果
+                                if (res.data && res.data.length > 0) {
+                                    var resultContent = '<div style="max-height: 300px; overflow-y: auto;">';
+                                    res.data.forEach(function(item) {
+                                        resultContent += '<div style="margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #eee;">';
+                                        resultContent += '<strong>商品ID: ' + item.hosting_id + '</strong> ';
+                                        resultContent += item.message;
+                                        if (item.invoice_id) {
+                                            resultContent += ' (发票ID: ' + item.invoice_id + ')';
+                                        }
+                                        resultContent += '</div>';
+                                    });
+                                    resultContent += '</div>';
+                                    
+                                    layer.open({
+                                        type: 1,
+                                        title: '创建结果详情',
+                                        area: ['500px', '400px'],
+                                        content: resultContent,
+                                        btn: ['确定']
+                                    });
+                                }
+                            } else {
+                                layer.msg(res.msg, {icon: 2, time: 3000});
+                            }
+                        },
+                        error: function() {
+                            layer.close(loadingIndex);
+                            layer.msg('网络错误，请重试', {icon: 2, time: 3000});
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+</script>
+
+<style>
+/* 弹框关闭按钮位置调整 */
+.layui-layer-setwin .layui-layer-close2 {
+    top: -35px !important;
+}
+
+/* 确保弹框按钮区域显示 */
+.layui-layer-btn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    text-align: center !important;
+}
+
+.layui-layer-btn a {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 10px !important;
+}
+
+/* 按钮居中布局 */
+.layui-layer-btn {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 20px !important;
+}
+
+/* 分页样式修复 */
+.layui-card-body .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.layui-card-body .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+/* 分页按钮基础样式 */
+.layui-card-body .pagination li a,
+.layui-card-body .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.layui-card-body .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.layui-card-body .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.layui-card-body .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 确保分页按钮有足够的点击区域 */
+.layui-card-body .pagination li a {
+    /* 确保整个按钮都可以点击 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 当前页码样式增强 */
+.layui-card-body .pagination li.active {
+    position: relative;
+}
+
+.layui-card-body .pagination li.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #009688;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+/* 强制设置状态标签样式 */
+.layui-badge.layui-bg-green {
+    background-color: #5FB878 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-orange {
+    background-color: #FFB800 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-red {
+    background-color: #FF5722 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-gray {
+    background-color: #999 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-black {
+    background-color: #393D49 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-blue {
+    background-color: #1E9FFF !important;
+    color: #fff !important;
+}
+</style>
+{/block}

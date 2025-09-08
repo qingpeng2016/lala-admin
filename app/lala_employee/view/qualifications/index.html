@@ -1,0 +1,441 @@
+gai{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <!-- 页面标题 -->
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <h2><i class="layui-icon layui-icon-certificate"></i> 企业资质证书</h2>
+                    <p class="qualification-subtitle">重庆鸿枢慧科技有限公司 - 专业IDC服务提供商</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 企业信息 -->
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-company"></i> 企业信息
+                </div>
+                <div class="layui-card-body">
+                    <div class="company-section">
+                        <div class="company-info-left">
+                            <div class="info-item">
+                                <span class="label">公司名称：</span>
+                                <span class="value">重庆鸿枢慧科技有限公司</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">统一社会信用代码：</span>
+                                <span class="value">91500108MAEKEKA56Y</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">法定代表人：</span>
+                                <span class="value">卿鹏</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">注册资本：</span>
+                                <span class="value">壹仟万元整</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">成立日期：</span>
+                                <span class="value">2025年05月28日</span>
+                            </div>
+                                                    <div class="info-item business-scope">
+                            <span class="label">经营范围：</span>
+                            <div class="value">
+                                <div class="scope-item">
+                                    <strong>许可项目：</strong>基础电信业务; 第一类增值电信业务; 第二类增值电信业务(依法须经批准的项目，经相关部门批准后方可开展经营活动); 在线数据处理与交易处理业务(经营类电子商务)(依法须经批准的项目，经相关部门批准后方可开展经营活动)
+                                </div>
+                                <div class="scope-item">
+                                    <strong>一般项目：</strong>软件外包服务; 软件开发; 软件销售; 技术服务、技术开发、技术咨询、技术交流、技术转让、技术推广; 网络设备销售;
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="company-license-right">
+                            <div class="license-title">
+                                <h3>{$qualifications.business_license.name}</h3>
+                            </div>
+                            <div class="license-image">
+                                <img src="{$qualifications.business_license.image}" alt="{$qualifications.business_license.name}" 
+                                     onclick="showImage(this.src, '{$qualifications.business_license.name}')">
+                            </div>
+                            <div class="license-tags">
+                                <span class="layui-badge layui-bg-green">有效</span>
+                                <span class="layui-badge layui-bg-blue">官方认证</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IDC相关证书 -->
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-server"></i> {$qualifications.idc_certificates.name}
+                </div>
+                <div class="layui-card-body">
+                    <div class="certificate-grid">
+                        {foreach $qualifications.idc_certificates.certificates as $cert}
+                        <div class="certificate-item">
+                            <div class="certificate-image">
+                                <img src="{$cert.image}" alt="{$cert.name}" 
+                                     onclick="showImage(this.src, '{$cert.name}')">
+                            </div>
+                            <div class="certificate-info">
+                                <h4>{$cert.name}</h4>
+                                <p>{$cert.description}</p>
+                                <div class="certificate-tags">
+                                    <span class="layui-badge layui-bg-green">有效</span>
+                                    <span class="layui-badge layui-bg-orange">IDC资质</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 域名备案证书和安全评估证书 -->
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-global"></i> 备案与安全评估证书
+                </div>
+                <div class="layui-card-body">
+                    <div class="combined-grid">
+                        <!-- 域名备案证书 -->
+                        {foreach $qualifications.domain_filing.certificates as $cert}
+                        <div class="combined-item">
+                            <div class="combined-image">
+                                <img src="{$cert.image}" alt="{$cert.name}" 
+                                     onclick="showImage(this.src, '{$cert.name}')">
+                            </div>
+                            <div class="combined-info">
+                                <h4>{$cert.name}</h4>
+                                <p>{$cert.description}</p>
+                                <div class="combined-tags">
+                                    <span class="layui-badge layui-bg-green">已备案</span>
+                                    <span class="layui-badge layui-bg-blue">官方认证</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/foreach}
+                        
+                        <!-- 安全评估证书 -->
+                        {foreach $qualifications.security_assessment.certificates as $cert}
+                        <div class="combined-item">
+                            <div class="combined-image">
+                                <img src="{$cert.image}" alt="{$cert.name}" 
+                                     onclick="showImage(this.src, '{$cert.name}')">
+                            </div>
+                            <div class="combined-info">
+                                <h4>{$cert.name}</h4>
+                                <p>{$cert.description}</p>
+                                <div class="combined-tags">
+                                    <span class="layui-badge layui-bg-green">已通过</span>
+                                    <span class="layui-badge layui-bg-orange">安全评估</span>
+                                </div>
+                            </div>
+                        </div>
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- 图片预览模态框 -->
+<div id="imageModal" class="image-modal" style="display: none;">
+    <div class="image-modal-content">
+        <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+        <img id="modalImage" src="" alt="">
+        <div id="modalTitle" class="image-modal-title"></div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('企业资质页面加载完成', {icon: 1, time: 2000});
+});
+
+// 显示图片预览
+function showImage(src, title) {
+    document.getElementById('modalImage').src = src;
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('imageModal').style.display = 'block';
+}
+
+// 关闭图片预览
+function closeImageModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+// 点击模态框外部关闭
+window.onclick = function(event) {
+    var modal = document.getElementById('imageModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+
+<style>
+.qualification-subtitle {
+    color: #666;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.company-section {
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+    align-items: flex-start;
+}
+
+.company-info-left {
+    flex: 1;
+    padding-right: 20px;
+    border-right: 1px solid #eee;
+}
+
+.company-license-right {
+    flex: 1;
+    text-align: center;
+}
+
+.license-title h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.license-image img {
+    max-width: 100%;
+    max-height: 250px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.license-image img:hover {
+    transform: scale(1.05);
+}
+
+.license-tags {
+    margin-top: 10px;
+}
+
+.certificate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.certificate-item {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.certificate-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.certificate-image img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.certificate-image img:hover {
+    transform: scale(1.05);
+}
+
+.certificate-info h4 {
+    color: #333;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.certificate-info p {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.combined-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+.combined-item {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.combined-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.combined-image img {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.combined-image img:hover {
+    transform: scale(1.05);
+}
+
+.combined-info h4 {
+    color: #333;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.combined-info p {
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.company-info {
+    padding: 20px;
+}
+
+.info-item {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.info-item .label {
+    font-weight: bold;
+    color: #333;
+    min-width: 150px;
+}
+
+.info-item .value {
+    color: #666;
+    flex: 1;
+}
+
+.business-scope .value {
+    line-height: 1.6;
+}
+
+.scope-item {
+    margin-bottom: 8px;
+    padding-left: 10px;
+    border-left: 3px solid #009688;
+}
+
+.scope-item:last-child {
+    margin-bottom: 0;
+}
+
+.scope-item strong {
+    color: #333;
+    font-weight: bold;
+}
+
+/* 图片预览模态框样式 */
+.image-modal {
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.image-modal-content {
+    position: relative;
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+}
+
+.image-modal-close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.image-modal-close:hover {
+    color: #ddd;
+}
+
+#modalImage {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+}
+
+.image-modal-title {
+    color: #fff;
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.layui-card-header {
+    font-weight: bold;
+}
+
+.layui-card-header .layui-icon {
+    margin-right: 5px;
+}
+
+.license-tags, .certificate-tags, .combined-tags {
+    margin-top: 10px;
+}
+
+.license-tags .layui-badge, 
+.certificate-tags .layui-badge, 
+.combined-tags .layui-badge {
+    margin-right: 5px;
+}
+</style>
+{/block} 

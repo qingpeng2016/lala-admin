@@ -1,0 +1,96 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+        <div class="layui-form-item">
+            <label class="layui-form-label">规则类型</label>
+            <div class="layui-input-block">
+                <select name="rule_type" required lay-verify="required">
+                    <option value="">请选择规则类型</option>
+                    {foreach $rule_type_list as $key => $value}
+                    <option value="{$key}" {if isset($vo.rule_type) and $vo.rule_type eq $key}selected{/if}>{$value}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">规则名称</label>
+            <div class="layui-input-block">
+                <input name="rule_name" value='{$vo.rule_name|default=""}' required placeholder="请输入规则名称" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">金额</label>
+            <div class="layui-input-block">
+                <input name="amount" value='{$vo.amount|default=""}' required placeholder="请输入金额" class="layui-input" lay-verify="number">
+                <div class="layui-form-mid layui-word-aux">请输入数字，支持小数</div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">单位类型</label>
+            <div class="layui-input-block">
+                <select name="unit" required lay-verify="required">
+                    <option value="">请选择单位类型</option>
+                    {foreach $unit_type_list as $key => $value}
+                    <option value="{$key}" {if isset($vo.unit) and $vo.unit eq $key}selected{elseif !isset($vo.unit) and $key eq 'fixed'}selected{/if}>{$value}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                {foreach $status_list as $key => $value}
+                <input type="radio" name="status" value="{$key}" title="{$value}" {if isset($vo.status) and $vo.status eq $key}checked{elseif !isset($vo.status) and $key eq '1'}checked{/if}>
+                {/foreach}
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">排序权重</label>
+            <div class="layui-input-block">
+                <input name="sort_order" value='{$vo.sort_order|default="0"}' placeholder="请输入排序权重，数字越小越靠前" class="layui-input" lay-verify="number">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">规则描述</label>
+            <div class="layui-input-block">
+                <textarea name="description" placeholder="请输入规则描述" class="layui-textarea" rows="4">{$vo.description|default=""}</textarea>
+            </div>
+        </div>
+        
+        <div class="hr-line-dashed"></div>
+        {notempty name='vo.id'}<input type='hidden' value='{$vo.id}' name='id'>{/notempty}
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type='submit' lay-submit lay-filter="formSubmit">保存数据</button>
+            <button class="layui-btn layui-btn-danger" type='button' data-close>取消编辑</button>
+        </div>
+    </div>
+</form>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+    
+    // 监听表单提交
+    form.on('submit(formSubmit)', function(data){
+        // 验证金额
+        var amount = parseFloat(data.field.amount);
+        if (isNaN(amount) || amount < 0) {
+            layer.msg('请输入有效的金额', {icon: 2});
+            return false;
+        }
+        
+        return true;
+    });
+});
+</script>
+{/block}
