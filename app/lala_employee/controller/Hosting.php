@@ -26,8 +26,57 @@ class Hosting extends Controller
         // 获取请求参数
         $get = $this->request->get();
 
+        // 添加基础条件：只查询当前登录用户关联的客户持有的商品
+        $current_user_id = session('user.id') ?? 0;
+        $user_info = Db::name('system_user')->where('id', $current_user_id)->find();
+        $affiliate_id = $user_info['affiliate_id'] ?? 0;
+        
+        if (!$affiliate_id) {
+            // 如果没有affiliate_id，返回空结果
+            $this->assign([
+                'list' => [],
+                'pagehtml' => '',
+                'get' => $get,
+                'domainstatus_list' => [
+                    'Pending' => '待处理',
+                    'Active' => '活跃',
+                    'Suspended' => '已暂停',
+                    'Terminated' => '已终止',
+                    'Cancelled' => '已取消',
+                    'Fraud' => '欺诈',
+                    'Completed' => '已完成'
+                ]
+            ]);
+            return $this->fetch();
+        }
+        
+        // 获取所有下级客户的ID
+        $sub_client_ids = Db::name('tblclients')
+            ->where('affiliateid', $affiliate_id)
+            ->column('id');
+        
+        if (empty($sub_client_ids)) {
+            // 如果没有下级客户，返回空结果
+            $this->assign([
+                'list' => [],
+                'pagehtml' => '',
+                'get' => $get,
+                'domainstatus_list' => [
+                    'Pending' => '待处理',
+                    'Active' => '活跃',
+                    'Suspended' => '已暂停',
+                    'Terminated' => '已终止',
+                    'Cancelled' => '已取消',
+                    'Fraud' => '欺诈',
+                    'Completed' => '已完成'
+                ]
+            ]);
+            return $this->fetch();
+        }
+
         // 创建查询对象
-        $query = Db::name('tblhosting');
+        $query = Db::name('tblhosting')
+            ->whereIn('userid', $sub_client_ids);
 
         // 添加搜索条件
         if (isset($get['id']) && $get['id'] !== '') {
