@@ -36,65 +36,6 @@
     </div>
 </form>
 
-<!-- 官方充值地址 -->
-<div class="layui-card" style="margin-top: 15px;">
-    <div class="layui-card-header" style="display: flex; align-items: center; gap: 10px;">
-        <h3>官方充值地址</h3>
-        <button type="button" class="layui-btn layui-btn-warm layui-btn-xs" onclick="copyOfficialAddress()">
-            <i class="layui-icon">&#xe64c;</i> 复制地址
-        </button>
-    </div>
-    <div class="layui-card-body">
-        <div class="address-container">
-            <div class="address-item">
-                <label>Trc20-USDT:</label>
-                <span class="address-text">TLteWz6XU89cAy4nfc3EPhZAX63rh8eTWb</span>
-            </div>
-            <div class="address-item">
-                <label>Ploygon-USDT:</label>
-                <span class="address-text">0xd43174aC01d55793c2feE0516E03C7A905D51d8B</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-// 复制官方充值地址
-function copyOfficialAddress() {
-    var addressText = "Trc20-USDT: TLteWz6XU89cAy4nfc3EPhZAX63rh8eTWb\n\nPloygon-USDT: 0xd43174aC01d55793c2feE0516E03C7A905D51d8B";
-    
-    // 创建临时文本区域
-    var textArea = document.createElement("textarea");
-    textArea.value = addressText;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
-    document.body.appendChild(textArea);
-    
-    // 选择并复制
-    textArea.focus();
-    textArea.select();
-    
-    try {
-        document.execCommand('copy');
-        if (typeof layer !== 'undefined') {
-            layer.msg('官方充值地址已复制到剪贴板', {icon: 1, time: 2000});
-        } else {
-            alert('官方充值地址已复制到剪贴板');
-        }
-    } catch (err) {
-        if (typeof layer !== 'undefined') {
-            layer.msg('复制失败，请手动复制', {icon: 2, time: 3000});
-        } else {
-            alert('复制失败，请手动复制');
-        }
-    }
-    
-    // 清理临时元素
-    document.body.removeChild(textArea);
-}
-</script>
-
 <style>
 .address-container {
     background: #f8f8f8;
