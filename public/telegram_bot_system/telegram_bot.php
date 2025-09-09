@@ -153,7 +153,7 @@ class TelegramBot {
     public function getRedirectUrl($action) {
         switch ($action) {
             case 'kefu':
-                return 'https://t.me/markqing2024';
+                return 'https://t.me/lalalongge';
             case 'usergroup':
                 return 'https://t.me/lalanetworkchat';
             case 'website':
@@ -161,7 +161,7 @@ class TelegramBot {
             case 'app':
                 return 'https://lala.gg/aff.php?aff=211';
             default:
-                return 'https://t.me/markqing2024';
+                return 'https://t.me/lalalongge';
         }
     }
 
