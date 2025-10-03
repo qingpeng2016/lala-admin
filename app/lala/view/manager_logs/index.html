@@ -1,0 +1,258 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+        </div>
+        <div class="layui-card-body">
+            <!-- 搜索表单 -->
+            {include file="manager_logs/index_search" /}
+            
+            <!-- 数据列表 -->
+            <table class="layui-table" lay-skin="line">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th style="width: 80px;">管理员ID</th>
+                        <th style="width: 180px;">操作类型</th>
+                        <th style="width: 180px;">操作描述</th>
+                        <th style="width: 160px;">当前页面</th>
+                        <th style="width: 160px;">来源页面</th>
+                        <th style="width: 120px;">IP地址</th>
+                        <th style="width: 200px;">浏览器指纹</th>
+                        <th style="width: 120px;">操作时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {foreach $list as $vo}
+                    <tr>
+                        <td>{$vo.id}</td>
+                        <td>{$vo.manager_id}</td>
+                        <td>
+                            {if $vo.action eq '页面访问'}
+                                <span class="layui-badge layui-bg-green">页面访问</span>
+                            {elseif $vo.action eq '用户点击'}
+                                <span class="layui-badge layui-bg-blue">用户点击</span>
+                            {else}
+                                <span class="layui-badge layui-bg-gray">{$vo.action}</span>
+                            {/if}
+                        </td>
+                        <td>{$vo.description}</td>
+                        <td>{$vo.current_page}</td>
+                        <td>{$vo.referer}</td>
+                        <td>{$vo.ipaddr}</td>
+                        <td>
+                            {if $vo.browser_fingerprint}
+                                <div title="指纹: {$vo.browser_fingerprint} | 原始UA: {$vo.user_agent}">
+                                    {$vo.browser_fingerprint}
+                                </div>
+                            {/if}
+                        </td>
+                        <td>{$vo.created_at}</td>
+                    </tr>
+                    {/foreach}
+                </tbody>
+            </table>
+            
+            <!-- 分页 -->
+            {if $pagehtml}
+            <div class="layui-card-body">
+                {$pagehtml|raw}
+            </div>
+            {/if}
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('管理员日志管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+});
+
+// 下载数据
+function downloadData() {
+    // 获取当前搜索条件
+    var searchParams = {};
+    $('.form-search input, .form-search select').each(function() {
+        var name = $(this).attr('name');
+        var value = $(this).val();
+        if (name && value !== '') {
+            searchParams[name] = value;
+        }
+    });
+    
+    // 显示加载提示
+    var loading = layer.load(1, {shade: [0.1, '#fff']});
+    
+    // 构建查询字符串
+    var queryString = Object.keys(searchParams).map(function(key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(searchParams[key]);
+    }).join('&');
+    
+    // 使用原生XMLHttpRequest下载文件
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '{:url("download")}' + (queryString ? '?' + queryString : ''), true);
+    xhr.responseType = 'blob';
+    
+    xhr.onload = function() {
+        layer.close(loading);
+        
+        if (xhr.status === 200) {
+            // 创建blob URL
+            var blob = new Blob([xhr.response], {type: 'text/csv; charset=UTF-8'});
+            var url = window.URL.createObjectURL(blob);
+            
+            // 创建下载链接
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = '管理员日志数据_' + new Date().toISOString().slice(0, 10) + '.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 释放blob URL
+            window.URL.revokeObjectURL(url);
+            
+            layer.msg('下载成功', {icon: 1, time: 2000});
+        } else {
+            layer.msg('下载失败：服务器错误', {icon: 2, time: 3000});
+        }
+    };
+    
+    xhr.onerror = function() {
+        layer.close(loading);
+        layer.msg('下载失败：网络错误', {icon: 2, time: 3000});
+    };
+    
+    xhr.send();
+}
+</script>
+
+<style>
+/* 分页样式修复 */
+.layui-card-body .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.layui-card-body .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+/* 分页按钮基础样式 */
+.layui-card-body .pagination li a,
+.layui-card-body .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.layui-card-body .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.layui-card-body .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.layui-card-body .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 确保分页按钮有足够的点击区域 */
+.layui-card-body .pagination li a {
+    /* 确保整个按钮都可以点击 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 当前页码样式增强 */
+.layui-card-body .pagination li.active {
+    position: relative;
+}
+
+.layui-card-body .pagination li.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #009688;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+/* 强制设置操作类型标签样式 */
+.layui-badge.layui-bg-green {
+    background-color: #5FB878 !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-blue {
+    background-color: #1E9FFF !important;
+    color: #fff !important;
+}
+
+.layui-badge.layui-bg-gray {
+    background-color: #999 !important;
+    color: #fff !important;
+}
+
+/* 页面URL列样式 - 允许换行 */
+.layui-table td:nth-child(5),
+.layui-table td:nth-child(6) {
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: normal;
+    max-width: 160px;
+}
+</style>
+{/block} 

@@ -1,0 +1,38 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get" autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">管理员ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="manager_id" placeholder="请输入管理员ID" value="{$get.manager_id|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">操作类型</label>
+        <div class="layui-input-inline">
+            <select name="action" class="layui-select">
+                <option value="">-- 全部类型 --</option>
+                <option value="页面访问" {if input('get.action') eq '页面访问'}selected{/if}>页面访问</option>
+                <option value="用户点击" {if input('get.action') eq '用户点击'}selected{/if}>用户点击</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">操作描述</label>
+        <div class="layui-input-inline">
+            <input type="text" name="description" placeholder="请输入操作描述" value="{$get.description|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">IP地址</label>
+        <div class="layui-input-inline">
+            <input type="text" name="ipaddr" placeholder="请输入IP地址" value="{$get.ipaddr|default=''}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button type="button" class="layui-btn layui-btn-normal" onclick="downloadData()">
+            <i class="layui-icon">&#xe601;</i> 下载CSV
+        </button>
+    </div>
+</form> 

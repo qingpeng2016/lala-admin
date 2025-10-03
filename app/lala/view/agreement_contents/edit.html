@@ -1,0 +1,71 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <h3>
+                {if $info.agreement_type eq 'user_agreement'}
+                    编辑用户协议
+                {elseif $info.agreement_type eq 'privacy_policy'}
+                    编辑隐私政策
+                {else}
+                    编辑协议内容
+                {/if}
+            </h3>
+        </div>
+        <div class="layui-card-body">
+            <form class="layui-form" lay-filter="editForm">
+                <input type="hidden" name="id" value="{$info.id}">
+                
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">协议内容</label>
+                    <div class="layui-input-block">
+                        <textarea name="content" placeholder="请输入协议内容" class="layui-textarea" lay-verify="required" style="min-height: 400px;">{$info.content}</textarea>
+                    </div>
+                </div>
+                
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="editSubmit">提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        <a href="{:url('index')}" class="layui-btn layui-btn-primary">返回</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+    
+    // 表单提交
+    form.on('submit(editSubmit)', function(data){
+        var loading = layer.load(1, {shade: [0.1, '#fff']});
+        
+        // 使用相对路径提交到当前页面
+        $.post('./', data.field, function(res) {
+            layer.close(loading);
+            console.log('提交响应:', res); // 调试输出
+            if (res.code == 1) {
+                layer.msg(res.msg, {icon: 1, time: 2000}, function() {
+                    location.href = '/admin.html#/lala/agreement_contents/index.html';
+                });
+            } else {
+                layer.msg(res.msg || '更新失败', {icon: 2, time: 2000});
+            }
+        }, 'json').fail(function(xhr, status, error) {
+            layer.close(loading);
+            console.log('请求失败:', xhr, status, error); // 调试输出
+            layer.msg('请求失败，请重试', {icon: 2, time: 2000});
+        });
+        
+        return false;
+    });
+});
+</script>
+{/block} 

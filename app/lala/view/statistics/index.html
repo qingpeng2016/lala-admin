@@ -1,0 +1,321 @@
+{extend name="../../admin/view/main"}
+
+{block name="content"}
+<div class="layui-fluid">
+    <!-- 统计卡片 -->
+    <div class="layui-row layui-col-space15">
+        <!-- 用户统计 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-user"></i> 用户统计
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$userStats.total}</div>
+                    <div class="stat-label">总用户数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">活跃: {$userStats.active}</span>
+                        <span class="layui-badge layui-bg-orange">新增: {$userStats.new_month}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务器统计 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-server"></i> 服务器统计
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$serverStats.total}</div>
+                    <div class="stat-label">总服务器数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">在线: {$serverStats.online}</span>
+                        <span class="layui-badge layui-bg-red">离线: {$serverStats.offline}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今日收入 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-dollar"></i> 今日收入
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">${$revenueStats.today}</div>
+                    <div class="stat-label">美元</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">增长: {$revenueStats.growth_rate}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 本月收入 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-chart"></i> 本月收入
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">${$revenueStats.month}</div>
+                    <div class="stat-label">美元</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-blue">年度: ${$revenueStats.year}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二行统计卡片 -->
+    <div class="layui-row layui-col-space15">
+        <!-- 订单统计 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-cart"></i> 订单统计
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$orderStats.total}</div>
+                    <div class="stat-label">总订单数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">活跃: {$orderStats.active}</span>
+                        <span class="layui-badge layui-bg-orange">待处理: {$orderStats.pending}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工单统计 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-service"></i> 工单统计
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$ticketStats.total}</div>
+                    <div class="stat-label">总工单数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">已关闭: {$ticketStats.closed}</span>
+                        <span class="layui-badge layui-bg-red">开启: {$ticketStats.open}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 域名统计 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-global"></i> 域名统计
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$domainStats.total}</div>
+                    <div class="stat-label">总域名数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">活跃: {$domainStats.active}</span>
+                        <span class="layui-badge layui-bg-orange">即将到期: {$domainStats.expiring_soon}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 虚拟主机统计 -->
+        <div class="layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-home"></i> 虚拟主机
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$hostingStats.total}</div>
+                    <div class="stat-label">总主机数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">活跃: {$hostingStats.active}</span>
+                        <span class="layui-badge layui-bg-blue">利用率: {$hostingStats.utilization_rate}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第三行统计卡片 -->
+    <div class="layui-row layui-col-space15">
+        <!-- VPS统计 -->
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-computer"></i> VPS统计
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$vpsStats.total}</div>
+                    <div class="stat-label">总VPS数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">活跃: {$vpsStats.active}</span>
+                        <span class="layui-badge layui-bg-blue">利用率: {$vpsStats.utilization_rate}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 独立服务器统计 -->
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-server"></i> 独立服务器
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">{$dedicatedStats.total}</div>
+                    <div class="stat-label">总服务器数</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">活跃: {$dedicatedStats.active}</span>
+                        <span class="layui-badge layui-bg-blue">利用率: {$dedicatedStats.utilization_rate}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统状态 -->
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-ok-circle"></i> 系统状态
+                </div>
+                <div class="layui-card-body">
+                    <div class="stat-number">正常</div>
+                    <div class="stat-label">系统运行状态</div>
+                    <div class="stat-details">
+                        <span class="layui-badge layui-bg-green">服务器在线率: {$serverStats.utilization_rate}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详细统计表格 -->
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    <i class="layui-icon layui-icon-list"></i> 详细统计信息
+                </div>
+                <div class="layui-card-body">
+                    <table class="layui-table">
+                        <thead>
+                            <tr>
+                                <th>统计项目</th>
+                                <th>总数</th>
+                                <th>活跃/在线</th>
+                                <th>暂停/离线</th>
+                                <th>新增(本月)</th>
+                                <th>增长率</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>用户</td>
+                                <td>{$userStats.total}</td>
+                                <td>{$userStats.active}</td>
+                                <td>{$userStats.suspended}</td>
+                                <td>{$userStats.new_month}</td>
+                                <td>{$userStats.growth_rate}%</td>
+                            </tr>
+                            <tr>
+                                <td>服务器</td>
+                                <td>{$serverStats.total}</td>
+                                <td>{$serverStats.online}</td>
+                                <td>{$serverStats.offline}</td>
+                                <td>{$serverStats.new_servers}</td>
+                                <td>{$serverStats.utilization_rate}%</td>
+                            </tr>
+                            <tr>
+                                <td>订单</td>
+                                <td>{$orderStats.total}</td>
+                                <td>{$orderStats.active}</td>
+                                <td>{$orderStats.suspended}</td>
+                                <td>{$orderStats.new_month}</td>
+                                <td>{$orderStats.conversion_rate}%</td>
+                            </tr>
+                            <tr>
+                                <td>工单</td>
+                                <td>{$ticketStats.total}</td>
+                                <td>{$ticketStats.closed}</td>
+                                <td>{$ticketStats.open}</td>
+                                <td>{$ticketStats.new_month}</td>
+                                <td>{$ticketStats.satisfaction_rate}%</td>
+                            </tr>
+                            <tr>
+                                <td>域名</td>
+                                <td>{$domainStats.total}</td>
+                                <td>{$domainStats.active}</td>
+                                <td>{$domainStats.expired}</td>
+                                <td>{$domainStats.new_month}</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>虚拟主机</td>
+                                <td>{$hostingStats.total}</td>
+                                <td>{$hostingStats.active}</td>
+                                <td>{$hostingStats.suspended}</td>
+                                <td>{$hostingStats.new_month}</td>
+                                <td>{$hostingStats.utilization_rate}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('数据统计页面加载完成', {icon: 1, time: 2000});
+});
+</script>
+
+<style>
+.stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #009688;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    text-align: center;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.stat-details {
+    text-align: center;
+}
+
+.stat-details .layui-badge {
+    margin: 2px;
+}
+
+.layui-card-header {
+    font-weight: bold;
+}
+
+.layui-card-header .layui-icon {
+    margin-right: 5px;
+}
+
+.layui-table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+}
+</style>
+{/block} 
