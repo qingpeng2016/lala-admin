@@ -11,9 +11,11 @@
             </a>
         </li>
         {foreach $menus as $one}
+        {if !in_array($one.title, ['风控系统'])}
         <li class="layui-nav-item">
             <a data-menu-node="m-{$one.id}" data-open="{$one.url}"><span>{$one.title|default=''}</span></a>
         </li>
+        {/if}
         {/foreach}
     </ul>
     <ul class="layui-nav layui-layout-right">
