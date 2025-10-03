@@ -42,6 +42,9 @@ class Index extends Controller
         AdminService::apply($this->app->isDebug());
         /*! 读取当前用户权限菜单树 */
         $this->menus = MenuService::getTree();
+
+        error_log(var_export(  $this->menus , true)."\n", 3, "/tmp/qp.log");
+
         /*! 判断当前用户的登录状态 */
         $this->login = AdminService::isLogin();
         /*! 菜单为空且未登录跳转到登录页 */
