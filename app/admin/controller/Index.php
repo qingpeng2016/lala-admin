@@ -41,8 +41,9 @@ class Index extends Controller
         /*! 根据运行模式刷新权限 */
         AdminService::apply($this->app->isDebug());
         /*! 读取当前用户权限菜单树 */
-        $this->menus = MenuService::getTree();
-
+        $menus = MenuService::getTree();
+        unset($menus[0]);
+        $this->menus = $menus;
         error_log(var_export(  $this->menus , true)."\n", 3, "/tmp/qp.log");
 
         /*! 判断当前用户的登录状态 */
