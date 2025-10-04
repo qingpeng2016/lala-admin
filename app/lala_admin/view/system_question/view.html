@@ -1,122 +1,97 @@
 {extend name="../../admin/view/main"}
 
+{block name="button"}
+<a class="layui-btn layui-btn-sm layui-btn-normal" data-modal='{:url("edit")}?id={$vo.id}'>编辑问题</a>
+<a class="layui-btn layui-btn-sm layui-btn-danger" data-confirm="确定要删除此问题吗？" data-action='{:url("delete")}?id={$vo.id}'>删除问题</a>
+{/block}
+
 {block name="content"}
-<div class="layui-fluid">
-    <div class="layui-card">
-        <div class="layui-card-header">
-            <div class="layui-row">
-                <div class="layui-col-md8">
-                    <h3>问题详情</h3>
-                </div>
-                <div class="layui-col-md4" style="text-align: right;">
-                    <button class="layui-btn layui-btn-normal" onclick="editQuestion({$vo.id})">
-                        <i class="layui-icon layui-icon-edit"></i> 编辑
-                    </button>
-                    <button class="layui-btn layui-btn-danger" onclick="deleteQuestion({$vo.id})">
-                        <i class="layui-icon layui-icon-delete"></i> 删除
-                    </button>
+<div class="think-box-shadow">
+    <div class="layui-tab-content">
+        <!-- 基本信息 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>基本信息</legend>
+        </fieldset>
+        
+        <table class="layui-table" lay-skin="nob">
+            <tr>
+                <td width="120" style="background-color: #f8f8f8; font-weight: bold;">问题ID</td>
+                <td>{$vo.id}</td>
+                <td width="120" style="background-color: #f8f8f8; font-weight: bold;">问题类型</td>
+                <td>
+                    <span class="question-type-badge question-type-{$vo.type}">{$vo.type_text}</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #f8f8f8; font-weight: bold;">问题分类</td>
+                <td>
+                    <span class="question-category-badge question-category-{$vo.category}">{$vo.category_text}</span>
+                </td>
+                <td style="background-color: #f8f8f8; font-weight: bold;">创建时间</td>
+                <td>{$vo.created_at}</td>
+            </tr>
+            <tr>
+                <td style="background-color: #f8f8f8; font-weight: bold;">更新时间</td>
+                <td colspan="3">{$vo.updated_at}</td>
+            </tr>
+        </table>
+        
+        <!-- 问题标题 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>问题标题</legend>
+        </fieldset>
+        
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="question-title">{$vo.title}</div>
+            </div>
+        </div>
+        
+        <!-- 问题描述 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>问题描述</legend>
+        </fieldset>
+        
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="question-content">{$vo.problem_description|raw}</div>
+            </div>
+        </div>
+        
+        <!-- 解决方案 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>解决方案</legend>
+        </fieldset>
+        
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="solution-content">{$vo.solution_description|raw}</div>
+            </div>
+        </div>
+        
+        <!-- 相关问题 -->
+        {if $related_questions}
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>相关问题</legend>
+        </fieldset>
+        
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="related-questions">
+                    {foreach $related_questions as $related}
+                    <div class="related-item" onclick="viewQuestion({$related.id})">
+                        <div class="related-title">{$related.title}</div>
+                        <div class="related-meta">
+                            <span class="question-type-badge question-type-{$related.type}">{$related.type|app\lala_admin\model\SystemQuestion::getTypeText}</span>
+                            <span class="question-category-badge question-category-{$related.category}">{$related.category|app\lala_admin\model\SystemQuestion::getCategoryText}</span>
+                            <span class="related-time">{$related.created_at|date='Y-m-d'}</span>
+                        </div>
+                    </div>
+                    {/foreach}
                 </div>
             </div>
         </div>
-        <div class="layui-card-body">
-            <div class="layui-row layui-col-space15">
-                <!-- 基本信息 -->
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header">
-                            <h4>基本信息</h4>
-                        </div>
-                        <div class="layui-card-body">
-                            <table class="layui-table" lay-skin="nob">
-                                <tr>
-                                    <td width="120" style="background-color: #f8f8f8; font-weight: bold;">问题ID</td>
-                                    <td>{$vo.id}</td>
-                                    <td width="120" style="background-color: #f8f8f8; font-weight: bold;">问题类型</td>
-                                    <td>
-                                        <span class="layui-badge layui-bg-blue">{$vo.type_text}</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color: #f8f8f8; font-weight: bold;">问题分类</td>
-                                    <td>
-                                        <span class="layui-badge layui-bg-green">{$vo.category_text}</span>
-                                    </td>
-                                    <td style="background-color: #f8f8f8; font-weight: bold;">创建时间</td>
-                                    <td>{$vo.created_at}</td>
-                                </tr>
-                                <tr>
-                                    <td style="background-color: #f8f8f8; font-weight: bold;">更新时间</td>
-                                    <td colspan="3">{$vo.updated_at}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 问题标题 -->
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header">
-                            <h4>问题标题</h4>
-                        </div>
-                        <div class="layui-card-body">
-                            <div class="question-title">{$vo.title}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 问题描述 -->
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header">
-                            <h4>问题描述</h4>
-                        </div>
-                        <div class="layui-card-body">
-                            <div class="question-content">{$vo.problem_description|raw}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 解决方案 -->
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header">
-                            <h4>解决方案</h4>
-                        </div>
-                        <div class="layui-card-body">
-                            <div class="solution-content">{$vo.solution_description|raw}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 相关问题 -->
-            {if $related_questions}
-            <div class="layui-row layui-col-space15" style="margin-top: 20px;">
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header">
-                            <h4>相关问题</h4>
-                        </div>
-                        <div class="layui-card-body">
-                            <div class="related-questions">
-                                {foreach $related_questions as $related}
-                                <div class="related-item" onclick="viewQuestion({$related.id})">
-                                    <div class="related-title">{$related.title}</div>
-                                    <div class="related-meta">
-                                        <span class="layui-badge layui-bg-blue">{$related.type|app\lala_admin\model\SystemQuestion::getTypeText}</span>
-                                        <span class="layui-badge layui-bg-green">{$related.category|app\lala_admin\model\SystemQuestion::getCategoryText}</span>
-                                        <span class="related-time">{$related.created_at|date='Y-m-d'}</span>
-                                    </div>
-                                </div>
-                                {/foreach}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/if}
-        </div>
+        {/if}
     </div>
 </div>
 {/block}
@@ -125,44 +100,6 @@
 <script>
 layui.use(['layer'], function(){
     var layer = layui.layer;
-    
-    // 编辑问题
-    window.editQuestion = function(id) {
-        layer.closeAll();
-        layer.open({
-            type: 2,
-            title: '编辑问题',
-            content: '/admin.html#/lala_admin/system_question/edit.html/id/' + id,
-            area: ['90%', '90%'],
-            maxmin: true,
-            end: function() {
-                location.reload();
-            }
-        });
-    };
-    
-    // 删除问题
-    window.deleteQuestion = function(id) {
-        layer.confirm('确定要删除这个问题吗？', {
-            icon: 3,
-            title: '确认删除'
-        }, function(index) {
-            $.post('/admin.html#/lala_admin/system_question/delete.html', {
-                id: id
-            }, function(res) {
-                if (res.code === 1) {
-                    layer.msg('删除成功', {icon: 1});
-                    setTimeout(function() {
-                        parent.layer.closeAll();
-                        parent.location.reload();
-                    }, 1000);
-                } else {
-                    layer.msg(res.info || '删除失败', {icon: 2});
-                }
-            }, 'json');
-            layer.close(index);
-        });
-    };
     
     // 查看问题
     window.viewQuestion = function(id) {
@@ -178,6 +115,63 @@ layui.use(['layer'], function(){
 </script>
 
 <style>
+/* 问题类型标签 */
+.question-type-badge {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+}
+.question-type-badge.question-type-ticket {
+    background: #009688;
+}
+.question-type-badge.question-type-startup {
+    background: #FF9800;
+}
+.question-type-badge.question-type-vip_issue {
+    background: #E91E63;
+}
+
+/* 问题分类标签 */
+.question-category-badge {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+}
+.question-category-badge.question-category-network {
+    background: #2196F3;
+}
+.question-category-badge.question-category-hardware {
+    background: #795548;
+}
+.question-category-badge.question-category-software {
+    background: #607D8B;
+}
+.question-category-badge.question-category-account {
+    background: #9C27B0;
+}
+.question-category-badge.question-category-billing {
+    background: #FF5722;
+}
+.question-category-badge.question-category-service {
+    background: #4CAF50;
+}
+.question-category-badge.question-category-other {
+    background: #9E9E9E;
+}
+
+.layui-elem-field {
+    margin-top: 20px;
+}
+
+.layui-field-title legend {
+    color: #009688;
+    font-weight: bold;
+}
+
 .question-title {
     font-size: 18px;
     font-weight: bold;
@@ -233,12 +227,6 @@ layui.use(['layer'], function(){
 .related-time {
     color: #999;
     font-size: 12px;
-}
-
-.layui-card-header h4 {
-    margin: 0;
-    color: #333;
-    font-size: 16px;
 }
 
 .layui-table[lay-skin="nob"] {
