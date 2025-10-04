@@ -38,7 +38,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">解决方案 <span style="color: red;">*</span></label>
             <div class="layui-input-block">
-                <textarea name="solution_description" placeholder="请输入解决方案" class="layui-textarea" rows="8" required>{$vo.solution_description|default=""}</textarea>
+                <textarea name="solution_description" id="solution_description" placeholder="请输入解决方案" class="layui-textarea ckeditor" rows="8" required>{$vo.solution_description|default=""}</textarea>
             </div>
         </div>
         <div class="hr-line-dashed"></div>
@@ -53,9 +53,52 @@
 <script>
 layui.use(['form'], function(){
     var form = layui.form;
+    var solutionEditor;
+    
+    // 使用RequireJS加载CKEditor
+    require(['ckeditor'], function() {
+        // 初始化富文本编辑器
+        $(document).ready(function() {
+            // 创建解决方案富文本编辑器
+            if (typeof window.createEditor !== 'undefined') {
+                solutionEditor = window.createEditor('#solution_description', {
+                    height: 300,
+                    toolbar: [
+                        {name: 'document', items: ['Source']},
+                        {name: 'styles', items: ['Font', 'FontSize']},
+                        {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'TextColor', 'BGColor', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', 'NumberedList', 'BulletedList']},
+                        {name: 'element', items: ['Link', 'Unlink', 'Table', 'UploadImage']},
+                        {name: 'tools', items: ['Print', 'Maximize']}
+                    ],
+                    language: 'zh-cn',
+                    format_tags: 'p;h1;h2;h3;pre',
+                    extraPlugins: 'uimage',
+                    removePlugins: 'easyimage,cloudservices,exportpdf',
+                    removeButtons: 'Underline,Subscript,Superscript',
+                    removeDialogTabs: 'image:advanced;link:advanced',
+                    // 内容过滤
+                    disallowedContent: 'script; *[on*]',
+                    allowedContent: true,
+                    font_names: '微软雅黑/Microsoft YaHei;宋体/SimSun;新宋体/NSimSun;仿宋/FangSong;楷体/KaiTi;黑体/SimHei;'
+                });
+            }
+        });
+    });
     
     // 表单提交监听
     form.on('submit(*)', function(data) {
+        // 确保富文本编辑器内容同步到表单字段
+        if (solutionEditor && typeof solutionEditor.getData === 'function') {
+            var solutionContent = solutionEditor.getData();
+            $('textarea[name="solution_description"]').val(solutionContent);
+            
+            // 验证富文本内容
+            if (!solutionContent.trim()) {
+                layer.msg('解决方案不能为空', {icon: 2});
+                return false;
+            }
+        }
+        
         console.log('Form data:', data.field);
         return true;
     });
