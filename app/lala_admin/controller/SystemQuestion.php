@@ -285,6 +285,48 @@ class SystemQuestion extends Controller
     }
 
     /**
+     * 查看问答详情
+     * @auth true
+     */
+    public function view()
+    {
+        Log::info('SystemQuestion view method called');
+        
+        // 获取要查看的数据
+        $id = $this->request->get('id');
+        if (empty($id)) {
+            return $this->error('参数错误');
+        }
+        
+        $vo = Db::name('system_question')
+            ->where('id', $id)
+            ->find();
+        if (empty($vo)) {
+            return $this->error('问答不存在');
+        }
+        
+        // 处理NULL值
+        $vo['category'] = $vo['category'] ?? '';
+        $vo['problem_description'] = $vo['problem_description'] ?? '';
+        $vo['solution_description'] = $vo['solution_description'] ?? '';
+        
+        // 处理时间
+        if (!empty($vo['created_at'])) {
+            $vo['created_at'] = date('Y-m-d H:i:s', strtotime($vo['created_at']));
+        }
+        if (!empty($vo['updated_at'])) {
+            $vo['updated_at'] = date('Y-m-d H:i:s', strtotime($vo['updated_at']));
+        }
+        
+        $this->assign([
+            'vo' => $vo,
+            'type_list' => $this->getTypeList(),
+            'category_list' => $this->getCategoryList()
+        ]);
+        return $this->fetch('view');
+    }
+
+    /**
      * 删除问答
      * @auth true
      */
