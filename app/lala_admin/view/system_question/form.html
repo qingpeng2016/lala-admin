@@ -1,7 +1,7 @@
 {extend name="../../admin/view/main"}
 
 {block name="content"}
-<form class="layui-form layui-card" action="{:request()->url()}" method="post" autocomplete="off">
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
     <div class="layui-card-body">
         
         <!-- 基本信息 -->
@@ -190,46 +190,29 @@ layui.use(['form'], function(){
     
     // 监听表单提交
     form.on('submit(formSubmit)', function(data){
-        // 获取富文本编辑器内容
-        var formData = data.field;
+        // 获取富文本编辑器内容并更新到表单字段
         if (problemEditor) {
-            formData.problem_description = problemEditor.getData();
+            $('textarea[name="problem_description"]').val(problemEditor.getData());
         }
         if (solutionEditor) {
-            formData.solution_description = solutionEditor.getData();
+            $('textarea[name="solution_description"]').val(solutionEditor.getData());
         }
         
         // 验证富文本内容
-        if (!formData.problem_description.trim()) {
+        var problemContent = problemEditor ? problemEditor.getData() : '';
+        var solutionContent = solutionEditor ? solutionEditor.getData() : '';
+        
+        if (!problemContent.trim()) {
             layer.msg('问题描述不能为空', {icon: 2});
             return false;
         }
-        if (!formData.solution_description.trim()) {
+        if (!solutionContent.trim()) {
             layer.msg('解决方案不能为空', {icon: 2});
             return false;
         }
         
-        // 显示加载层
-        var loadIndex = layer.load(1, {shade: [0.1, '#fff']});
-        
-        // 提交数据
-        $.post('', formData, function(res) {
-            layer.close(loadIndex);
-            if (res.code === 1) {
-                layer.msg('保存成功', {icon: 1});
-                setTimeout(function() {
-                    parent.layer.closeAll();
-                    parent.location.reload();
-                }, 1000);
-            } else {
-                layer.msg(res.info || '保存失败', {icon: 2});
-            }
-        }, 'json').fail(function() {
-            layer.close(loadIndex);
-            layer.msg('网络错误，请重试', {icon: 2});
-        });
-        
-        return false;
+        // 让ThinkAdmin的自动提交功能处理表单提交
+        return true;
     });
 });
 </script>
