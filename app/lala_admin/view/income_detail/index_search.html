@@ -1,0 +1,60 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get"
+      autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">订单ID</label>
+        <div class="layui-input-inline">
+            <input name="id" value="{$get.id|default=''}" placeholder="请输入订单ID"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">支付类型</label>
+        <div class="layui-input-inline">
+            <select name="payment_type" class="layui-select">
+                <option value="">所有类型</option>
+                {foreach $payment_types as $key=>$item}
+                <option value="{$key}" {if isset($get.payment_type) && $get.payment_type==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">订单状态</label>
+        <div class="layui-input-inline">
+            <select name="order_status" class="layui-select">
+                <option value="">所有状态</option>
+                {foreach $order_statuses as $key=>$item}
+                <option value="{$key}" {if isset($get.order_status) && $get.order_status==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">创建时间</label>
+        <div class="layui-input-inline">
+            <input name="date_range" value="{$get.date_range|default=''}" placeholder="请选择日期范围"
+                   class="layui-input" id="date_range">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+        <button class="layui-btn layui-btn-sm layui-btn-primary" data-modal='{:url("add")}'><i class="layui-icon">&#xe654;</i> 新增收款</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+        // 初始化日期范围选择器
+        laydate.render({
+            elem: '#date_range',
+            type: 'date',
+            range: ' - ',
+            format: 'yyyy-MM-dd'
+        });
+    });
+</script>
