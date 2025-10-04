@@ -66,7 +66,8 @@
             <td>{$vo.updated_at}</td>
             <td>
                 <button class="layui-btn layui-btn-sm layui-btn-normal" 
-                        onclick="viewSolution({$vo.id}, '{$vo.title|htmlspecialchars}', '{$vo.solution_description|htmlspecialchars}')">
+                        onclick="viewSolution({$vo.id}, '{$vo.title|htmlspecialchars}', '{$vo.solution_description|htmlspecialchars}')"
+                        title="点击查看完整解决方案">
                     <i class="layui-icon">&#xe63c;</i> 查看方案
                 </button>
                 <button class="layui-btn layui-btn-sm layui-btn-normal" 
@@ -97,6 +98,12 @@ layui.use(['layer', 'laydate'], function(){
     // 页面加载完成后的初始化
     layer.msg('问答管理页面加载完成', {icon: 1, time: 2000});
     
+    // 测试函数是否可用
+    window.testViewSolution = function() {
+        console.log('测试函数被调用');
+        viewSolution(1, '测试标题', '<p>这是一个测试内容</p><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzAwOTY4OCIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuWbvueJhzwvdGV4dD48L3N2Zz4=" alt="测试图片">');
+    };
+    
     // 日期范围选择
     laydate.render({
         elem: '#date_range',
@@ -120,6 +127,8 @@ layui.use(['layer', 'laydate'], function(){
 
 // 查看解决方案函数
 function viewSolution(id, title, content) {
+    console.log('viewSolution函数被调用', id, title, content);
+    
     // 处理内容中的引号，防止JavaScript错误
     var safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '\\"');
     var safeContent = content.replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -137,18 +146,25 @@ function viewSolution(id, title, content) {
     html += '</div>';
     html += '</div>';
     
-    // 显示弹窗
-    layer.open({
-        type: 1,
-        title: '查看解决方案',
-        area: ['80%', '80%'],
-        content: html,
-        maxmin: true,
-        resize: true,
-        success: function(layero, index) {
-            // 弹窗打开成功后的处理
-            console.log('解决方案查看弹窗已打开');
-        }
+    // 使用layui的layer组件显示弹窗
+    layui.use('layer', function(){
+        var layer = layui.layer;
+        
+        layer.open({
+            type: 1,
+            title: '查看解决方案',
+            area: ['80%', '80%'],
+            content: html,
+            maxmin: true,
+            resize: true,
+            success: function(layero, index) {
+                console.log('解决方案查看弹窗已打开');
+            },
+            error: function() {
+                console.error('弹窗打开失败');
+                alert('弹窗打开失败，请检查控制台错误信息');
+            }
+        });
     });
 }
 </script>
