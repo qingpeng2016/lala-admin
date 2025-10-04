@@ -22,7 +22,7 @@
             <th style="width: 250px;">解决方案</th>
             <th style="width: 150px;">创建时间</th>
             <th style="width: 150px;">更新时间</th>
-            <th style="width: 240px;">操作</th>
+            <th style="width: 280px;">操作</th>
         </tr>
         </thead>
         <tbody>
@@ -65,7 +65,7 @@
             <td>{$vo.created_at}</td>
             <td>{$vo.updated_at}</td>
             <td>
-                <button class="layui-btn layui-btn-sm layui-btn-primary" 
+                <button class="layui-btn layui-btn-sm layui-btn-normal" 
                         onclick="viewSolution({$vo.id}, '{$vo.title|htmlspecialchars}', '{$vo.solution_description|htmlspecialchars}')">
                     <i class="layui-icon">&#xe63c;</i> 查看方案
                 </button>
@@ -120,15 +120,19 @@ layui.use(['layer', 'laydate'], function(){
 
 // 查看解决方案函数
 function viewSolution(id, title, content) {
+    // 处理内容中的引号，防止JavaScript错误
+    var safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    var safeContent = content.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    
     // 创建弹窗内容
     var html = '<div class="solution-viewer">';
     html += '<div class="layui-card">';
     html += '<div class="layui-card-header">';
     html += '<h3><i class="layui-icon">&#xe63c;</i> 解决方案详情</h3>';
-    html += '<p class="color-desc">问题ID: ' + id + ' | 标题: ' + title + '</p>';
+    html += '<p class="color-desc">问题ID: ' + id + ' | 标题: ' + safeTitle + '</p>';
     html += '</div>';
     html += '<div class="layui-card-body" style="max-height: 60vh; overflow-y: auto;">';
-    html += '<div class="solution-content">' + content + '</div>';
+    html += '<div class="solution-content">' + safeContent + '</div>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -361,6 +365,20 @@ function viewSolution(id, title, content) {
 .solution-content pre code {
     background: none;
     padding: 0;
+}
+
+/* 操作按钮样式优化 */
+.layui-table td {
+    white-space: nowrap;
+}
+
+.layui-table td .layui-btn {
+    margin-right: 5px;
+    margin-bottom: 2px;
+}
+
+.layui-table td .layui-btn:last-child {
+    margin-right: 0;
 }
 </style>
 {/block}
