@@ -1,0 +1,211 @@
+{extend name="../../admin/view/main"}
+
+{block name="button"}
+<div class="layui-btn-group">
+    <button data-table-refresh class="layui-btn layui-btn-sm layui-btn-primary">
+        <i class="layui-icon">&#xe669;</i> 刷新
+    </button>
+</div>
+{/block}
+
+{block name="content"}
+<div class="think-box-shadow table-block">
+    {include file="system_question/index_search"}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th style="width: 60px;">ID</th>
+            <th style="width: 100px;">类型</th>
+            <th style="width: 100px;">分类</th>
+            <th style="width: 200px;">标题</th>
+            <th style="width: 250px;">问题描述</th>
+            <th style="width: 250px;">解决方案</th>
+            <th style="width: 150px;">创建时间</th>
+            <th style="width: 150px;">更新时间</th>
+            <th style="width: 180px;">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td>{$vo.id}</td>
+            <td>
+                {if $vo.type eq 'ticket'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #009688;">工单处理</span>
+                {elseif $vo.type eq 'startup'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF9800;">开机处理</span>
+                {elseif $vo.type eq 'vip_issue'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #E91E63;">大户问题</span>
+                {else}
+                <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">未知</span>
+                {/if}
+            </td>
+            <td>
+                {if $vo.category eq 'network'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #2196F3;">网络问题</span>
+                {elseif $vo.category eq 'hardware'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #795548;">硬件问题</span>
+                {elseif $vo.category eq 'software'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #607D8B;">软件问题</span>
+                {elseif $vo.category eq 'account'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">账户问题</span>
+                {elseif $vo.category eq 'billing'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF5722;">账单问题</span>
+                {elseif $vo.category eq 'service'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #4CAF50;">服务问题</span>
+                {elseif $vo.category eq 'other'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9E9E9E;">其他问题</span>
+                {else}
+                <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.category}</span>
+                {/if}
+            </td>
+            <td title="{$vo.title}">{$vo.title|mb_substr=0,25,'utf-8'}{if mb_strlen($vo.title) > 25}...{/if}</td>
+            <td title="{$vo.problem_description|strip_tags}">{$vo.problem_short}</td>
+            <td title="{$vo.solution_description|strip_tags}">{$vo.solution_short}</td>
+            <td>{$vo.created_at}</td>
+            <td>{$vo.updated_at}</td>
+            <td>
+                <button class="layui-btn layui-btn-sm layui-btn-normal" 
+                        data-modal='{:url("edit")}?id={$vo.id}'>
+                    <i class="layui-icon">&#xe642;</i> 编辑
+                </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger" 
+                        data-confirm="确定要删除这条问答记录吗？" 
+                        data-action='{:url("remove")}' 
+                        data-value="id#{$vo.id}">
+                    <i class="layui-icon">&#xe640;</i> 删除
+                </button>
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer', 'laydate'], function(){
+    var layer = layui.layer;
+    var laydate = layui.laydate;
+    
+    // 页面加载完成后的初始化
+    layer.msg('问答管理页面加载完成', {icon: 1, time: 2000});
+    
+    // 日期范围选择
+    laydate.render({
+        elem: '#date_range',
+        range: true,
+        format: 'yyyy-MM-dd'
+    });
+    
+    // 分页按钮点击优化
+    $(document).ready(function() {
+        // 为分页按钮添加点击事件，让整个按钮区域都可以点击
+        $('.pagination li a').on('click', function(e) {
+            // 阻止默认事件，使用自定义跳转
+            e.preventDefault();
+            var href = $(this).attr('href');
+            if (href && href !== '#') {
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
+
+<style>
+/* 分页样式修复 */
+.layui-card-body .pagination,
+.think-box-shadow .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.layui-card-body .pagination li,
+.think-box-shadow .pagination li {
+    display: inline-block;
+    margin: 0 2px;
+    position: relative;
+}
+
+/* 分页按钮基础样式 */
+.layui-card-body .pagination li a,
+.layui-card-body .pagination li span,
+.think-box-shadow .pagination li a,
+.think-box-shadow .pagination li span {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    text-decoration: none;
+    border-radius: 2px;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    line-height: 1.2;
+}
+
+/* 当前页码样式 - 确保有颜色区分 */
+.layui-card-body .pagination li.active span,
+.think-box-shadow .pagination li.active span {
+    background: #009688 !important;
+    color: #fff !important;
+    border-color: #009688 !important;
+    cursor: default;
+}
+
+/* 可点击页码样式 */
+.layui-card-body .pagination li a:hover,
+.think-box-shadow .pagination li a:hover {
+    background: #f2f2f2;
+    border-color: #009688;
+    color: #009688;
+}
+
+/* 禁用状态样式 */
+.layui-card-body .pagination li.disabled span,
+.think-box-shadow .pagination li.disabled span {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+
+/* 确保分页按钮有足够的点击区域 */
+.layui-card-body .pagination li a,
+.think-box-shadow .pagination li a {
+    /* 确保整个按钮都可以点击 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 当前页码样式增强 */
+.layui-card-body .pagination li.active,
+.think-box-shadow .pagination li.active {
+    position: relative;
+}
+
+.layui-card-body .pagination li.active::before,
+.think-box-shadow .pagination li.active::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: #009688;
+    border-radius: 4px;
+    z-index: -1;
+}
+</style>
+{/block}
