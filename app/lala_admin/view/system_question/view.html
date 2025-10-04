@@ -1,83 +1,10 @@
 <div class="layui-card">
     <div class="layui-card-header">
-        <h3><i class="layui-icon">&#xe63c;</i> 解决方案详情</h3>
-        <p class="color-desc">问题ID: {$vo.id} | 标题: {$vo.title}</p>
+        <h3><i class="layui-icon">&#xe63c;</i> 解决方案</h3>
+        <p class="color-desc">{$vo.title}</p>
     </div>
     <div class="layui-card-body">
-        <div class="layui-form layui-form-pane">
-            <div class="layui-form-item">
-                <label class="layui-form-label">问题类型</label>
-                <div class="layui-input-block">
-                    {if $vo.type eq 'ticket'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #009688;">工单处理</span>
-                    {elseif $vo.type eq 'startup'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF9800;">开机处理</span>
-                    {elseif $vo.type eq 'vip_issue'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #E91E63;">大户问题</span>
-                    {else}
-                    <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">未知</span>
-                    {/if}
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <label class="layui-form-label">问题分类</label>
-                <div class="layui-input-block">
-                    {if $vo.category eq 'network'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #2196F3;">网络问题</span>
-                    {elseif $vo.category eq 'hardware'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #795548;">硬件问题</span>
-                    {elseif $vo.category eq 'software'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #607D8B;">软件问题</span>
-                    {elseif $vo.category eq 'account'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">账户问题</span>
-                    {elseif $vo.category eq 'billing'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF5722;">账单问题</span>
-                    {elseif $vo.category eq 'service'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #4CAF50;">服务问题</span>
-                    {elseif $vo.category eq 'other'}
-                    <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9E9E9E;">其他问题</span>
-                    {else}
-                    <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.category}</span>
-                    {/if}
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <label class="layui-form-label">问题标题</label>
-                <div class="layui-input-block">
-                    <div class="layui-input" style="background: #f8f9fa; border: 1px solid #e9ecef;">{$vo.title}</div>
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <label class="layui-form-label">问题描述</label>
-                <div class="layui-input-block">
-                    <div class="layui-textarea" style="background: #f8f9fa; border: 1px solid #e9ecef; min-height: 100px;">{$vo.problem_description}</div>
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <label class="layui-form-label">解决方案</label>
-                <div class="layui-input-block">
-                    <div class="solution-content" style="background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 4px; min-height: 200px; max-height: 400px; overflow-y: auto;">{$vo.solution_description|raw}</div>
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <label class="layui-form-label">创建时间</label>
-                <div class="layui-input-block">
-                    <div class="layui-input" style="background: #f8f9fa; border: 1px solid #e9ecef;">{$vo.created_at}</div>
-                </div>
-            </div>
-            
-            <div class="layui-form-item">
-                <label class="layui-form-label">更新时间</label>
-                <div class="layui-input-block">
-                    <div class="layui-input" style="background: #f8f9fa; border: 1px solid #e9ecef;">{$vo.updated_at}</div>
-                </div>
-            </div>
-        </div>
+        <div class="solution-content">{$vo.solution_description|raw}</div>
     </div>
 </div>
 
