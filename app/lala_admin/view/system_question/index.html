@@ -22,7 +22,7 @@
             <th style="width: 250px;">解决方案</th>
             <th style="width: 150px;">创建时间</th>
             <th style="width: 150px;">更新时间</th>
-            <th style="width: 180px;">操作</th>
+            <th style="width: 240px;">操作</th>
         </tr>
         </thead>
         <tbody>
@@ -65,6 +65,10 @@
             <td>{$vo.created_at}</td>
             <td>{$vo.updated_at}</td>
             <td>
+                <button class="layui-btn layui-btn-sm layui-btn-primary" 
+                        onclick="viewSolution({$vo.id}, '{$vo.title|escape}', '{$vo.solution_description|escape}')">
+                    <i class="layui-icon">&#xe63c;</i> 查看方案
+                </button>
                 <button class="layui-btn layui-btn-sm layui-btn-normal" 
                         data-modal='{:url("edit")}?id={$vo.id}'>
                     <i class="layui-icon">&#xe642;</i> 编辑
@@ -113,6 +117,36 @@ layui.use(['layer', 'laydate'], function(){
         });
     });
 });
+
+// 查看解决方案函数
+function viewSolution(id, title, content) {
+    // 创建弹窗内容
+    var html = '<div class="solution-viewer">';
+    html += '<div class="layui-card">';
+    html += '<div class="layui-card-header">';
+    html += '<h3><i class="layui-icon">&#xe63c;</i> 解决方案详情</h3>';
+    html += '<p class="color-desc">问题ID: ' + id + ' | 标题: ' + title + '</p>';
+    html += '</div>';
+    html += '<div class="layui-card-body" style="max-height: 60vh; overflow-y: auto;">';
+    html += '<div class="solution-content">' + content + '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // 显示弹窗
+    layer.open({
+        type: 1,
+        title: '查看解决方案',
+        area: ['80%', '80%'],
+        content: html,
+        maxmin: true,
+        resize: true,
+        success: function(layero, index) {
+            // 弹窗打开成功后的处理
+            console.log('解决方案查看弹窗已打开');
+        }
+    });
+}
 </script>
 
 <style>
@@ -206,6 +240,127 @@ layui.use(['layer', 'laydate'], function(){
     background: #009688;
     border-radius: 4px;
     z-index: -1;
+}
+
+/* 解决方案查看器样式 */
+.solution-viewer {
+    padding: 0;
+}
+
+.solution-viewer .layui-card {
+    margin: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.solution-viewer .layui-card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px 20px;
+}
+
+.solution-viewer .layui-card-header h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.solution-viewer .layui-card-header p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+.solution-viewer .layui-card-body {
+    padding: 20px;
+    background: #fff;
+}
+
+.solution-content {
+    line-height: 1.6;
+    color: #333;
+    font-size: 14px;
+}
+
+.solution-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin: 10px 0;
+}
+
+.solution-content p {
+    margin: 10px 0;
+}
+
+.solution-content h1,
+.solution-content h2,
+.solution-content h3,
+.solution-content h4,
+.solution-content h5,
+.solution-content h6 {
+    margin: 15px 0 10px 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.solution-content ul,
+.solution-content ol {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.solution-content li {
+    margin: 5px 0;
+}
+
+.solution-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.solution-content table th,
+.solution-content table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.solution-content table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+
+.solution-content blockquote {
+    margin: 15px 0;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #009688;
+    color: #666;
+}
+
+.solution-content code {
+    background: #f1f3f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+}
+
+.solution-content pre {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 15px 0;
+}
+
+.solution-content pre code {
+    background: none;
+    padding: 0;
 }
 </style>
 {/block}
