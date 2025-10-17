@@ -1,0 +1,111 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get"
+      autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">ID</label>
+        <div class="layui-input-inline">
+            <input name="id" value="{$get.id|default=''}" placeholder="请输入ID"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">IP地址</label>
+        <div class="layui-input-inline">
+            <input name="ip_address" value="{$get.ip_address|default=''}" placeholder="请输入IP地址"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">所属上游</label>
+        <div class="layui-input-inline">
+            <select name="upstream_provider" class="layui-select">
+                <option value="">所有上游</option>
+                {foreach $upstream_provider_list as $key=>$item}
+                <option value="{$key}" {if isset($get.upstream_provider) && $get.upstream_provider==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">所属母机</label>
+        <div class="layui-input-inline">
+            <input name="parent_machine" value="{$get.parent_machine|default=''}" placeholder="请输入所属母机"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">所属地区</label>
+        <div class="layui-input-inline">
+            <select name="region" class="layui-select">
+                <option value="">所有地区</option>
+                {foreach $region_list as $key=>$item}
+                <option value="{$key}" {if isset($get.region) && $get.region==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">网络类型</label>
+        <div class="layui-input-inline">
+            <select name="network_type" class="layui-select">
+                <option value="">所有类型</option>
+                {foreach $network_type_list as $key=>$item}
+                <option value="{$key}" {if isset($get.network_type) && $get.network_type==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">虚拟化系统</label>
+        <div class="layui-input-inline">
+            <select name="virtualization_system" class="layui-select">
+                <option value="">所有系统</option>
+                {foreach $virtualization_system_list as $key=>$item}
+                <option value="{$key}" {if isset($get.virtualization_system) && $get.virtualization_system==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline">
+            <select name="status" class="layui-select">
+                <option value="">所有状态</option>
+                {foreach $status_list as $key=>$item}
+                <option value="{$key}" {if isset($get.status) && $get.status==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">创建时间</label>
+        <div class="layui-input-inline">
+            <input name="date_range" value="{$get.date_range|default=''}" placeholder="请选择日期范围"
+                   class="layui-input" id="date_range">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+        <button class="layui-btn layui-btn-sm layui-btn-primary" data-modal='{:url("add")}'><i class="layui-icon">&#xe654;</i> 新增IP</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['form', 'laydate'], function () {
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+        // 初始化日期范围选择器
+        laydate.render({
+            elem: '#date_range',
+            type: 'date',
+            range: ' - ',
+            format: 'yyyy-MM-dd'
+        });
+    });
+</script>
+
