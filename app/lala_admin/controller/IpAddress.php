@@ -48,7 +48,7 @@ class IpAddress extends Controller
             $this->app->log->info('Added upstream_provider condition: ' . $get['upstream_provider']);
         }
         if (isset($get['parent_machine']) && $get['parent_machine'] !== '') {
-            $query->where('parent_machine', 'like', "%{$get['parent_machine']}%");
+            $query->where('parent_machine', $get['parent_machine']);
             $this->app->log->info('Added parent_machine condition: ' . $get['parent_machine']);
         }
         if (isset($get['region']) && $get['region'] !== '') {
@@ -147,22 +147,20 @@ class IpAddress extends Controller
             // 数据验证
             $validate = \think\facade\Validate::rule([
                 'upstream_provider' => 'require|in:niuzong,qianzhi',
-                'parent_machine' => 'require|max:100',
+                'parent_machine' => 'max:100',
                 'region' => 'require|in:mainland,hk',
                 'network_type' => 'require|in:telecom,mobile,unicom,hk_net',
-                'virtualization_system' => 'require|in:pve,vf',
+                'virtualization_system' => 'in:pve,vf',
                 'ip_address' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
                 'upstream_provider.require' => '所属上游不能为空',
                 'upstream_provider.in' => '所属上游必须是niuzong或qianzhi',
-                'parent_machine.require' => '所属母机不能为空',
                 'parent_machine.max' => '所属母机最多100个字符',
                 'region.require' => '所属地区不能为空',
                 'region.in' => '所属地区必须是mainland或hk',
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom或hk_net',
-                'virtualization_system.require' => '虚拟化系统不能为空',
                 'virtualization_system.in' => '虚拟化系统必须是pve或vf',
                 'ip_address.require' => 'IP地址不能为空',
                 'ip_address.max' => 'IP地址最多50个字符',
@@ -238,10 +236,10 @@ class IpAddress extends Controller
             $validate = \think\facade\Validate::rule([
                 'id' => 'require|integer|gt:0',
                 'upstream_provider' => 'require|in:niuzong,qianzhi',
-                'parent_machine' => 'require|max:100',
+                'parent_machine' => 'max:100',
                 'region' => 'require|in:mainland,hk',
                 'network_type' => 'require|in:telecom,mobile,unicom,hk_net',
-                'virtualization_system' => 'require|in:pve,vf',
+                'virtualization_system' => 'in:pve,vf',
                 'ip_address' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
@@ -250,13 +248,11 @@ class IpAddress extends Controller
                 'id.gt' => 'ID必须大于0',
                 'upstream_provider.require' => '所属上游不能为空',
                 'upstream_provider.in' => '所属上游必须是niuzong或qianzhi',
-                'parent_machine.require' => '所属母机不能为空',
                 'parent_machine.max' => '所属母机最多100个字符',
                 'region.require' => '所属地区不能为空',
                 'region.in' => '所属地区必须是mainland或hk',
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom或hk_net',
-                'virtualization_system.require' => '虚拟化系统不能为空',
                 'virtualization_system.in' => '虚拟化系统必须是pve或vf',
                 'ip_address.require' => 'IP地址不能为空',
                 'ip_address.max' => 'IP地址最多50个字符',

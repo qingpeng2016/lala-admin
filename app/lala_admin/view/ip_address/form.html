@@ -19,9 +19,13 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">所属母机 <span style="color: red;">*</span></label>
+            <label class="layui-form-label">所属母机</label>
             <div class="layui-input-block">
-                <input name="parent_machine" value='{$vo.parent_machine|default=""}' required placeholder="请输入所属母机" class="layui-input" maxlength="100">
+                <select name="parent_machine" class="layui-select">
+                    <option value="">请选择所属母机</option>
+                    <option value="Node11" {if isset($vo.parent_machine) && $vo.parent_machine eq 'Node11'}selected{/if}>Node11</option>
+                    <option value="Node24" {if isset($vo.parent_machine) && $vo.parent_machine eq 'Node24'}selected{/if}>Node24</option>
+                </select>
             </div>
         </div>
         <div class="layui-form-item">
@@ -47,9 +51,9 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">虚拟化系统 <span style="color: red;">*</span></label>
+            <label class="layui-form-label">虚拟化系统</label>
             <div class="layui-input-block">
-                <select name="virtualization_system" class="layui-select" required>
+                <select name="virtualization_system" class="layui-select">
                     <option value="">请选择虚拟化系统</option>
                     {foreach $virtualization_system_list as $key=>$item}
                     <option value="{$key}" {if isset($vo.virtualization_system) && $vo.virtualization_system eq $key}selected{/if}>{$item}</option>

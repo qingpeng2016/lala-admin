@@ -29,8 +29,11 @@
     <div class="layui-form-item layui-inline">
         <label class="layui-form-label">所属母机</label>
         <div class="layui-input-inline">
-            <input name="parent_machine" value="{$get.parent_machine|default=''}" placeholder="请输入所属母机"
-                   class="layui-input">
+            <select name="parent_machine" class="layui-select">
+                <option value="">所有母机</option>
+                <option value="Node11" {if isset($get.parent_machine) && $get.parent_machine eq 'Node11'}selected{/if}>Node11</option>
+                <option value="Node24" {if isset($get.parent_machine) && $get.parent_machine eq 'Node24'}selected{/if}>Node24</option>
+            </select>
         </div>
     </div>
     <div class="layui-form-item layui-inline">
