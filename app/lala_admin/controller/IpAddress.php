@@ -478,6 +478,7 @@ class IpAddress extends Controller
                     
                     if ($exists) {
                         $skipCount++;
+                        Log::info("IP already exists: {$ipAddress}");
                         continue;
                     }
                     
@@ -511,18 +512,34 @@ class IpAddress extends Controller
                     
                     if ($result) {
                         $successCount++;
+                        Log::info("IP inserted successfully: {$ipAddress}");
                     } else {
                         $errors[] = "第" . ($index + 2) . "行：插入失败";
                         $errorCount++;
+                        Log::error("IP insert failed: {$ipAddress}");
                     }
                 }
                 
                 // 返回结果
-                $message = "导入完成！成功: {$successCount} 条，跳过: {$skipCount} 条，失败: {$errorCount} 条";
+                if ($successCount > 0) {
+                    $message = "导入成功！新增: {$successCount} 条";
+                    if ($skipCount > 0) {
+                        $message .= "，跳过: {$skipCount} 条（已存在）";
+                    }
+                    if ($errorCount > 0) {
+                        $message .= "，失败: {$errorCount} 条";
+                    }
+                } else {
+                    $message = "导入完成！跳过: {$skipCount} 条（已存在）";
+                    if ($errorCount > 0) {
+                        $message .= "，失败: {$errorCount} 条";
+                    }
+                }
+                
                 if (!empty($errors)) {
-                    $message .= "\n错误详情：\n" . implode("\n", array_slice($errors, 0, 10));
-                    if (count($errors) > 10) {
-                        $message .= "\n... 还有 " . (count($errors) - 10) . " 条错误";
+                    $message .= "\n错误详情：\n" . implode("\n", array_slice($errors, 0, 5));
+                    if (count($errors) > 5) {
+                        $message .= "\n... 还有 " . (count($errors) - 5) . " 条错误";
                     }
                 }
                 
