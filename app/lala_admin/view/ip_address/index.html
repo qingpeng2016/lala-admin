@@ -1,11 +1,11 @@
 {extend name="../../admin/view/main"}
 
 {block name="button"}
-<div class="layui-btn-group">
+<div class="layui-btn-group" style="gap: 10px;">
     <button data-table-refresh class="layui-btn layui-btn-sm layui-btn-primary">
         <i class="layui-icon">&#xe669;</i> 刷新
     </button>
-    <button class="layui-btn layui-btn-sm layui-btn-warm" data-modal='{:url("import")}'>
+    <button class="layui-btn layui-btn-sm layui-btn-normal" data-modal='{:url("import")}' style="background-color: #5FB878; border-color: #5FB878;">
         <i class="layui-icon">&#xe67c;</i> 批量导入
     </button>
 </div>
@@ -188,6 +188,27 @@ layui.use(['layer'], function(){
 </script>
 
 <style>
+/* 按钮组样式 */
+.layui-btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.layui-btn-group .layui-btn {
+    margin-right: 0;
+}
+
+/* 批量导入按钮样式 */
+.layui-btn-group .layui-btn[data-modal] {
+    background-color: #5FB878 !important;
+    border-color: #5FB878 !important;
+}
+
+.layui-btn-group .layui-btn[data-modal]:hover {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+}
+
 /* IP地址复制功能样式 */
 .copy-ip {
     transition: all 0.3s ease;
