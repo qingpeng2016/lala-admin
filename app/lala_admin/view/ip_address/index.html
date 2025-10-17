@@ -23,7 +23,6 @@
             <th style="width: 100px;">虚拟化系统</th>
             <th style="width: 100px;">机器ID</th>
             <th style="width: 100px;">状态</th>
-            <th style="width: 150px;">创建时间</th>
             <th style="width: 180px;">操作</th>
         </tr>
         </thead>
@@ -89,7 +88,6 @@
                 <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.status}</span>
                 {/if}
             </td>
-            <td>{$vo.created_at}</td>
             <td>
                 <button class="layui-btn layui-btn-sm layui-btn-normal" 
                         data-modal='{:url("edit")}?id={$vo.id}'>
@@ -112,19 +110,11 @@
 
 {block name="script"}
 <script>
-layui.use(['layer', 'laydate'], function(){
+layui.use(['layer'], function(){
     var layer = layui.layer;
-    var laydate = layui.laydate;
     
     // 页面加载完成后的初始化
     layer.msg('IP地址管理页面加载完成', {icon: 1, time: 2000});
-    
-    // 日期范围选择
-    laydate.render({
-        elem: '#date_range',
-        range: true,
-        format: 'yyyy-MM-dd'
-    });
     
     // 分页按钮点击优化
     $(document).ready(function() {

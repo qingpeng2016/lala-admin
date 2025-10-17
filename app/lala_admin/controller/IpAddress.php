@@ -35,10 +35,6 @@ class IpAddress extends Controller
         $this->app->log->info('Query object created');
 
         // 添加搜索条件
-        if (isset($get['id']) && $get['id'] !== '') {
-            $query->where('id', $get['id']);
-            $this->app->log->info('Added id condition: ' . $get['id']);
-        }
         if (isset($get['ip_address']) && $get['ip_address'] !== '') {
             $query->where('ip_address', 'like', "%{$get['ip_address']}%");
             $this->app->log->info('Added ip_address condition: ' . $get['ip_address']);
@@ -66,11 +62,6 @@ class IpAddress extends Controller
         if (isset($get['status']) && $get['status'] !== '') {
             $query->where('status', $get['status']);
             $this->app->log->info('Added status condition: ' . $get['status']);
-        }
-        if (isset($get['date_range']) && $get['date_range'] !== '') {
-            [$start_date, $end_date] = explode(' - ', $get['date_range']);
-            $query->whereBetween('created_at', ["{$start_date} 00:00:00", "{$end_date} 23:59:59"]);
-            $this->app->log->info('Added date_range condition: ' . $get['date_range']);
         }
 
         // 执行分页查询
