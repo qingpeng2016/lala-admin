@@ -142,7 +142,7 @@ class IpAddress extends Controller
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
                 'virtualization_system' => 'in:pve,vf',
-                'ip_address' => 'require|max:50',
+                'ip_address_start' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
                 'upstream_provider.require' => '所属上游不能为空',
@@ -153,8 +153,8 @@ class IpAddress extends Controller
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
                 'virtualization_system.in' => '虚拟化系统必须是pve或vf',
-                'ip_address.require' => 'IP地址不能为空',
-                'ip_address.max' => 'IP地址最多50个字符',
+                'ip_address_start.require' => '起始IP地址不能为空',
+                'ip_address_start.max' => 'IP地址最多50个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
             ]);
             
@@ -166,28 +166,69 @@ class IpAddress extends Controller
             }
             
             try {
-                // 检查IP地址是否已存在
-                $exists = Db::name('system_new_ip_address_management')
-                    ->where('ip_address', $data['ip_address'])
-                    ->find();
-                if ($exists) {
-                    return $this->error('该IP地址已存在');
+                // 获取IP地址范围
+                $ipStart = trim($data['ip_address_start']);
+                $ipEnd = trim($data['ip_address_end'] ?? '');
+                
+                // 生成IP列表
+                $ipList = $this->generateIpList($ipStart, $ipEnd);
+                
+                if (empty($ipList)) {
+                    return $this->error('IP地址格式错误');
                 }
                 
-                // 设置默认字段
-                $data['created_at'] = date('Y-m-d H:i:s');
-                $data['updated_at'] = date('Y-m-d H:i:s');
+                $successCount = 0;
+                $skipCount = 0;
+                $skippedIps = [];
                 
-                // 插入数据
-                $result = Db::name('system_new_ip_address_management')->insert($data);
-                Log::info('Insert result: ' . ($result ? 'success' : 'failed'));
-                
-                if ($result) {
-                    // 返回JSON响应
-                    return json(['code' => 1, 'info' => '添加成功', 'url' => '']);
-                } else {
-                    return $this->error('添加失败');
+                // 批量插入IP
+                foreach ($ipList as $ip) {
+                    // 检查IP地址是否已存在
+                    $exists = Db::name('system_new_ip_address_management')
+                        ->where('ip_address', $ip)
+                        ->find();
+                    
+                    if ($exists) {
+                        $skipCount++;
+                        $skippedIps[] = $ip;
+                        continue;
+                    }
+                    
+                    // 准备插入数据
+                    $insertData = [
+                        'upstream_provider' => $data['upstream_provider'],
+                        'parent_machine' => $data['parent_machine'] ?? '',
+                        'region' => $data['region'],
+                        'network_type' => $data['network_type'],
+                        'virtualization_system' => $data['virtualization_system'] ?? '',
+                        'virt_system_machine_id' => $data['virt_system_machine_id'] ?? 0,
+                        'ip_address' => $ip,
+                        'status' => $data['status'] ?? 'unused',
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    // 插入数据
+                    $result = Db::name('system_new_ip_address_management')->insert($insertData);
+                    
+                    if ($result) {
+                        $successCount++;
+                    }
                 }
+                
+                Log::info("Batch insert result: success={$successCount}, skip={$skipCount}");
+                
+                // 返回结果
+                $message = "添加完成！成功: {$successCount} 条";
+                if ($skipCount > 0) {
+                    $message .= "，跳过: {$skipCount} 条（已存在）";
+                    if (count($skippedIps) <= 5) {
+                        $message .= "：" . implode(', ', $skippedIps);
+                    }
+                }
+                
+                return json(['code' => 1, 'info' => $message, 'url' => '']);
+                
             } catch (\Exception $e) {
                 Log::error('Exception in add method: ' . $e->getMessage());
                 Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -321,6 +362,168 @@ class IpAddress extends Controller
     }
 
     /**
+     * 批量导入IP地址
+     * @auth true
+     */
+    public function import()
+    {
+        Log::info('IpAddress import method called');
+        
+        if ($this->request->isPost()) {
+            Log::info('IpAddress import POST request received');
+            
+            // 获取上传的文件
+            $file = $this->request->file('csv_file');
+            
+            if (empty($file)) {
+                return $this->error('请上传CSV文件');
+            }
+            
+            try {
+                // 检查文件类型
+                $extension = strtolower($file->getOriginalExtension());
+                if (!in_array($extension, ['csv', 'txt'])) {
+                    return $this->error('只支持CSV格式文件');
+                }
+                
+                // 读取文件内容
+                $content = file_get_contents($file->getPathname());
+                
+                // 转换编码（如果是GBK编码）
+                $encoding = mb_detect_encoding($content, ['UTF-8', 'GBK', 'GB2312']);
+                if ($encoding !== 'UTF-8') {
+                    $content = mb_convert_encoding($content, 'UTF-8', $encoding);
+                }
+                
+                // 解析CSV
+                $lines = explode("\n", $content);
+                $successCount = 0;
+                $skipCount = 0;
+                $errorCount = 0;
+                $errors = [];
+                
+                // 跳过第一行（标题行）
+                array_shift($lines);
+                
+                // 上游映射
+                $upstreamMap = [
+                    '牛总' => 'niuzong',
+                    '千智' => 'qianzhi'
+                ];
+                
+                // 地区映射
+                $regionMap = [
+                    '广州' => 'guangzhou',
+                    '深圳' => 'shenzhen',
+                    '厦门' => 'xiamen',
+                    '香港' => 'hongkong',
+                    '东莞' => 'shenzhen' // 东莞归类为深圳
+                ];
+                
+                // 网络类型映射
+                $networkMap = [
+                    '电信' => 'telecom',
+                    '移动' => 'mobile',
+                    '联通' => 'unicom',
+                    'BGP' => 'bgp',
+                    'HK' => 'hk'
+                ];
+                
+                foreach ($lines as $index => $line) {
+                    $line = trim($line);
+                    if (empty($line)) {
+                        continue;
+                    }
+                    
+                    // 解析CSV行
+                    $fields = str_getcsv($line);
+                    
+                    if (count($fields) < 4) {
+                        $errors[] = "第" . ($index + 2) . "行数据不完整";
+                        $errorCount++;
+                        continue;
+                    }
+                    
+                    // 获取字段值
+                    $upstream = trim($fields[0]);
+                    $region = trim($fields[1]);
+                    $networkType = trim($fields[2]);
+                    $ipAddress = trim($fields[3]);
+                    
+                    // 检查IP地址是否已存在
+                    $exists = Db::name('system_new_ip_address_management')
+                        ->where('ip_address', $ipAddress)
+                        ->find();
+                    
+                    if ($exists) {
+                        $skipCount++;
+                        continue;
+                    }
+                    
+                    // 映射字段值
+                    $upstreamProvider = $upstreamMap[$upstream] ?? '';
+                    $regionCode = $regionMap[$region] ?? '';
+                    $networkTypeCode = $networkMap[$networkType] ?? '';
+                    
+                    // 验证必填字段
+                    if (empty($upstreamProvider) || empty($regionCode) || empty($networkTypeCode) || empty($ipAddress)) {
+                        $errors[] = "第" . ($index + 2) . "行：字段映射失败（上游={$upstream}, 地区={$region}, 类型={$networkType}, IP={$ipAddress}）";
+                        $errorCount++;
+                        continue;
+                    }
+                    
+                    // 插入数据
+                    $data = [
+                        'upstream_provider' => $upstreamProvider,
+                        'parent_machine' => '', // 默认为空
+                        'region' => $regionCode,
+                        'network_type' => $networkTypeCode,
+                        'virtualization_system' => '', // 默认为空
+                        'virt_system_machine_id' => 0,
+                        'ip_address' => $ipAddress,
+                        'status' => 'unused', // 默认为未使用
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    $result = Db::name('system_new_ip_address_management')->insert($data);
+                    
+                    if ($result) {
+                        $successCount++;
+                    } else {
+                        $errors[] = "第" . ($index + 2) . "行：插入失败";
+                        $errorCount++;
+                    }
+                }
+                
+                // 返回结果
+                $message = "导入完成！成功: {$successCount} 条，跳过: {$skipCount} 条，失败: {$errorCount} 条";
+                if (!empty($errors)) {
+                    $message .= "\n错误详情：\n" . implode("\n", array_slice($errors, 0, 10));
+                    if (count($errors) > 10) {
+                        $message .= "\n... 还有 " . (count($errors) - 10) . " 条错误";
+                    }
+                }
+                
+                Log::info("Import result: {$message}");
+                
+                return json(['code' => 1, 'info' => $message, 'url' => '']);
+                
+            } catch (\Exception $e) {
+                Log::error('Exception in import method: ' . $e->getMessage());
+                Log::error('Stack trace: ' . $e->getTraceAsString());
+                return $this->error('导入失败: ' . $e->getMessage());
+            }
+        }
+        
+        // 分配变量到视图
+        $this->assign([]);
+        
+        // 渲染导入表单
+        return $this->fetch('import');
+    }
+
+    /**
      * 删除IP地址
      * @auth true
      */
@@ -348,6 +551,51 @@ class IpAddress extends Controller
             Log::error('Exception in remove method: ' . $e->getMessage());
             return $this->error('删除失败: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * 生成IP地址列表
+     * @param string $ipStart 起始IP
+     * @param string $ipEnd 结束IP（可选）
+     * @return array
+     */
+    private function generateIpList($ipStart, $ipEnd = '')
+    {
+        // 如果没有结束IP，只返回起始IP
+        if (empty($ipEnd)) {
+            return [$ipStart];
+        }
+        
+        // 验证IP格式
+        if (!filter_var($ipStart, FILTER_VALIDATE_IP) || !filter_var($ipEnd, FILTER_VALIDATE_IP)) {
+            return [];
+        }
+        
+        // 将IP地址转换为长整型
+        $startLong = ip2long($ipStart);
+        $endLong = ip2long($ipEnd);
+        
+        if ($startLong === false || $endLong === false) {
+            return [];
+        }
+        
+        // 确保起始IP小于结束IP
+        if ($startLong > $endLong) {
+            return [];
+        }
+        
+        // 限制最多生成1000个IP
+        if (($endLong - $startLong) > 1000) {
+            return [];
+        }
+        
+        // 生成IP列表
+        $ipList = [];
+        for ($i = $startLong; $i <= $endLong; $i++) {
+            $ipList[] = long2ip($i);
+        }
+        
+        return $ipList;
     }
 
     /**

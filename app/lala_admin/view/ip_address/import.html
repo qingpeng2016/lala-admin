@@ -1,0 +1,68 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off" enctype="multipart/form-data">
+    <div class="layui-card-body">
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">CSV文件 <span style="color: red;">*</span></label>
+            <div class="layui-input-block">
+                <input type="file" name="csv_file" accept=".csv,.txt" required class="layui-input" style="padding: 5px;">
+                <div class="layui-form-mid layui-word-aux">
+                    支持CSV格式文件，文件格式：上游,区域,类型,地址
+                </div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <div class="layui-card">
+                    <div class="layui-card-header">CSV文件格式说明</div>
+                    <div class="layui-card-body">
+                        <p><strong>文件格式：</strong>CSV文件，使用逗号分隔</p>
+                        <p><strong>第一行：</strong>标题行（上游,区域,类型,地址）</p>
+                        <p><strong>数据行示例：</strong></p>
+                        <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px;">上游,区域,类型,地址
+牛总,深圳,移动,120.232.218.212
+牛总,深圳,联通,58.254.183.88
+牛总,厦门,BGP,150.242.80.24
+牛总,香港,HK,103.85.74.136</pre>
+                        <p><strong>字段说明：</strong></p>
+                        <ul>
+                            <li><strong>上游：</strong>牛总、千智</li>
+                            <li><strong>区域：</strong>广州、深圳、厦门、香港、东莞（东莞会自动归类为深圳）</li>
+                            <li><strong>类型：</strong>电信、移动、联通、BGP、HK</li>
+                            <li><strong>地址：</strong>IP地址</li>
+                        </ul>
+                        <p><strong>默认值：</strong></p>
+                        <ul>
+                            <li>所属母机：空</li>
+                            <li>虚拟化系统：空</li>
+                            <li>虚拟化系统机器ID：0</li>
+                            <li>状态：未使用</li>
+                        </ul>
+                        <p class="layui-text" style="color: #FF5722;">
+                            <i class="layui-icon">&#xe609;</i> 注意：已存在的IP地址会自动跳过，不会重复导入
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hr-line-dashed"></div>
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type='submit'>开始导入</button>
+            <button class="layui-btn layui-btn-danger" type='button' data-confirm="确定要取消导入吗？" data-close>取消导入</button>
+        </div>
+    </div>
+</form>
+
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+    
+    // 表单提交监听
+    form.on('submit(*)', function(data) {
+        console.log('Form data:', data.field);
+        return true;
+    });
+});
+</script>
+

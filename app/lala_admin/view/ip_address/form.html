@@ -2,9 +2,29 @@
     <div class="layui-card-body">
 
         <div class="layui-form-item">
-            <label class="layui-form-label">IP地址 <span style="color: red;">*</span></label>
+            <label class="layui-form-label">起始IP <span style="color: red;">*</span></label>
             <div class="layui-input-block">
-                <input name="ip_address" value='{$vo.ip_address|default=""}' required placeholder="请输入IP地址" class="layui-input" maxlength="50">
+                <input name="ip_address_start" value='{$vo.ip_address|default=""}' required placeholder="请输入起始IP地址，如：120.233.42.214" class="layui-input" maxlength="50">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">结束IP</label>
+            <div class="layui-input-block">
+                <input name="ip_address_end" placeholder="请输入结束IP地址（可选），如：120.233.42.216" class="layui-input" maxlength="50">
+                <div class="layui-form-mid layui-word-aux">
+                    留空则只添加起始IP，填写则批量添加起始到结束之间的所有IP（最多1000个）
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <blockquote class="layui-elem-quote" style="border-left-color: #009688;">
+                    <i class="layui-icon" style="color: #009688;">&#xe702;</i> 
+                    <strong>批量添加示例：</strong><br>
+                    起始IP：120.233.42.214<br>
+                    结束IP：120.233.42.216<br>
+                    将会添加：120.233.42.214、120.233.42.215、120.233.42.216（共3个IP）
+                </blockquote>
             </div>
         </div>
         <div class="layui-form-item">
