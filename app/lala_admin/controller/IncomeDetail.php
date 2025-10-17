@@ -7,8 +7,8 @@ use app\cool_pay\model\PaymentOrder as PaymentOrderModel;
 use think\admin\Controller;
 use think\facade\Db;
 use think\facade\Log;
-use app\cool_pay\const\EnumTool;
-use app\cool_pay\const\Enum;
+use app\cool_pay\constant\EnumTool;
+use app\cool_pay\constant\Enum;
 
 /**
  * 收款详情管理
