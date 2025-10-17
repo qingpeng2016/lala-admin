@@ -376,15 +376,34 @@ class IpAddress extends Controller
             $file = $this->request->file('csv_file');
             
             if (empty($file)) {
+                Log::info('No file uploaded');
                 return $this->error('请上传CSV文件');
             }
+            
+            Log::info('File uploaded: ' . $file->getOriginalName());
             
             try {
                 // 检查文件类型
                 $extension = strtolower($file->getOriginalExtension());
-                if (!in_array($extension, ['csv', 'txt'])) {
-                    return $this->error('只支持CSV格式文件');
+                $mimeType = $file->getMime();
+                
+                // 更宽松的文件类型检查
+                $allowedExtensions = ['csv', 'txt'];
+                $allowedMimeTypes = [
+                    'text/csv',
+                    'text/plain',
+                    'application/csv',
+                    'application/vnd.ms-excel'
+                ];
+                
+                Log::info("File validation - Extension: {$extension}, MimeType: {$mimeType}");
+                
+                if (!in_array($extension, $allowedExtensions) && !in_array($mimeType, $allowedMimeTypes)) {
+                    Log::info("File validation failed - Extension: {$extension}, MimeType: {$mimeType}");
+                    return $this->error('只支持CSV格式文件，当前文件类型：' . $extension . ' (' . $mimeType . ')');
                 }
+                
+                Log::info("File validation passed");
                 
                 // 读取文件内容
                 $content = file_get_contents($file->getPathname());
