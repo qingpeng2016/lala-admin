@@ -1,4 +1,4 @@
-<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off" enctype="multipart/form-data">
+<form class="layui-form layui-card" action="{:request()->url()}" method="post" autocomplete="off" enctype="multipart/form-data">
     <div class="layui-card-body">
         
         <div class="layui-form-item">
@@ -55,13 +55,58 @@
 </form>
 
 <script>
-layui.use(['form'], function(){
+layui.use(['form', 'layer'], function(){
     var form = layui.form;
+    var layer = layui.layer;
     
     // 表单提交监听
     form.on('submit(*)', function(data) {
         console.log('Form data:', data.field);
-        return true;
+        
+        // 检查是否选择了文件
+        var fileInput = document.querySelector('input[name="csv_file"]');
+        if (!fileInput.files || fileInput.files.length === 0) {
+            layer.msg('请选择CSV文件', {icon: 2});
+            return false;
+        }
+        
+        // 显示加载层
+        var loadIndex = layer.load(2, {shade: [0.3, '#000']});
+        
+        // 创建FormData
+        var formData = new FormData();
+        formData.append('csv_file', fileInput.files[0]);
+        
+        // 发送AJAX请求
+        $.ajax({
+            url: '{:request()->url()}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                layer.close(loadIndex);
+                if (res.code === 1) {
+                    layer.msg(res.info, {icon: 1}, function(){
+                        // 刷新父页面
+                        if (parent && parent.layui && parent.layui.table) {
+                            parent.layui.table.reload('data-table');
+                        }
+                        // 关闭当前弹窗
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    });
+                } else {
+                    layer.msg(res.info || '导入失败', {icon: 2});
+                }
+            },
+            error: function(xhr, status, error) {
+                layer.close(loadIndex);
+                layer.msg('导入失败: ' + error, {icon: 2});
+            }
+        });
+        
+        return false; // 阻止默认提交
     });
 });
 </script>

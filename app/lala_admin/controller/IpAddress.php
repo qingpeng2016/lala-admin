@@ -372,11 +372,20 @@ class IpAddress extends Controller
         if ($this->request->isPost()) {
             Log::info('IpAddress import POST request received');
             
+            // 调试：记录所有POST数据
+            Log::info('POST data: ' . json_encode($this->request->post()));
+            Log::info('FILES data: ' . json_encode($_FILES));
+            
             // 获取上传的文件
             $file = $this->request->file('csv_file');
             
             if (empty($file)) {
-                Log::info('No file uploaded');
+                Log::info('No file uploaded - checking $_FILES directly');
+                if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
+                    Log::info('File found in $_FILES: ' . $_FILES['csv_file']['name']);
+                } else {
+                    Log::info('No file in $_FILES or upload error: ' . ($_FILES['csv_file']['error'] ?? 'not set'));
+                }
                 return $this->error('请上传CSV文件');
             }
             
