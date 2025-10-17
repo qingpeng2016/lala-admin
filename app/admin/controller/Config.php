@@ -34,7 +34,10 @@ use think\admin\storage\TxcosStorage;
  */
 class Config extends Controller
 {
-    const themes = [
+    /**
+     * 主题配置
+     */
+    const THEMES = [
         'default' => '默认色0',
         'white'   => '简约白0',
         'red-1'   => '玫瑰红1',
@@ -81,7 +84,7 @@ class Config extends Controller
     {
         if ($this->request->isGet()) {
             $this->title = '修改系统参数';
-            $this->themes = static::themes;
+            $this->themes = self::THEMES;
             $this->fetch();
         } else {
             $post = $this->request->post();
