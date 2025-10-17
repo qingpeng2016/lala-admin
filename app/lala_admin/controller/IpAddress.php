@@ -394,22 +394,15 @@ class IpAddress extends Controller
             try {
                 // 检查文件类型
                 $extension = strtolower($file->getOriginalExtension());
-                $mimeType = $file->getMime();
                 
-                // 更宽松的文件类型检查
+                // 简化的文件类型检查，只检查扩展名
                 $allowedExtensions = ['csv', 'txt'];
-                $allowedMimeTypes = [
-                    'text/csv',
-                    'text/plain',
-                    'application/csv',
-                    'application/vnd.ms-excel'
-                ];
                 
-                Log::info("File validation - Extension: {$extension}, MimeType: {$mimeType}");
+                Log::info("File validation - Extension: {$extension}");
                 
-                if (!in_array($extension, $allowedExtensions) && !in_array($mimeType, $allowedMimeTypes)) {
-                    Log::info("File validation failed - Extension: {$extension}, MimeType: {$mimeType}");
-                    return $this->error('只支持CSV格式文件，当前文件类型：' . $extension . ' (' . $mimeType . ')');
+                if (!in_array($extension, $allowedExtensions)) {
+                    Log::info("File validation failed - Extension: {$extension}");
+                    return $this->error('只支持CSV格式文件，当前文件类型：' . $extension);
                 }
                 
                 Log::info("File validation passed");
