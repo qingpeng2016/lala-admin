@@ -2,11 +2,11 @@
 
 {block name="button"}
 <div class="layui-btn-group" style="gap: 10px;">
-    <button data-table-refresh class="layui-btn layui-btn-sm layui-btn-primary">
-        <i class="layui-icon">&#xe669;</i> 刷新
-    </button>
     <button class="layui-btn layui-btn-sm layui-btn-normal" data-modal='{:url("import")}' style="background-color: #5FB878; border-color: #5FB878;">
         <i class="layui-icon">&#xe67c;</i> 批量导入
+    </button>
+    <button class="layui-btn layui-btn-sm layui-btn-danger" onclick="batchDeleteByRange()">
+        <i class="layui-icon">&#xe640;</i> 批量删除
     </button>
 </div>
 {/block}
@@ -184,6 +184,78 @@ layui.use(['layer'], function(){
         
         document.body.removeChild(textArea);
     }
+    
+    // 批量删除功能
+    window.batchDeleteByRange = function() {
+        layer.prompt({
+            title: '批量删除IP地址',
+            formType: 2,
+            area: ['400px', '200px'],
+            content: '<div style="padding: 20px;">' +
+                '<div style="margin-bottom: 15px;">' +
+                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">起始IP地址：</label>' +
+                '<input type="text" id="start_ip" placeholder="请输入起始IP，如：120.233.42.214" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">' +
+                '</div>' +
+                '<div>' +
+                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">结束IP地址：</label>' +
+                '<input type="text" id="end_ip" placeholder="请输入结束IP，如：120.233.42.216" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">' +
+                '</div>' +
+                '<div style="margin-top: 10px; color: #666; font-size: 12px;">' +
+                '将删除起始IP到结束IP之间的所有IP地址（包括起始和结束IP）' +
+                '</div>' +
+                '</div>',
+            btn: ['确定删除', '取消'],
+            yes: function(index, layero) {
+                var startIp = $('#start_ip').val().trim();
+                var endIp = $('#end_ip').val().trim();
+                
+                if (!startIp) {
+                    layer.msg('请输入起始IP地址', {icon: 2});
+                    return false;
+                }
+                
+                if (!endIp) {
+                    layer.msg('请输入结束IP地址', {icon: 2});
+                    return false;
+                }
+                
+                // 验证IP格式
+                var ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+                if (!ipRegex.test(startIp) || !ipRegex.test(endIp)) {
+                    layer.msg('IP地址格式不正确', {icon: 2});
+                    return false;
+                }
+                
+                // 确认删除
+                layer.confirm('确定要删除 ' + startIp + ' 到 ' + endIp + ' 之间的所有IP地址吗？<br><br><span style="color: red;">此操作不可恢复！</span>', {
+                    icon: 3,
+                    title: '确认删除'
+                }, function(confirmIndex) {
+                    // 执行删除
+                    $.post('{:url("batchDeleteByRange")}', {
+                        start_ip: startIp,
+                        end_ip: endIp
+                    }, function(res) {
+                        layer.close(confirmIndex);
+                        layer.close(index);
+                        
+                        if (res.code === 1) {
+                            layer.msg(res.info, {icon: 1, time: 3000}, function() {
+                                // 刷新页面
+                                location.reload();
+                            });
+                        } else {
+                            layer.msg(res.info || '删除失败', {icon: 2});
+                        }
+                    }).fail(function() {
+                        layer.close(confirmIndex);
+                        layer.close(index);
+                        layer.msg('删除失败，请重试', {icon: 2});
+                    });
+                });
+            }
+        });
+    };
 });
 </script>
 

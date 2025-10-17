@@ -570,6 +570,78 @@ class IpAddress extends Controller
     }
 
     /**
+     * 批量删除IP地址（按范围）
+     */
+    public function batchDeleteByRange()
+    {
+        Log::info('IpAddress batchDeleteByRange method called');
+        
+        if ($this->request->isPost()) {
+            $startIp = $this->request->post('start_ip');
+            $endIp = $this->request->post('end_ip');
+            
+            if (empty($startIp) || empty($endIp)) {
+                return $this->error('起始IP和结束IP不能为空');
+            }
+            
+            // 验证IP格式
+            if (!filter_var($startIp, FILTER_VALIDATE_IP) || !filter_var($endIp, FILTER_VALIDATE_IP)) {
+                return $this->error('IP地址格式不正确');
+            }
+            
+            try {
+                // 生成IP列表
+                $ipList = $this->generateIpList($startIp, $endIp);
+                
+                if (empty($ipList)) {
+                    return $this->error('IP地址范围无效');
+                }
+                
+                Log::info('Generated IP list for deletion: ' . json_encode($ipList));
+                
+                $deleteCount = 0;
+                $notFoundCount = 0;
+                $notFoundIps = [];
+                
+                // 批量删除IP
+                foreach ($ipList as $ip) {
+                    $result = Db::name('system_new_ip_address_management')
+                        ->where('ip_address', $ip)
+                        ->delete();
+                    
+                    if ($result) {
+                        $deleteCount++;
+                        Log::info("IP deleted: {$ip}");
+                    } else {
+                        $notFoundCount++;
+                        $notFoundIps[] = $ip;
+                        Log::info("IP not found: {$ip}");
+                    }
+                }
+                
+                // 返回结果
+                $message = "删除完成！成功删除: {$deleteCount} 条";
+                if ($notFoundCount > 0) {
+                    $message .= "，未找到: {$notFoundCount} 条";
+                    if (count($notFoundIps) <= 5) {
+                        $message .= "：" . implode(', ', $notFoundIps);
+                    }
+                }
+                
+                Log::info("Batch delete result: {$message}");
+                
+                return json(['code' => 1, 'info' => $message, 'url' => '']);
+                
+            } catch (\Exception $e) {
+                Log::error('Exception in batchDeleteByRange method: ' . $e->getMessage());
+                return $this->error('删除失败: ' . $e->getMessage());
+            }
+        }
+        
+        return $this->error('请求方式错误');
+    }
+
+    /**
      * 删除IP地址
      * @auth true
      */
