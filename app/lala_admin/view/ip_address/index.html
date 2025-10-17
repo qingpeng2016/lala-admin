@@ -1,11 +1,11 @@
 {extend name="../../admin/view/main"}
 
 {block name="button"}
-<div class="layui-btn-group" style="gap: 10px;">
-    <button class="layui-btn layui-btn-sm layui-btn-normal" data-modal='{:url("import")}' style="background-color: #5FB878; border-color: #5FB878;">
+<div class="layui-btn-group" style="display: flex; gap: 15px; align-items: center;">
+    <button class="layui-btn layui-btn-sm layui-btn-normal" data-modal='{:url("import")}' style="background-color: #5FB878; border-color: #5FB878; margin: 0;">
         <i class="layui-icon">&#xe67c;</i> 批量导入
     </button>
-    <button class="layui-btn layui-btn-sm layui-btn-danger" onclick="batchDeleteByRange()">
+    <button class="layui-btn layui-btn-sm layui-btn-danger" onclick="batchDeleteByRange()" style="margin: 0;">
         <i class="layui-icon">&#xe640;</i> 批量删除
     </button>
 </div>
@@ -262,12 +262,23 @@ layui.use(['layer'], function(){
 <style>
 /* 按钮组样式 */
 .layui-btn-group {
-    display: flex;
-    gap: 10px;
+    display: flex !important;
+    gap: 20px !important;
+    align-items: center;
+    padding: 0;
 }
 
 .layui-btn-group .layui-btn {
-    margin-right: 0;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    flex-shrink: 0;
+}
+
+/* 强制按钮间距 */
+.layui-btn-group .layui-btn:not(:last-child) {
+    margin-right: 20px !important;
 }
 
 /* 批量导入按钮样式 */
