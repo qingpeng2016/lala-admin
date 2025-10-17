@@ -42,9 +42,13 @@
             </td>
             <td>{$vo.parent_machine}</td>
             <td>
-                {if $vo.region eq 'mainland'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #E91E63;">大陆</span>
-                {elseif $vo.region eq 'hk'}
+                {if $vo.region eq 'guangzhou'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #E91E63;">广州</span>
+                {elseif $vo.region eq 'shenzhen'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #2196F3;">深圳</span>
+                {elseif $vo.region eq 'xiamen'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF9800;">厦门</span>
+                {elseif $vo.region eq 'hongkong'}
                 <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">香港</span>
                 {else}
                 <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.region}</span>
@@ -57,8 +61,10 @@
                 <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #4CAF50;">移动</span>
                 {elseif $vo.network_type eq 'unicom'}
                 <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF5722;">联通</span>
-                {elseif $vo.network_type eq 'hk_net'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">HK-Net</span>
+                {elseif $vo.network_type eq 'bgp'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #673AB7;">BGP</span>
+                {elseif $vo.network_type eq 'hk'}
+                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">HK</span>
                 {else}
                 <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.network_type}</span>
                 {/if}

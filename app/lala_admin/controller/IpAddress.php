@@ -139,8 +139,8 @@ class IpAddress extends Controller
             $validate = \think\facade\Validate::rule([
                 'upstream_provider' => 'require|in:niuzong,qianzhi',
                 'parent_machine' => 'max:100',
-                'region' => 'require|in:mainland,hk',
-                'network_type' => 'require|in:telecom,mobile,unicom,hk_net',
+                'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
+                'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
                 'virtualization_system' => 'in:pve,vf',
                 'ip_address' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
@@ -149,9 +149,9 @@ class IpAddress extends Controller
                 'upstream_provider.in' => '所属上游必须是niuzong或qianzhi',
                 'parent_machine.max' => '所属母机最多100个字符',
                 'region.require' => '所属地区不能为空',
-                'region.in' => '所属地区必须是mainland或hk',
+                'region.in' => '所属地区必须是guangzhou、shenzhen、xiamen或hongkong',
                 'network_type.require' => '网络类型不能为空',
-                'network_type.in' => '网络类型必须是telecom、mobile、unicom或hk_net',
+                'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
                 'virtualization_system.in' => '虚拟化系统必须是pve或vf',
                 'ip_address.require' => 'IP地址不能为空',
                 'ip_address.max' => 'IP地址最多50个字符',
@@ -228,8 +228,8 @@ class IpAddress extends Controller
                 'id' => 'require|integer|gt:0',
                 'upstream_provider' => 'require|in:niuzong,qianzhi',
                 'parent_machine' => 'max:100',
-                'region' => 'require|in:mainland,hk',
-                'network_type' => 'require|in:telecom,mobile,unicom,hk_net',
+                'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
+                'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
                 'virtualization_system' => 'in:pve,vf',
                 'ip_address' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
@@ -241,9 +241,9 @@ class IpAddress extends Controller
                 'upstream_provider.in' => '所属上游必须是niuzong或qianzhi',
                 'parent_machine.max' => '所属母机最多100个字符',
                 'region.require' => '所属地区不能为空',
-                'region.in' => '所属地区必须是mainland或hk',
+                'region.in' => '所属地区必须是guangzhou、shenzhen、xiamen或hongkong',
                 'network_type.require' => '网络类型不能为空',
-                'network_type.in' => '网络类型必须是telecom、mobile、unicom或hk_net',
+                'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
                 'virtualization_system.in' => '虚拟化系统必须是pve或vf',
                 'ip_address.require' => 'IP地址不能为空',
                 'ip_address.max' => 'IP地址最多50个字符',
@@ -369,8 +369,10 @@ class IpAddress extends Controller
     private function getRegionList()
     {
         return [
-            'mainland' => '大陆',
-            'hk' => '香港'
+            'guangzhou' => '广州',
+            'shenzhen' => '深圳',
+            'xiamen' => '厦门',
+            'hongkong' => '香港'
         ];
     }
 
@@ -384,7 +386,8 @@ class IpAddress extends Controller
             'telecom' => '电信',
             'mobile' => '移动',
             'unicom' => '联通',
-            'hk_net' => 'HK-Net'
+            'bgp' => 'BGP',
+            'hk' => 'HK'
         ];
     }
 
