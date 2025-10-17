@@ -30,7 +30,7 @@
         {foreach $list as $key=>$vo}
         <tr>
             <td>{$vo.id}</td>
-            <td><span class="layui-badge layui-bg-blue">{$vo.ip_address}</span></td>
+            <td><span class="layui-badge layui-bg-blue copy-ip" data-ip="{$vo.ip_address}" style="cursor: pointer;" title="点击复制IP地址">{$vo.ip_address}</span></td>
             <td>
                 {if $vo.upstream_provider eq 'niuzong'}
                 牛总
@@ -133,11 +133,73 @@ layui.use(['layer'], function(){
                 window.location.href = href;
             }
         });
+        
+        // IP地址点击复制功能
+        $('.copy-ip').on('click', function() {
+            var ip = $(this).data('ip');
+            
+            // 使用现代浏览器的Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(ip).then(function() {
+                    layer.msg('IP地址已复制: ' + ip, {icon: 1, time: 2000});
+                }).catch(function(err) {
+                    // 如果Clipboard API失败，使用传统方法
+                    fallbackCopyTextToClipboard(ip);
+                });
+            } else {
+                // 使用传统方法
+                fallbackCopyTextToClipboard(ip);
+            }
+        });
     });
+    
+    // 传统复制方法（兼容性更好）
+    function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // 避免滚动到底部
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            var successful = document.execCommand('copy');
+            if (successful) {
+                layer.msg('IP地址已复制: ' + text, {icon: 1, time: 2000});
+            } else {
+                layer.msg('复制失败，请手动复制', {icon: 2, time: 2000});
+            }
+        } catch (err) {
+            layer.msg('复制失败，请手动复制', {icon: 2, time: 2000});
+        }
+        
+        document.body.removeChild(textArea);
+    }
 });
 </script>
 
 <style>
+/* IP地址复制功能样式 */
+.copy-ip {
+    transition: all 0.3s ease;
+}
+
+.copy-ip:hover {
+    background-color: #1E9FFF !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.copy-ip:active {
+    transform: scale(0.95);
+}
+
 /* 分页样式修复 */
 .layui-card-body .pagination,
 .think-box-shadow .pagination {
