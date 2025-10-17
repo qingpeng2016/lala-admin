@@ -36,8 +36,9 @@ class Config extends Controller
 {
     /**
      * 主题配置
+     * @var array
      */
-    const THEMES = [
+    protected static $themes = [
         'default' => '默认色0',
         'white'   => '简约白0',
         'red-1'   => '玫瑰红1',
@@ -84,7 +85,7 @@ class Config extends Controller
     {
         if ($this->request->isGet()) {
             $this->title = '修改系统参数';
-            $this->themes = self::THEMES;
+            $this->themes = self::$themes;
             $this->fetch();
         } else {
             $post = $this->request->post();
