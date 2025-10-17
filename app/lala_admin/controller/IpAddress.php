@@ -66,7 +66,15 @@ class IpAddress extends Controller
 
         // 执行分页查询
         $this->app->log->info('Executing pagination query');
-        $result = $query->order('id desc')->paginate([
+        // 按状态排序：未使用 > 已使用 > 通报 > 异常 > 未知，然后按ID倒序
+        $result = $query->orderRaw("CASE 
+            WHEN status = 'unused' THEN 1 
+            WHEN status = 'used' THEN 2 
+            WHEN status = 'reported' THEN 3 
+            WHEN status = 'abnormal' THEN 4 
+            WHEN status = 'unknown' THEN 5 
+            ELSE 6 
+        END, id desc")->paginate([
             'list_rows' => isset($get['pageSize']) ? intval($get['pageSize']) : 20,
             'page' => isset($get['page']) ? intval($get['page']) : 1,
             'query' => $get,

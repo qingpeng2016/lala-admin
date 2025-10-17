@@ -33,49 +33,49 @@
             <td><span class="layui-badge layui-bg-blue">{$vo.ip_address}</span></td>
             <td>
                 {if $vo.upstream_provider eq 'niuzong'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #009688;">牛总</span>
+                牛总
                 {elseif $vo.upstream_provider eq 'qianzhi'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF9800;">千智</span>
+                千智
                 {else}
-                <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.upstream_provider}</span>
+                {$vo.upstream_provider}
                 {/if}
             </td>
             <td>{$vo.parent_machine}</td>
             <td>
                 {if $vo.region eq 'guangzhou'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #E91E63;">广州</span>
+                广州
                 {elseif $vo.region eq 'shenzhen'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #2196F3;">深圳</span>
+                深圳
                 {elseif $vo.region eq 'xiamen'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF9800;">厦门</span>
+                厦门
                 {elseif $vo.region eq 'hongkong'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">香港</span>
+                香港
                 {else}
-                <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.region}</span>
+                {$vo.region}
                 {/if}
             </td>
             <td>
                 {if $vo.network_type eq 'telecom'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #2196F3;">电信</span>
+                电信
                 {elseif $vo.network_type eq 'mobile'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #4CAF50;">移动</span>
+                移动
                 {elseif $vo.network_type eq 'unicom'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #FF5722;">联通</span>
+                联通
                 {elseif $vo.network_type eq 'bgp'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #673AB7;">BGP</span>
+                BGP
                 {elseif $vo.network_type eq 'hk'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #9C27B0;">HK</span>
+                HK
                 {else}
-                <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.network_type}</span>
+                {$vo.network_type}
                 {/if}
             </td>
             <td>
                 {if $vo.virtualization_system eq 'pve'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #607D8B;">PVE</span>
+                PVE
                 {elseif $vo.virtualization_system eq 'vf'}
-                <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #795548;">VF</span>
+                VF
                 {else}
-                <span class="layui-btn layui-btn-sm layui-bg-gray" style="padding: 0 10px; border: none;">{$vo.virtualization_system}</span>
+                {$vo.virtualization_system}
                 {/if}
             </td>
             <td>{$vo.virt_system_machine_id}</td>
