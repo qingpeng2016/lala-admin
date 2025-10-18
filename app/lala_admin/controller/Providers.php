@@ -55,9 +55,7 @@ class Providers extends Controller
             $item['contact_person'] = $item['contact_person'] ?? '';
             $item['contact_phone'] = $item['contact_phone'] ?? '';
             $item['contact_email'] = $item['contact_email'] ?? '';
-            $item['admin_url'] = $item['admin_url'] ?? '';
-            $item['admin_user'] = $item['admin_user'] ?? '';
-            $item['admin_password'] = $item['admin_password'] ?? '';
+            $item['admin_info'] = $item['admin_info'] ?? '';
             $item['tg_group'] = $item['tg_group'] ?? '';
             $item['wx_group'] = $item['wx_group'] ?? '';
             $item['remarks'] = $item['remarks'] ?? '';
@@ -89,9 +87,7 @@ class Providers extends Controller
                 'contact_person' => 'max:64',
                 'contact_phone' => 'max:32',
                 'contact_email' => 'email|max:128',
-                'admin_url' => 'url|max:255',
-                'admin_user' => 'max:128',
-                'admin_password' => 'max:128',
+                'admin_info' => '',
                 'tg_group' => 'max:255',
                 'wx_group' => 'max:255',
                 'remarks' => 'max:255'
@@ -102,10 +98,6 @@ class Providers extends Controller
                 'contact_phone.max' => '联系人电话最多32个字符',
                 'contact_email.email' => '联系人邮箱格式不正确',
                 'contact_email.max' => '联系人邮箱最多128个字符',
-                'admin_url.url' => '后台地址格式不正确',
-                'admin_url.max' => '后台地址最多255个字符',
-                'admin_user.max' => '后台账号最多128个字符',
-                'admin_password.max' => '后台密码最多128个字符',
                 'tg_group.max' => 'Telegram群组最多255个字符',
                 'wx_group.max' => '微信群组最多255个字符',
                 'remarks.max' => '备注最多255个字符'
@@ -153,9 +145,7 @@ class Providers extends Controller
                 'contact_person' => 'max:64',
                 'contact_phone' => 'max:32',
                 'contact_email' => 'email|max:128',
-                'admin_url' => 'url|max:255',
-                'admin_user' => 'max:128',
-                'admin_password' => 'max:128',
+                'admin_info' => '',
                 'tg_group' => 'max:255',
                 'wx_group' => 'max:255',
                 'remarks' => 'max:255'
@@ -169,10 +159,6 @@ class Providers extends Controller
                 'contact_phone.max' => '联系人电话最多32个字符',
                 'contact_email.email' => '联系人邮箱格式不正确',
                 'contact_email.max' => '联系人邮箱最多128个字符',
-                'admin_url.url' => '后台地址格式不正确',
-                'admin_url.max' => '后台地址最多255个字符',
-                'admin_user.max' => '后台账号最多128个字符',
-                'admin_password.max' => '后台密码最多128个字符',
                 'tg_group.max' => 'Telegram群组最多255个字符',
                 'wx_group.max' => '微信群组最多255个字符',
                 'remarks.max' => '备注最多255个字符'
@@ -190,9 +176,7 @@ class Providers extends Controller
                     'contact_person' => $data['contact_person'],
                     'contact_phone' => $data['contact_phone'],
                     'contact_email' => $data['contact_email'],
-                    'admin_url' => $data['admin_url'],
-                    'admin_user' => $data['admin_user'],
-                    'admin_password' => $data['admin_password'],
+                    'admin_info' => $data['admin_info'],
                     'tg_group' => $data['tg_group'],
                     'wx_group' => $data['wx_group'],
                     'remarks' => $data['remarks'],

@@ -15,9 +15,7 @@
             <th style="width: 100px;">联系人</th>
             <th style="width: 120px;">联系电话</th>
             <th style="width: 150px;">联系邮箱</th>
-            <th style="width: 200px;">后台地址</th>
-            <th style="width: 100px;">后台账号</th>
-            <th style="width: 100px;">后台密码</th>
+            <th style="width: 250px;">后台信息</th>
             <th style="width: 150px;">TG群组</th>
             <th style="width: 150px;">微信群组</th>
             <th style="width: 180px;">操作</th>
@@ -45,21 +43,9 @@
                 </div>
             </td>
             <td>
-                {if $vo.admin_url}
-                <a href="{$vo.admin_url}" target="_blank" style="color: #1E9FFF;">
-                    <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$vo.admin_url}">
-                        {$vo.admin_url}
-                    </div>
-                </a>
-                {else}
-                -
-                {/if}
-            </td>
-            <td>{$vo.admin_user}</td>
-            <td>
-                {if $vo.admin_password}
-                <div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$vo.admin_password}">
-                    {$vo.admin_password}
+                {if $vo.admin_info}
+                <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4;" title="{$vo.admin_info}">
+                    {$vo.admin_info|nl2br}
                 </div>
                 {else}
                 -

@@ -37,23 +37,9 @@
         </div>
         
         <div class="layui-form-item">
-            <label class="layui-form-label">后台登录地址</label>
+            <label class="layui-form-label">后台信息</label>
             <div class="layui-input-block">
-                <input name="admin_url" value='{$vo.admin_url|default=""}' placeholder="请输入供应商后台登录地址" class="layui-input" type="url" maxlength="255">
-            </div>
-        </div>
-        
-        <div class="layui-form-item">
-            <label class="layui-form-label">后台账号</label>
-            <div class="layui-input-block">
-                <input name="admin_user" value='{$vo.admin_user|default=""}' placeholder="请输入供应商后台账号" class="layui-input" maxlength="128">
-            </div>
-        </div>
-        
-        <div class="layui-form-item">
-            <label class="layui-form-label">后台密码</label>
-            <div class="layui-input-block">
-                <input name="admin_password" value='{$vo.admin_password|default=""}' placeholder="请输入供应商后台密码" class="layui-input" maxlength="128">
+                <textarea name="admin_info" placeholder="请输入后台登录信息，包含登录地址、账号、密码等，例如：&#10;地址: https://admin.example.com&#10;账号: admin&#10;密码: 123456" class="layui-textarea" rows="4">{$vo.admin_info|default=""}</textarea>
             </div>
         </div>
         
