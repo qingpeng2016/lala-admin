@@ -44,8 +44,8 @@
             </td>
             <td>
                 {if $vo.admin_info}
-                <div style="max-width: 250px; line-height: 1.4; word-wrap: break-word; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{$vo.admin_info}">
-                    {$vo.admin_info}
+                <div style="max-width: 250px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;" title="{$vo.admin_info}">
+                    {$vo.admin_info|nl2br}
                 </div>
                 {else}
                 -
