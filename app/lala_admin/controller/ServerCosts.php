@@ -50,15 +50,16 @@ class ServerCosts extends Controller
             $item['provider_name'] = $item['provider_name'] ?? '';
             $item['region'] = $item['region'] ?? '';
             $item['product_name'] = $item['product_name'] ?? '';
-            $item['hardware_info'] = $item['hardware_info'] ?? '';
+            // 处理textarea字段中的<br />标签，转换为换行符以便正确显示
+            $item['hardware_info'] = isset($item['hardware_info']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['hardware_info']) : '';
+            $item['network_info'] = isset($item['network_info']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['network_info']) : '';
+            $item['host_login_info'] = isset($item['host_login_info']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['host_login_info']) : '';
+            $item['remarks'] = isset($item['remarks']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['remarks']) : '';
             $item['os_type'] = $item['os_type'] ?? '';
             $item['startup_mode'] = $item['startup_mode'] ?? '';
-            $item['network_info'] = $item['network_info'] ?? '';
-            $item['host_login_info'] = $item['host_login_info'] ?? '';
             $item['price'] = $item['price'] ?? 0;
             $item['billing_model'] = $item['billing_model'] ?? '';
             $item['billing_period'] = $item['billing_period'] ?? '';
-            $item['remarks'] = $item['remarks'] ?? '';
         }
 
         // 分配变量到视图

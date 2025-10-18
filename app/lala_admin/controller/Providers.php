@@ -51,15 +51,15 @@ class Providers extends Controller
         $list = $result->items();
         foreach ($list as &$item) {
             $item['provider_name'] = $item['provider_name'] ?? '';
-            $item['supply_products'] = $item['supply_products'] ?? '';
+            // 处理textarea字段中的<br />标签，转换为换行符以便正确显示
+            $item['supply_products'] = isset($item['supply_products']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['supply_products']) : '';
             $item['contact_person'] = $item['contact_person'] ?? '';
             $item['contact_phone'] = $item['contact_phone'] ?? '';
             $item['contact_email'] = $item['contact_email'] ?? '';
-            // 处理admin_info中的<br />标签，转换为换行符以便正确显示
             $item['admin_info'] = isset($item['admin_info']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['admin_info']) : '';
             $item['tg_group'] = $item['tg_group'] ?? '';
             $item['wx_group'] = $item['wx_group'] ?? '';
-            $item['remarks'] = $item['remarks'] ?? '';
+            $item['remarks'] = isset($item['remarks']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['remarks']) : '';
         }
 
         // 分配变量到视图

@@ -28,7 +28,7 @@
             <td>{$vo.provider_name}</td>
             <td>
                 {if $vo.supply_products}
-                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$vo.supply_products}">
+                <div style="max-width: 200px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;" title="{$vo.supply_products}">
                     {$vo.supply_products}
                 </div>
                 {else}

@@ -62,7 +62,8 @@ class UserTrials extends Controller
             $item['trial_start'] = $item['trial_start'] ?? '';
             $item['trial_end'] = $item['trial_end'] ?? '';
             $item['status'] = $item['status'] ?? 'active';
-            $item['remarks'] = $item['remarks'] ?? '';
+            // 处理textarea字段中的<br />标签，转换为换行符以便正确显示
+            $item['remarks'] = isset($item['remarks']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['remarks']) : '';
             
             // 格式化时间
             if (!empty($item['trial_start'])) {
