@@ -643,6 +643,91 @@ class IpAddress extends Controller
     }
 
     /**
+     * 批量修改IP状态
+     */
+    public function batchUpdateStatus()
+    {
+        Log::info('IpAddress batchUpdateStatus method called');
+        
+        if ($this->request->isPost()) {
+            $ipList = $this->request->post('ip_list');
+            $newStatus = $this->request->post('new_status');
+            
+            if (empty($ipList) || empty($newStatus)) {
+                return $this->error('IP列表和新状态不能为空');
+            }
+            
+            // 验证状态
+            $validStatuses = ['unused', 'used', 'reported', 'abnormal', 'unknown'];
+            if (!in_array($newStatus, $validStatuses)) {
+                return $this->error('状态值不正确');
+            }
+            
+            try {
+                // 解析IP列表
+                $ips = explode(',', $ipList);
+                $ips = array_map('trim', $ips);
+                $ips = array_filter($ips); // 移除空值
+                
+                if (empty($ips)) {
+                    return $this->error('IP列表为空');
+                }
+                
+                Log::info('Batch update status - IPs: ' . json_encode($ips) . ', Status: ' . $newStatus);
+                
+                $updateCount = 0;
+                $notFoundCount = 0;
+                $notFoundIps = [];
+                
+                // 批量更新IP状态
+                foreach ($ips as $ip) {
+                    // 验证IP格式
+                    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+                        $notFoundCount++;
+                        $notFoundIps[] = $ip . '(格式错误)';
+                        continue;
+                    }
+                    
+                    $result = Db::name('system_new_ip_address_management')
+                        ->where('ip_address', $ip)
+                        ->update([
+                            'status' => $newStatus,
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ]);
+                    
+                    if ($result) {
+                        $updateCount++;
+                        Log::info("IP status updated: {$ip} -> {$newStatus}");
+                    } else {
+                        $notFoundCount++;
+                        $notFoundIps[] = $ip;
+                        Log::info("IP not found: {$ip}");
+                    }
+                }
+                
+                // 返回结果
+                $message = "修改完成！成功更新: {$updateCount} 条";
+                if ($notFoundCount > 0) {
+                    $message .= "，未找到: {$notFoundCount} 条";
+                    if (count($notFoundIps) <= 5) {
+                        $message .= "：" . implode(', ', $notFoundIps);
+                    }
+                }
+                
+                Log::info("Batch update result: {$message}");
+                
+                return json(['code' => 1, 'info' => $message, 'url' => '']);
+                
+            } catch (\Exception $e) {
+                Log::error('Exception in batchUpdateStatus method: ' . $e->getMessage());
+                return $this->error('修改失败: ' . $e->getMessage());
+            }
+        }
+        
+        return $this->error('请求方式错误');
+    }
+
+    /**
      * 删除IP地址
      * @auth true
      */
