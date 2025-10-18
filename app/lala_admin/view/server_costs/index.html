@@ -20,6 +20,8 @@
             <th style="width: 100px;">计费模式</th>
             <th style="width: 100px;">付费周期</th>
             <th style="width: 120px;">到期日期</th>
+            <th style="width: 150px;">网络信息</th>
+            <th style="width: 150px;">登录信息</th>
             <th style="width: 180px;">操作</th>
         </tr>
         </thead>
@@ -69,6 +71,24 @@
                 {/if}
             </td>
             <td>{$vo.end_date|default='-'}</td>
+            <td>
+                {if $vo.network_info}
+                <div style="max-width: 150px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;" title="{$vo.network_info}">
+                    {$vo.network_info}
+                </div>
+                {else}
+                -
+                {/if}
+            </td>
+            <td>
+                {if $vo.host_login_info}
+                <div style="max-width: 150px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;" title="{$vo.host_login_info}">
+                    {$vo.host_login_info}
+                </div>
+                {else}
+                -
+                {/if}
+            </td>
             <td>
                 <button class="layui-btn layui-btn-sm layui-btn-normal" 
                         data-modal='{:url("edit")}?id={$vo.id}'>
