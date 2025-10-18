@@ -1,0 +1,86 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">供应商名称 <span style="color: red;">*</span></label>
+            <div class="layui-input-block">
+                <input name="provider_name" value='{$vo.provider_name|default=""}' required placeholder="请输入供应商名称，如：牛总、学长、PQS等" class="layui-input" maxlength="128">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系人姓名</label>
+            <div class="layui-input-block">
+                <input name="contact_person" value='{$vo.contact_person|default=""}' placeholder="请输入联系人姓名" class="layui-input" maxlength="64">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系人电话</label>
+            <div class="layui-input-block">
+                <input name="contact_phone" value='{$vo.contact_phone|default=""}' placeholder="请输入联系人电话" class="layui-input" maxlength="32">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系人邮箱</label>
+            <div class="layui-input-block">
+                <input name="contact_email" value='{$vo.contact_email|default=""}' placeholder="请输入联系人邮箱" class="layui-input" type="email" maxlength="128">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">后台登录地址</label>
+            <div class="layui-input-block">
+                <input name="admin_url" value='{$vo.admin_url|default=""}' placeholder="请输入供应商后台登录地址" class="layui-input" type="url" maxlength="255">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">后台账号</label>
+            <div class="layui-input-block">
+                <input name="admin_user" value='{$vo.admin_user|default=""}' placeholder="请输入供应商后台账号" class="layui-input" maxlength="128">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">后台密码</label>
+            <div class="layui-input-block">
+                <input name="admin_password" value='{$vo.admin_password|default=""}' placeholder="请输入供应商后台密码" class="layui-input" maxlength="128">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">Telegram群组</label>
+            <div class="layui-input-block">
+                <input name="tg_group" value='{$vo.tg_group|default=""}' placeholder="请输入Telegram群组链接或ID" class="layui-input" maxlength="255">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">微信群组</label>
+            <div class="layui-input-block">
+                <input name="wx_group" value='{$vo.wx_group|default=""}' placeholder="请输入微信交流群号或二维码信息" class="layui-input" maxlength="255">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注信息</label>
+            <div class="layui-input-block">
+                <textarea name="remarks" placeholder="请输入其他备注信息" class="layui-textarea" rows="3" maxlength="255">{$vo.remarks|default=""}</textarea>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type='submit'>保存</button>
+            <button class="layui-btn layui-btn-danger" type='button' data-confirm="确定要取消吗？" data-close>取消</button>
+        </div>
+    </div>
+</form>
+
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+});
+</script>

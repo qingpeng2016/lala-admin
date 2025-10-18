@@ -1,0 +1,81 @@
+<form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户ID <span style="color: red;">*</span></label>
+            <div class="layui-input-block">
+                <input name="user_id" value='{$vo.user_id|default=""}' required placeholder="请输入用户ID" class="layui-input" type="number" min="1">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">服务器ID <span style="color: red;">*</span></label>
+            <div class="layui-input-block">
+                <input name="server_id" value='{$vo.server_id|default=""}' required placeholder="请输入服务器ID" class="layui-input" type="number" min="1">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">产品名称</label>
+            <div class="layui-input-block">
+                <input name="product_name" value='{$vo.product_name|default=""}' placeholder="请输入产品名称，方便直接查看试用的产品" class="layui-input" maxlength="128">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">试用开始时间 <span style="color: red;">*</span></label>
+            <div class="layui-input-block">
+                <input name="trial_start" value='{$vo.trial_start|default=""}' required placeholder="请输入试用开始时间" class="layui-input" type="datetime-local">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">试用结束时间</label>
+            <div class="layui-input-block">
+                <input name="trial_end" value='{$vo.trial_end|default=""}' placeholder="请输入试用结束时间（可为空）" class="layui-input" type="datetime-local">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">试用状态</label>
+            <div class="layui-input-block">
+                <select name="status" class="layui-select">
+                    {foreach $status_list as $key=>$item}
+                    <option value="{$key}" {if isset($vo.status) && $vo.status eq $key}selected{/if}>{$item}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">试用备注</label>
+            <div class="layui-input-block">
+                <textarea name="remarks" placeholder="请输入试用备注或其他信息" class="layui-textarea" rows="3" maxlength="255">{$vo.remarks|default=""}</textarea>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+        <div class="layui-form-item text-center">
+            <button class="layui-btn" type='submit'>保存</button>
+            <button class="layui-btn layui-btn-danger" type='button' data-confirm="确定要取消吗？" data-close>取消</button>
+        </div>
+    </div>
+</form>
+
+<script>
+layui.use(['form'], function(){
+    var form = layui.form;
+    
+    // 处理时间格式转换
+    $('input[type="datetime-local"]').each(function() {
+        var $this = $(this);
+        var value = $this.val();
+        if (value && value.indexOf(' ') === -1) {
+            // 如果是日期格式，转换为datetime-local格式
+            if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                $this.val(value + 'T00:00');
+            }
+        }
+    });
+});
+</script>

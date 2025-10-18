@@ -1,0 +1,38 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get"
+      autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">上游名称</label>
+        <div class="layui-input-inline">
+            <input name="provider_name" value="{$get.provider_name|default=''}" placeholder="请输入上游名称"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">地区</label>
+        <div class="layui-input-inline">
+            <select name="region" class="layui-select">
+                <option value="">所有地区</option>
+                {foreach $region_list as $key=>$item}
+                <option value="{$key}" {if isset($get.region) && $get.region==$key}selected{/if}>{$item}
+                </option>
+                {/foreach}
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">产品名称</label>
+        <div class="layui-input-inline">
+            <input name="product_name" value="{$get.product_name|default=''}" placeholder="请输入产品名称"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form;
+    });
+</script>

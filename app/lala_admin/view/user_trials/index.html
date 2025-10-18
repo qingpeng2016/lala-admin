@@ -1,0 +1,152 @@
+{extend name="../../admin/view/main"}
+
+{block name="button"}
+<div class="layui-btn-group" style="display: flex; gap: 10px; align-items: center; background: transparent; border: none; padding: 0; margin: 0;">
+    <button class="layui-btn layui-btn-sm layui-btn-primary" data-modal='{:url("add")}' style="margin: 0;">
+        <i class="layui-icon">&#xe654;</i> 新增试用
+    </button>
+</div>
+{/block}
+
+{block name="content"}
+<div class="think-box-shadow table-block">
+    {include file="user_trials/index_search"}
+    <table class="layui-table margin-top-10" lay-skin="line">
+        <thead>
+        <tr>
+            <th style="width: 60px;">ID</th>
+            <th style="width: 100px;">用户ID</th>
+            <th style="width: 100px;">服务器ID</th>
+            <th style="width: 120px;">产品名称</th>
+            <th style="width: 150px;">试用开始时间</th>
+            <th style="width: 150px;">试用结束时间</th>
+            <th style="width: 100px;">状态</th>
+            <th style="width: 200px;">备注</th>
+            <th style="width: 180px;">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $list as $key=>$vo}
+        <tr>
+            <td>{$vo.id}</td>
+            <td>{$vo.user_id}</td>
+            <td>{$vo.server_id}</td>
+            <td>{$vo.product_name}</td>
+            <td>{$vo.trial_start}</td>
+            <td>{$vo.trial_end|default='-'}</td>
+            <td>
+                {if $vo.status eq 'active'}
+                <span class="layui-badge layui-bg-green">使用中</span>
+                {elseif $vo.status eq 'ended'}
+                <span class="layui-badge layui-bg-gray">已结束</span>
+                {elseif $vo.status eq 'canceled'}
+                <span class="layui-badge layui-bg-red">取消</span>
+                {else}
+                <span class="layui-badge layui-bg-gray">{$vo.status}</span>
+                {/if}
+            </td>
+            <td>
+                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$vo.remarks}">
+                    {$vo.remarks}
+                </div>
+            </td>
+            <td>
+                <button class="layui-btn layui-btn-sm layui-btn-normal" 
+                        data-modal='{:url("edit")}?id={$vo.id}'>
+                    <i class="layui-icon">&#xe642;</i> 编辑
+                </button>
+                <button class="layui-btn layui-btn-sm layui-btn-danger" 
+                        data-confirm="确定要删除这个试用记录吗？" 
+                        data-action='{:url("remove")}' 
+                        data-value="id#{$vo.id}">
+                    <i class="layui-icon">&#xe640;</i> 删除
+                </button>
+            </td>
+        </tr>
+        {/foreach}
+        </tbody>
+    </table>
+    {empty name='list'}<span class="notdata">没有记录哦</span>{else}{$pagehtml|raw|default=''}{/empty}
+</div>
+{/block}
+
+{block name="script"}
+<script>
+layui.use(['layer'], function(){
+    var layer = layui.layer;
+    
+    // 页面加载完成后的初始化
+    layer.msg('试用管理页面加载完成', {icon: 1, time: 2000});
+});
+</script>
+
+<style>
+/* 按钮组样式 */
+.layui-btn-group {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.layui-btn-group .layui-btn {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+    flex-shrink: 0;
+}
+
+/* 强制按钮间距 */
+.layui-btn-group .layui-btn:not(:last-child) {
+    margin-right: 10px !important;
+}
+
+/* 分页样式修复 */
+.layui-card-body .pagination,
+.think-box-shadow .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 0;
+}
+
+.layui-card-body .pagination li,
+.think-box-shadow .pagination li {
+    margin: 0 5px;
+    list-style: none;
+}
+
+.layui-card-body .pagination li a,
+.think-box-shadow .pagination li a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    transition: all 0.3s;
+}
+
+.layui-card-body .pagination li a:hover,
+.think-box-shadow .pagination li a:hover {
+    background-color: #1E9FFF;
+    color: white;
+    border-color: #1E9FFF;
+}
+
+.layui-card-body .pagination li.active a,
+.think-box-shadow .pagination li.active a {
+    background-color: #1E9FFF;
+    color: white;
+    border-color: #1E9FFF;
+}
+</style>
+{/block}

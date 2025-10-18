@@ -1,0 +1,33 @@
+<form class="layui-form layui-form-pane form-search" action="{:request()->url()}" onsubmit="return false" method="get"
+      autocomplete="off">
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">供应商名称</label>
+        <div class="layui-input-inline">
+            <input name="provider_name" value="{$get.provider_name|default=''}" placeholder="请输入供应商名称"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">联系人</label>
+        <div class="layui-input-inline">
+            <input name="contact_person" value="{$get.contact_person|default=''}" placeholder="请输入联系人姓名"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <label class="layui-form-label">联系电话</label>
+        <div class="layui-input-inline">
+            <input name="contact_phone" value="{$get.contact_phone|default=''}" placeholder="请输入联系电话"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-inline">
+        <button class="layui-btn layui-btn-primary"><i class="layui-icon">&#xe615;</i> 搜 索</button>
+    </div>
+</form>
+
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form;
+    });
+</script>
