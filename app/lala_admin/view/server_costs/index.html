@@ -27,27 +27,7 @@
         <tr>
             <td>{$vo.id}</td>
             <td>{$vo.provider_name}</td>
-            <td>
-                {if $vo.region eq 'guangzhou'}
-                广州
-                {elseif $vo.region eq 'chengdu'}
-                成都
-                {elseif $vo.region eq 'hongkong'}
-                香港
-                {elseif $vo.region eq 'singapore'}
-                新加坡
-                {elseif $vo.region eq 'tokyo'}
-                东京
-                {elseif $vo.region eq 'seoul'}
-                首尔
-                {elseif $vo.region eq 'los_angeles'}
-                洛杉矶
-                {elseif $vo.region eq 'new_york'}
-                纽约
-                {else}
-                {$vo.region}
-                {/if}
-            </td>
+            <td>{$vo.region}</td>
             <td>{$vo.product_name}</td>
             <td>
                 <div style="max-width: 150px; line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;" title="{$vo.hardware_info}">

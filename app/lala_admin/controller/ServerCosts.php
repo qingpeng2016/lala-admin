@@ -30,7 +30,7 @@ class ServerCosts extends Controller
             $query->where('provider_name', 'like', "%{$get['provider_name']}%");
         }
         if (isset($get['region']) && $get['region'] !== '') {
-            $query->where('region', $get['region']);
+            $query->where('region', 'like', "%{$get['region']}%");
         }
         if (isset($get['product_name']) && $get['product_name'] !== '') {
             $query->where('product_name', 'like', "%{$get['product_name']}%");
@@ -67,7 +67,6 @@ class ServerCosts extends Controller
             'list' => $list,
             'pagehtml' => $result->render(),
             'get' => $get,
-            'region_list' => $this->getRegionList(),
             'os_type_list' => $this->getOsTypeList(),
             'startup_mode_list' => $this->getStartupModeList(),
             'billing_model_list' => $this->getBillingModelList(),
@@ -132,7 +131,6 @@ class ServerCosts extends Controller
         
         // 分配变量到视图
         $this->assign([
-            'region_list' => $this->getRegionList(),
             'os_type_list' => $this->getOsTypeList(),
             'startup_mode_list' => $this->getStartupModeList(),
             'billing_model_list' => $this->getBillingModelList(),
@@ -229,7 +227,6 @@ class ServerCosts extends Controller
         
         $this->assign([
             'vo' => $vo,
-            'region_list' => $this->getRegionList(),
             'os_type_list' => $this->getOsTypeList(),
             'startup_mode_list' => $this->getStartupModeList(),
             'billing_model_list' => $this->getBillingModelList(),
@@ -264,23 +261,6 @@ class ServerCosts extends Controller
         }
     }
 
-    /**
-     * 获取地区列表
-     * @return array
-     */
-    private function getRegionList()
-    {
-        return [
-            'guangzhou' => '广州',
-            'chengdu' => '成都',
-            'hongkong' => '香港',
-            'singapore' => '新加坡',
-            'tokyo' => '东京',
-            'seoul' => '首尔',
-            'los_angeles' => '洛杉矶',
-            'new_york' => '纽约'
-        ];
-    }
 
     /**
      * 获取操作系统列表

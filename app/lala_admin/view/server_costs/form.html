@@ -13,12 +13,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">地区</label>
             <div class="layui-input-block">
-                <select name="region" class="layui-select">
-                    <option value="">请选择地区</option>
-                    {foreach $region_list as $key=>$item}
-                    <option value="{$key}" {if isset($vo.region) && $vo.region eq $key}selected{/if}>{$item}</option>
-                    {/foreach}
-                </select>
+                <input name="region" value='{$vo.region|default=""}' placeholder="请输入地区，如：广州、香港、新加坡等" class="layui-input" maxlength="128">
             </div>
         </div>
         <div class="layui-form-item">

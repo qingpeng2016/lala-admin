@@ -10,13 +10,8 @@
     <div class="layui-form-item layui-inline">
         <label class="layui-form-label">地区</label>
         <div class="layui-input-inline">
-            <select name="region" class="layui-select">
-                <option value="">所有地区</option>
-                {foreach $region_list as $key=>$item}
-                <option value="{$key}" {if isset($get.region) && $get.region==$key}selected{/if}>{$item}
-                </option>
-                {/foreach}
-            </select>
+            <input name="region" value="{$get.region|default=''}" placeholder="请输入地区"
+                   class="layui-input">
         </div>
     </div>
     <div class="layui-form-item layui-inline">
