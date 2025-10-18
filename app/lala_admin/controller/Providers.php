@@ -83,21 +83,23 @@ class Providers extends Controller
             // 数据验证
             $validate = \think\facade\Validate::rule([
                 'provider_name' => 'require|max:128',
-                'supply_products' => '',
+                'supply_products' => 'max:65535',
                 'contact_person' => 'max:64',
                 'contact_phone' => 'max:32',
                 'contact_email' => 'email|max:128',
-                'admin_info' => '',
+                'admin_info' => 'max:65535',
                 'tg_group' => 'max:255',
                 'wx_group' => 'max:255',
                 'remarks' => 'max:255'
             ])->message([
                 'provider_name.require' => '供应商名称不能为空',
                 'provider_name.max' => '供应商名称最多128个字符',
+                'supply_products.max' => '供应产品信息过长',
                 'contact_person.max' => '联系人姓名最多64个字符',
                 'contact_phone.max' => '联系人电话最多32个字符',
                 'contact_email.email' => '联系人邮箱格式不正确',
                 'contact_email.max' => '联系人邮箱最多128个字符',
+                'admin_info.max' => '后台信息过长',
                 'tg_group.max' => 'Telegram群组最多255个字符',
                 'wx_group.max' => '微信群组最多255个字符',
                 'remarks.max' => '备注最多255个字符'
@@ -141,11 +143,11 @@ class Providers extends Controller
             $validate = \think\facade\Validate::rule([
                 'id' => 'require|integer|gt:0',
                 'provider_name' => 'require|max:128',
-                'supply_products' => '',
+                'supply_products' => 'max:65535',
                 'contact_person' => 'max:64',
                 'contact_phone' => 'max:32',
                 'contact_email' => 'email|max:128',
-                'admin_info' => '',
+                'admin_info' => 'max:65535',
                 'tg_group' => 'max:255',
                 'wx_group' => 'max:255',
                 'remarks' => 'max:255'
@@ -155,10 +157,12 @@ class Providers extends Controller
                 'id.gt' => 'ID必须大于0',
                 'provider_name.require' => '供应商名称不能为空',
                 'provider_name.max' => '供应商名称最多128个字符',
+                'supply_products.max' => '供应产品信息过长',
                 'contact_person.max' => '联系人姓名最多64个字符',
                 'contact_phone.max' => '联系人电话最多32个字符',
                 'contact_email.email' => '联系人邮箱格式不正确',
                 'contact_email.max' => '联系人邮箱最多128个字符',
+                'admin_info.max' => '后台信息过长',
                 'tg_group.max' => 'Telegram群组最多255个字符',
                 'wx_group.max' => '微信群组最多255个字符',
                 'remarks.max' => '备注最多255个字符'
