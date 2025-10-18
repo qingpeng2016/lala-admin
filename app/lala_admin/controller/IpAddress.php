@@ -268,7 +268,7 @@ class IpAddress extends Controller
                 'parent_machine' => 'max:100',
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
-                'ip_address' => 'require|max:50',
+                'ip_address_start' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
                 'id.require' => 'ID不能为空',
@@ -281,8 +281,8 @@ class IpAddress extends Controller
                 'region.in' => '所属地区必须是guangzhou、shenzhen、xiamen或hongkong',
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
-                'ip_address.require' => 'IP地址不能为空',
-                'ip_address.max' => 'IP地址最多50个字符',
+                'ip_address_start.require' => '起始IP地址不能为空',
+                'ip_address_start.max' => 'IP地址最多50个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
             ]);
             
@@ -293,30 +293,49 @@ class IpAddress extends Controller
             }
             
             try {
-                // 检查IP地址是否已被其他记录使用
-                $exists = Db::name('system_new_ip_address_management')
-                    ->where('ip_address', $data['ip_address'])
-                    ->where('id', '<>', $data['id'])
-                    ->find();
-                if ($exists) {
-                    return $this->error('该IP地址已被其他记录使用');
+                // 获取IP地址范围
+                $ipStart = trim($data['ip_address_start']);
+                $ipEnd = trim($data['ip_address_end'] ?? '');
+                
+                // 生成IP列表
+                $ipList = $this->generateIpList($ipStart, $ipEnd);
+                
+                if (empty($ipList)) {
+                    return $this->error('IP地址格式错误');
                 }
                 
-                // 处理数据
-                $updateData = [
-                    'upstream_provider' => $data['upstream_provider'],
-                    'parent_machine' => $data['parent_machine'],
-                    'region' => $data['region'],
-                    'network_type' => $data['network_type'],
-                    'ip_address' => $data['ip_address'],
-                    'status' => $data['status'],
-                    'updated_at' => date('Y-m-d H:i:s')
-                ];
-                
-                // 更新数据
-                $result = Db::name('system_new_ip_address_management')
-                    ->where('id', $data['id'])
-                    ->update($updateData);
+                // 如果只有一个IP，直接更新
+                if (count($ipList) == 1) {
+                    $ipAddress = $ipList[0];
+                    
+                    // 检查IP地址是否已被其他记录使用
+                    $exists = Db::name('system_new_ip_address_management')
+                        ->where('ip_address', $ipAddress)
+                        ->where('id', '<>', $data['id'])
+                        ->find();
+                    if ($exists) {
+                        return $this->error('该IP地址已被其他记录使用');
+                    }
+                    
+                    // 处理数据
+                    $updateData = [
+                        'upstream_provider' => $data['upstream_provider'],
+                        'parent_machine' => $data['parent_machine'],
+                        'region' => $data['region'],
+                        'network_type' => $data['network_type'],
+                        'ip_address' => $ipAddress,
+                        'status' => $data['status'],
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    // 更新数据
+                    $result = Db::name('system_new_ip_address_management')
+                        ->where('id', $data['id'])
+                        ->update($updateData);
+                } else {
+                    // 多个IP的情况，需要特殊处理
+                    return $this->error('编辑模式下不支持IP范围，请只输入单个IP地址');
+                }
                 Log::info('Update result: ' . ($result !== false ? 'success' : 'failed'));
                 
                 if ($result !== false) {
