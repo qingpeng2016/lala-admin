@@ -91,6 +91,12 @@
             </div>
         </div>
         <div class="layui-form-item">
+            <label class="layui-form-label">到期日期</label>
+            <div class="layui-input-block">
+                <input name="end_date" value='{$vo.end_date|default=""}' placeholder="请选择到期日期" class="layui-input" type="date">
+            </div>
+        </div>
+        <div class="layui-form-item">
             <label class="layui-form-label">备注信息</label>
             <div class="layui-input-block">
                 <textarea name="remarks" placeholder="请输入其他备注信息" class="layui-textarea" rows="3">{$vo.remarks|default=""}</textarea>

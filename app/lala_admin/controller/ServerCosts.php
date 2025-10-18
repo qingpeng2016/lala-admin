@@ -60,6 +60,7 @@ class ServerCosts extends Controller
             $item['price'] = $item['price'] ?? 0;
             $item['billing_model'] = $item['billing_model'] ?? '';
             $item['billing_period'] = $item['billing_period'] ?? '';
+            $item['end_date'] = $item['end_date'] ?? '';
         }
 
         // 分配变量到视图
@@ -94,7 +95,8 @@ class ServerCosts extends Controller
                 'startup_mode' => 'max:64',
                 'price' => 'float',
                 'billing_model' => 'max:64',
-                'billing_period' => 'max:64'
+                'billing_period' => 'max:64',
+                'end_date' => 'date'
             ])->message([
                 'provider_name.require' => '上游名称不能为空',
                 'provider_name.max' => '上游名称最多128个字符',
@@ -104,7 +106,8 @@ class ServerCosts extends Controller
                 'startup_mode.max' => '开机方式最多64个字符',
                 'price.float' => '价格必须是数字',
                 'billing_model.max' => '计费模式最多64个字符',
-                'billing_period.max' => '付费周期最多64个字符'
+                'billing_period.max' => '付费周期最多64个字符',
+                'end_date.date' => '到期日期格式不正确'
             ]);
             
             if (!$validate->check($data)) {
@@ -159,7 +162,8 @@ class ServerCosts extends Controller
                 'startup_mode' => 'max:64',
                 'price' => 'float',
                 'billing_model' => 'max:64',
-                'billing_period' => 'max:64'
+                'billing_period' => 'max:64',
+                'end_date' => 'date'
             ])->message([
                 'id.require' => 'ID不能为空',
                 'id.integer' => 'ID必须是整数',
@@ -172,7 +176,8 @@ class ServerCosts extends Controller
                 'startup_mode.max' => '开机方式最多64个字符',
                 'price.float' => '价格必须是数字',
                 'billing_model.max' => '计费模式最多64个字符',
-                'billing_period.max' => '付费周期最多64个字符'
+                'billing_period.max' => '付费周期最多64个字符',
+                'end_date.date' => '到期日期格式不正确'
             ]);
             
             if (!$validate->check($data)) {
@@ -193,6 +198,7 @@ class ServerCosts extends Controller
                     'price' => $data['price'],
                     'billing_model' => $data['billing_model'],
                     'billing_period' => $data['billing_period'],
+                    'end_date' => $data['end_date'],
                     'remarks' => $data['remarks'],
                     'updated_at' => date('Y-m-d H:i:s')
                 ];

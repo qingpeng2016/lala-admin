@@ -29,9 +29,6 @@ class UserTrials extends Controller
         if (isset($get['user_id']) && $get['user_id'] !== '') {
             $query->where('user_id', $get['user_id']);
         }
-        if (isset($get['server_id']) && $get['server_id'] !== '') {
-            $query->where('server_id', $get['server_id']);
-        }
         if (isset($get['product_name']) && $get['product_name'] !== '') {
             $query->where('product_name', 'like', "%{$get['product_name']}%");
         }
@@ -57,7 +54,6 @@ class UserTrials extends Controller
         $list = $result->items();
         foreach ($list as &$item) {
             $item['user_id'] = $item['user_id'] ?? 0;
-            $item['server_id'] = $item['server_id'] ?? 0;
             $item['product_name'] = $item['product_name'] ?? '';
             $item['trial_start'] = $item['trial_start'] ?? '';
             $item['trial_end'] = $item['trial_end'] ?? '';
@@ -97,7 +93,6 @@ class UserTrials extends Controller
             // 数据验证
             $validate = \think\facade\Validate::rule([
                 'user_id' => 'require|integer|gt:0',
-                'server_id' => 'require|integer|gt:0',
                 'product_name' => 'max:128',
                 'trial_start' => 'require|date',
                 'trial_end' => 'date',
@@ -107,9 +102,6 @@ class UserTrials extends Controller
                 'user_id.require' => '用户ID不能为空',
                 'user_id.integer' => '用户ID必须是整数',
                 'user_id.gt' => '用户ID必须大于0',
-                'server_id.require' => '服务器ID不能为空',
-                'server_id.integer' => '服务器ID必须是整数',
-                'server_id.gt' => '服务器ID必须大于0',
                 'product_name.max' => '产品名称最多128个字符',
                 'trial_start.require' => '试用开始时间不能为空',
                 'trial_start.date' => '试用开始时间格式不正确',
@@ -161,7 +153,6 @@ class UserTrials extends Controller
             $validate = \think\facade\Validate::rule([
                 'id' => 'require|integer|gt:0',
                 'user_id' => 'require|integer|gt:0',
-                'server_id' => 'require|integer|gt:0',
                 'product_name' => 'max:128',
                 'trial_start' => 'require|date',
                 'trial_end' => 'date',
@@ -174,9 +165,6 @@ class UserTrials extends Controller
                 'user_id.require' => '用户ID不能为空',
                 'user_id.integer' => '用户ID必须是整数',
                 'user_id.gt' => '用户ID必须大于0',
-                'server_id.require' => '服务器ID不能为空',
-                'server_id.integer' => '服务器ID必须是整数',
-                'server_id.gt' => '服务器ID必须大于0',
                 'product_name.max' => '产品名称最多128个字符',
                 'trial_start.require' => '试用开始时间不能为空',
                 'trial_start.date' => '试用开始时间格式不正确',
@@ -193,7 +181,6 @@ class UserTrials extends Controller
                 // 处理数据
                 $updateData = [
                     'user_id' => $data['user_id'],
-                    'server_id' => $data['server_id'],
                     'product_name' => $data['product_name'],
                     'trial_start' => $data['trial_start'],
                     'trial_end' => $data['trial_end'],
