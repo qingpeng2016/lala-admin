@@ -18,7 +18,7 @@
             <th style="width: 250px;">后台信息</th>
             <th style="width: 150px;">TG群组</th>
             <th style="width: 150px;">微信群组</th>
-            <th style="width: 180px;">操作</th>
+            <th style="width: 220px;">操作</th>
         </tr>
         </thead>
         <tbody>
@@ -71,9 +71,9 @@
                 -
                 {/if}
             </td>
-            <td>
+            <td style="white-space: nowrap;">
                 <button class="layui-btn layui-btn-sm layui-btn-normal" 
-                        data-modal='{:url("edit")}?id={$vo.id}'>
+                        data-modal='{:url("edit")}?id={$vo.id}' style="margin-right: 8px;">
                     <i class="layui-icon">&#xe642;</i> 编辑
                 </button>
                 <button class="layui-btn layui-btn-sm layui-btn-danger" 
