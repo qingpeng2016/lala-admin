@@ -23,8 +23,6 @@
             <th style="width: 120px;">所属母机</th>
             <th style="width: 100px;">所属地区</th>
             <th style="width: 100px;">网络类型</th>
-            <th style="width: 100px;">虚拟化系统</th>
-            <th style="width: 100px;">机器ID</th>
             <th style="width: 100px;">状态</th>
             <th style="width: 180px;">操作</th>
         </tr>
@@ -72,16 +70,6 @@
                 {$vo.network_type}
                 {/if}
             </td>
-            <td>
-                {if $vo.virtualization_system eq 'pve'}
-                PVE
-                {elseif $vo.virtualization_system eq 'vf'}
-                VF
-                {else}
-                {$vo.virtualization_system}
-                {/if}
-            </td>
-            <td>{$vo.virt_system_machine_id}</td>
             <td>
                 {if $vo.status eq 'unused'}
                 <span class="layui-btn layui-btn-sm" style="padding: 0 10px; border: none; background-color: #5FB878;">未使用</span>

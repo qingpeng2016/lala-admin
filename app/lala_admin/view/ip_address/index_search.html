@@ -54,18 +54,6 @@
         </div>
     </div>
     <div class="layui-form-item layui-inline">
-        <label class="layui-form-label">虚拟化系统</label>
-        <div class="layui-input-inline">
-            <select name="virtualization_system" class="layui-select">
-                <option value="">所有系统</option>
-                {foreach $virtualization_system_list as $key=>$item}
-                <option value="{$key}" {if isset($get.virtualization_system) && $get.virtualization_system==$key}selected{/if}>{$item}
-                </option>
-                {/foreach}
-            </select>
-        </div>
-    </div>
-    <div class="layui-form-item layui-inline">
         <label class="layui-form-label">状态</label>
         <div class="layui-input-inline">
             <select name="status" class="layui-select">

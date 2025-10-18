@@ -55,10 +55,6 @@ class IpAddress extends Controller
             $query->where('network_type', $get['network_type']);
             $this->app->log->info('Added network_type condition: ' . $get['network_type']);
         }
-        if (isset($get['virtualization_system']) && $get['virtualization_system'] !== '') {
-            $query->where('virtualization_system', $get['virtualization_system']);
-            $this->app->log->info('Added virtualization_system condition: ' . $get['virtualization_system']);
-        }
         if (isset($get['status']) && $get['status'] !== '') {
             $query->where('status', $get['status']);
             $this->app->log->info('Added status condition: ' . $get['status']);
@@ -91,7 +87,6 @@ class IpAddress extends Controller
             $item['parent_machine'] = $item['parent_machine'] ?? '';
             $item['region'] = $item['region'] ?? '';
             $item['network_type'] = $item['network_type'] ?? '';
-            $item['virtualization_system'] = $item['virtualization_system'] ?? '';
             $item['ip_address'] = $item['ip_address'] ?? '';
             $item['status'] = $item['status'] ?? 'unused';
             
@@ -112,7 +107,6 @@ class IpAddress extends Controller
             'upstream_provider_list' => $this->getUpstreamProviderList(),
             'region_list' => $this->getRegionList(),
             'network_type_list' => $this->getNetworkTypeList(),
-            'virtualization_system_list' => $this->getVirtualizationSystemList(),
             'status_list' => $this->getStatusList()
         ]);
         $this->app->log->info('Variables assigned to view');
@@ -149,7 +143,6 @@ class IpAddress extends Controller
                 'parent_machine' => 'max:100',
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
-                'virtualization_system' => 'in:pve,vf',
                 'ip_address_start' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
@@ -160,7 +153,6 @@ class IpAddress extends Controller
                 'region.in' => '所属地区必须是guangzhou、shenzhen、xiamen或hongkong',
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
-                'virtualization_system.in' => '虚拟化系统必须是pve或vf',
                 'ip_address_start.require' => '起始IP地址不能为空',
                 'ip_address_start.max' => 'IP地址最多50个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
@@ -208,8 +200,6 @@ class IpAddress extends Controller
                         'parent_machine' => $data['parent_machine'] ?? '',
                         'region' => $data['region'],
                         'network_type' => $data['network_type'],
-                        'virtualization_system' => $data['virtualization_system'] ?? '',
-                        'virt_system_machine_id' => $data['virt_system_machine_id'] ?? 0,
                         'ip_address' => $ip,
                         'status' => $data['status'] ?? 'unused',
                         'created_at' => date('Y-m-d H:i:s'),
@@ -249,7 +239,6 @@ class IpAddress extends Controller
             'upstream_provider_list' => $this->getUpstreamProviderList(),
             'region_list' => $this->getRegionList(),
             'network_type_list' => $this->getNetworkTypeList(),
-            'virtualization_system_list' => $this->getVirtualizationSystemList(),
             'status_list' => $this->getStatusList()
         ]);
         
@@ -279,7 +268,6 @@ class IpAddress extends Controller
                 'parent_machine' => 'max:100',
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
-                'virtualization_system' => 'in:pve,vf',
                 'ip_address' => 'require|max:50',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
@@ -293,7 +281,6 @@ class IpAddress extends Controller
                 'region.in' => '所属地区必须是guangzhou、shenzhen、xiamen或hongkong',
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
-                'virtualization_system.in' => '虚拟化系统必须是pve或vf',
                 'ip_address.require' => 'IP地址不能为空',
                 'ip_address.max' => 'IP地址最多50个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
@@ -321,8 +308,6 @@ class IpAddress extends Controller
                     'parent_machine' => $data['parent_machine'],
                     'region' => $data['region'],
                     'network_type' => $data['network_type'],
-                    'virtualization_system' => $data['virtualization_system'],
-                    'virt_system_machine_id' => $data['virt_system_machine_id'] ?? 0,
                     'ip_address' => $data['ip_address'],
                     'status' => $data['status'],
                     'updated_at' => date('Y-m-d H:i:s')
@@ -363,7 +348,6 @@ class IpAddress extends Controller
             'upstream_provider_list' => $this->getUpstreamProviderList(),
             'region_list' => $this->getRegionList(),
             'network_type_list' => $this->getNetworkTypeList(),
-            'virtualization_system_list' => $this->getVirtualizationSystemList(),
             'status_list' => $this->getStatusList()
         ]);
         return $this->fetch('form');
@@ -508,8 +492,6 @@ class IpAddress extends Controller
                         'parent_machine' => '', // 默认为空
                         'region' => $regionCode,
                         'network_type' => $networkTypeCode,
-                        'virtualization_system' => '', // 默认为空
-                        'virt_system_machine_id' => 0,
                         'ip_address' => $ipAddress,
                         'status' => 'unused', // 默认为未使用
                         'created_at' => date('Y-m-d H:i:s'),
@@ -757,17 +739,6 @@ class IpAddress extends Controller
         ];
     }
 
-    /**
-     * 获取虚拟化系统列表
-     * @return array
-     */
-    private function getVirtualizationSystemList()
-    {
-        return [
-            'pve' => 'PVE',
-            'vf' => 'VF'
-        ];
-    }
 
     /**
      * 获取状态列表

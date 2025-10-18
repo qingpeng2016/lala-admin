@@ -71,23 +71,6 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">虚拟化系统</label>
-            <div class="layui-input-block">
-                <select name="virtualization_system" class="layui-select">
-                    <option value="">请选择虚拟化系统</option>
-                    {foreach $virtualization_system_list as $key=>$item}
-                    <option value="{$key}" {if isset($vo.virtualization_system) && $vo.virtualization_system eq $key}selected{/if}>{$item}</option>
-                    {/foreach}
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">虚拟化系统机器ID</label>
-            <div class="layui-input-block">
-                <input name="virt_system_machine_id" value='{$vo.virt_system_machine_id|default="0"}' placeholder="请输入虚拟化系统机器ID" class="layui-input" type="number" min="0">
-            </div>
-        </div>
-        <div class="layui-form-item">
             <label class="layui-form-label">状态 <span style="color: red;">*</span></label>
             <div class="layui-input-block">
                 <select name="status" class="layui-select" required>
