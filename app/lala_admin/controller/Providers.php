@@ -55,7 +55,8 @@ class Providers extends Controller
             $item['contact_person'] = $item['contact_person'] ?? '';
             $item['contact_phone'] = $item['contact_phone'] ?? '';
             $item['contact_email'] = $item['contact_email'] ?? '';
-            $item['admin_info'] = $item['admin_info'] ?? '';
+            // 将后台信息中的<br />标签替换为空格
+            $item['admin_info'] = isset($item['admin_info']) ? str_replace(['<br />', '<br>', '<br/>'], ' ', $item['admin_info']) : '';
             $item['tg_group'] = $item['tg_group'] ?? '';
             $item['wx_group'] = $item['wx_group'] ?? '';
             $item['remarks'] = $item['remarks'] ?? '';
