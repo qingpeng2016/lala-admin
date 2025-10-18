@@ -1,5 +1,8 @@
 <form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
     <div class="layui-card-body">
+        {if isset($vo.id)}
+        <input type="hidden" name="id" value="{$vo.id}">
+        {/if}
 
         <div class="layui-form-item">
             <label class="layui-form-label">供应商名称 <span style="color: red;">*</span></label>
