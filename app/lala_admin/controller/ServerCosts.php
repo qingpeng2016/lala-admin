@@ -57,7 +57,7 @@ class ServerCosts extends Controller
             $item['remarks'] = isset($item['remarks']) ? str_replace(['<br />', '<br>', '<br/>'], "\n", $item['remarks']) : '';
             $item['os_type'] = $item['os_type'] ?? '';
             $item['startup_mode'] = $item['startup_mode'] ?? '';
-            $item['price'] = $item['price'] ?? 0;
+            $item['price'] = $item['price'] ?? '';
             $item['billing_model'] = $item['billing_model'] ?? '';
             $item['billing_period'] = $item['billing_period'] ?? '';
             $item['end_date'] = $item['end_date'] ?? '';
@@ -93,7 +93,7 @@ class ServerCosts extends Controller
                 'product_name' => 'max:128',
                 'os_type' => 'max:64',
                 'startup_mode' => 'max:64',
-                'price' => 'float',
+                'price' => 'max:64',
                 'billing_model' => 'max:64',
                 'billing_period' => 'max:64',
                 'end_date' => 'date'
@@ -104,7 +104,7 @@ class ServerCosts extends Controller
                 'product_name.max' => '产品名称最多128个字符',
                 'os_type.max' => '操作系统最多64个字符',
                 'startup_mode.max' => '开机方式最多64个字符',
-                'price.float' => '价格必须是数字',
+                'price.max' => '价格最多64个字符',
                 'billing_model.max' => '计费模式最多64个字符',
                 'billing_period.max' => '付费周期最多64个字符',
                 'end_date.date' => '到期日期格式不正确'
@@ -160,7 +160,7 @@ class ServerCosts extends Controller
                 'product_name' => 'max:128',
                 'os_type' => 'max:64',
                 'startup_mode' => 'max:64',
-                'price' => 'float',
+                'price' => 'max:64',
                 'billing_model' => 'max:64',
                 'billing_period' => 'max:64',
                 'end_date' => 'date'
@@ -174,7 +174,7 @@ class ServerCosts extends Controller
                 'product_name.max' => '产品名称最多128个字符',
                 'os_type.max' => '操作系统最多64个字符',
                 'startup_mode.max' => '开机方式最多64个字符',
-                'price.float' => '价格必须是数字',
+                'price.max' => '价格最多64个字符',
                 'billing_model.max' => '计费模式最多64个字符',
                 'billing_period.max' => '付费周期最多64个字符',
                 'end_date.date' => '到期日期格式不正确'
