@@ -68,7 +68,6 @@ class ServerCosts extends Controller
             'list' => $list,
             'pagehtml' => $result->render(),
             'get' => $get,
-            'os_type_list' => $this->getOsTypeList(),
             'startup_mode_list' => $this->getStartupModeList(),
             'billing_model_list' => $this->getBillingModelList(),
             'billing_period_list' => $this->getBillingPeriodList()
@@ -134,7 +133,6 @@ class ServerCosts extends Controller
         
         // 分配变量到视图
         $this->assign([
-            'os_type_list' => $this->getOsTypeList(),
             'startup_mode_list' => $this->getStartupModeList(),
             'billing_model_list' => $this->getBillingModelList(),
             'billing_period_list' => $this->getBillingPeriodList()
@@ -233,7 +231,6 @@ class ServerCosts extends Controller
         
         $this->assign([
             'vo' => $vo,
-            'os_type_list' => $this->getOsTypeList(),
             'startup_mode_list' => $this->getStartupModeList(),
             'billing_model_list' => $this->getBillingModelList(),
             'billing_period_list' => $this->getBillingPeriodList()
@@ -268,22 +265,6 @@ class ServerCosts extends Controller
     }
 
 
-    /**
-     * 获取操作系统列表
-     * @return array
-     */
-    private function getOsTypeList()
-    {
-        return [
-            'proxmox_ve' => 'Proxmox VE',
-            'centos' => 'CentOS',
-            'ubuntu' => 'Ubuntu',
-            'windows' => 'Windows',
-            'debian' => 'Debian',
-            'almalinux' => 'AlmaLinux',
-            'rocky_linux' => 'Rocky Linux'
-        ];
-    }
 
     /**
      * 获取开机方式列表

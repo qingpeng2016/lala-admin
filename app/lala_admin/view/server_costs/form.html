@@ -31,12 +31,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">操作系统</label>
             <div class="layui-input-block">
-                <select name="os_type" class="layui-select">
-                    <option value="">请选择操作系统</option>
-                    {foreach $os_type_list as $key=>$item}
-                    <option value="{$key}" {if isset($vo.os_type) && $vo.os_type eq $key}selected{/if}>{$item}</option>
-                    {/foreach}
-                </select>
+                <input name="os_type" value='{$vo.os_type|default=""}' placeholder="请输入操作系统，如：CentOS、Ubuntu、Windows等" class="layui-input" maxlength="64">
             </div>
         </div>
         <div class="layui-form-item">
