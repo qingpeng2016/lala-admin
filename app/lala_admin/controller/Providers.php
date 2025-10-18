@@ -35,6 +35,9 @@ class Providers extends Controller
         if (isset($get['contact_phone']) && $get['contact_phone'] !== '') {
             $query->where('contact_phone', 'like', "%{$get['contact_phone']}%");
         }
+        if (isset($get['supply_products']) && $get['supply_products'] !== '') {
+            $query->where('supply_products', 'like', "%{$get['supply_products']}%");
+        }
 
         // 执行分页查询
         $result = $query->order('id desc')->paginate([
@@ -48,6 +51,7 @@ class Providers extends Controller
         $list = $result->items();
         foreach ($list as &$item) {
             $item['provider_name'] = $item['provider_name'] ?? '';
+            $item['supply_products'] = $item['supply_products'] ?? '';
             $item['contact_person'] = $item['contact_person'] ?? '';
             $item['contact_phone'] = $item['contact_phone'] ?? '';
             $item['contact_email'] = $item['contact_email'] ?? '';
@@ -81,6 +85,7 @@ class Providers extends Controller
             // 数据验证
             $validate = \think\facade\Validate::rule([
                 'provider_name' => 'require|max:128',
+                'supply_products' => '',
                 'contact_person' => 'max:64',
                 'contact_phone' => 'max:32',
                 'contact_email' => 'email|max:128',
@@ -144,6 +149,7 @@ class Providers extends Controller
             $validate = \think\facade\Validate::rule([
                 'id' => 'require|integer|gt:0',
                 'provider_name' => 'require|max:128',
+                'supply_products' => '',
                 'contact_person' => 'max:64',
                 'contact_phone' => 'max:32',
                 'contact_email' => 'email|max:128',
@@ -180,6 +186,7 @@ class Providers extends Controller
                 // 处理数据
                 $updateData = [
                     'provider_name' => $data['provider_name'],
+                    'supply_products' => $data['supply_products'],
                     'contact_person' => $data['contact_person'],
                     'contact_phone' => $data['contact_phone'],
                     'contact_email' => $data['contact_email'],

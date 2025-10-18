@@ -11,11 +11,13 @@
         <tr>
             <th style="width: 60px;">ID</th>
             <th style="width: 120px;">供应商名称</th>
+            <th style="width: 200px;">供应产品</th>
             <th style="width: 100px;">联系人</th>
             <th style="width: 120px;">联系电话</th>
             <th style="width: 150px;">联系邮箱</th>
             <th style="width: 200px;">后台地址</th>
             <th style="width: 100px;">后台账号</th>
+            <th style="width: 100px;">后台密码</th>
             <th style="width: 150px;">TG群组</th>
             <th style="width: 150px;">微信群组</th>
             <th style="width: 180px;">操作</th>
@@ -26,6 +28,15 @@
         <tr>
             <td>{$vo.id}</td>
             <td>{$vo.provider_name}</td>
+            <td>
+                {if $vo.supply_products}
+                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$vo.supply_products}">
+                    {$vo.supply_products}
+                </div>
+                {else}
+                -
+                {/if}
+            </td>
             <td>{$vo.contact_person}</td>
             <td>{$vo.contact_phone}</td>
             <td>
@@ -45,6 +56,15 @@
                 {/if}
             </td>
             <td>{$vo.admin_user}</td>
+            <td>
+                {if $vo.admin_password}
+                <div style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{$vo.admin_password}">
+                    {$vo.admin_password}
+                </div>
+                {else}
+                -
+                {/if}
+            </td>
             <td>
                 {if $vo.tg_group}
                 <a href="{$vo.tg_group}" target="_blank" style="color: #1E9FFF;">

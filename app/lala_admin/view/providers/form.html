@@ -9,6 +9,13 @@
         </div>
         
         <div class="layui-form-item">
+            <label class="layui-form-label">供应产品</label>
+            <div class="layui-input-block">
+                <textarea name="supply_products" placeholder="请输入供应产品信息" class="layui-textarea" rows="3">{$vo.supply_products|default=""}</textarea>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
             <label class="layui-form-label">联系人姓名</label>
             <div class="layui-input-block">
                 <input name="contact_person" value='{$vo.contact_person|default=""}' placeholder="请输入联系人姓名" class="layui-input" maxlength="64">
