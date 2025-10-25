@@ -655,24 +655,33 @@ class IpAddress extends Controller
     }
 
     /**
-     * 批量修改IP状态
+     * 批量修改IP（状态和香港机器IP）
+     * @auth true
      */
-    public function batchUpdateStatus()
+    public function batchUpdate()
     {
-        Log::info('IpAddress batchUpdateStatus method called');
+        Log::info('IpAddress batchUpdate method called');
         
         if ($this->request->isPost()) {
             $ipList = $this->request->post('ip_list');
             $newStatus = $this->request->post('new_status');
+            $newHkip = $this->request->post('new_hkip');
             
-            if (empty($ipList) || empty($newStatus)) {
-                return $this->error('IP列表和新状态不能为空');
+            if (empty($ipList)) {
+                return json(['code' => 0, 'info' => 'IP列表不能为空']);
             }
             
-            // 验证状态
-            $validStatuses = ['unused', 'used', 'reported', 'abnormal', 'unknown'];
-            if (!in_array($newStatus, $validStatuses)) {
-                return $this->error('状态值不正确');
+            // 检查是否至少提供了一个要修改的字段
+            if (empty($newStatus) && !isset($newHkip)) {
+                return json(['code' => 0, 'info' => '请至少选择一个要修改的字段']);
+            }
+            
+            // 验证状态（如果提供了）
+            if (!empty($newStatus)) {
+                $validStatuses = ['unused', 'used', 'reported', 'abnormal', 'unknown'];
+                if (!in_array($newStatus, $validStatuses)) {
+                    return json(['code' => 0, 'info' => '状态值不正确']);
+                }
             }
             
             try {
@@ -682,16 +691,16 @@ class IpAddress extends Controller
                 $ips = array_filter($ips); // 移除空值
                 
                 if (empty($ips)) {
-                    return $this->error('IP列表为空');
+                    return json(['code' => 0, 'info' => 'IP列表为空']);
                 }
                 
-                Log::info('Batch update status - IPs: ' . json_encode($ips) . ', Status: ' . $newStatus);
+                Log::info('Batch update - IPs: ' . json_encode($ips) . ', Status: ' . $newStatus . ', HKIP: ' . $newHkip);
                 
                 $updateCount = 0;
                 $notFoundCount = 0;
                 $notFoundIps = [];
                 
-                // 批量更新IP状态
+                // 批量更新IP
                 foreach ($ips as $ip) {
                     // 验证IP格式
                     if (!filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -700,16 +709,22 @@ class IpAddress extends Controller
                         continue;
                     }
                     
+                    // 准备更新数据
+                    $updateData = ['updated_at' => date('Y-m-d H:i:s')];
+                    if (!empty($newStatus)) {
+                        $updateData['status'] = $newStatus;
+                    }
+                    if (isset($newHkip)) {
+                        $updateData['hkip'] = $newHkip;
+                    }
+                    
                     $result = Db::name('system_new_ip_address_management')
                         ->where('ip_address', $ip)
-                        ->update([
-                            'status' => $newStatus,
-                            'updated_at' => date('Y-m-d H:i:s')
-                        ]);
+                        ->update($updateData);
                     
                     if ($result) {
                         $updateCount++;
-                        Log::info("IP status updated: {$ip} -> {$newStatus}");
+                        Log::info("IP updated: {$ip} - Status: {$newStatus}, HKIP: {$newHkip}");
                     } else {
                         $notFoundCount++;
                         $notFoundIps[] = $ip;
@@ -728,90 +743,10 @@ class IpAddress extends Controller
                 
                 Log::info("Batch update result: {$message}");
                 
-                return json(['code' => 1, 'info' => $message, 'url' => '']);
-                
-            } catch (\Exception $e) {
-                Log::error('Exception in batchUpdateStatus method: ' . $e->getMessage());
-                return $this->error('修改失败: ' . $e->getMessage());
-            }
-        }
-        
-        return $this->error('请求方式错误');
-    }
-
-    /**
-     * 批量修改香港机器IP
-     * @auth true
-     */
-    public function batchUpdateHkip()
-    {
-        Log::info('IpAddress batchUpdateHkip method called');
-        
-        if ($this->request->isPost()) {
-            $ipList = $this->request->post('ip_list');
-            $newHkip = $this->request->post('new_hkip');
-            
-            if (empty($ipList)) {
-                return json(['code' => 0, 'info' => 'IP列表不能为空']);
-            }
-            
-            try {
-                // 解析IP列表
-                $ips = explode(',', $ipList);
-                $ips = array_map('trim', $ips);
-                $ips = array_filter($ips); // 移除空值
-                
-                if (empty($ips)) {
-                    return json(['code' => 0, 'info' => 'IP列表为空']);
-                }
-                
-                Log::info('Batch update hkip - IPs: ' . json_encode($ips) . ', HKIP: ' . $newHkip);
-                
-                $updateCount = 0;
-                $notFoundCount = 0;
-                $notFoundIps = [];
-                
-                // 批量更新香港机器IP
-                foreach ($ips as $ip) {
-                    // 验证IP格式
-                    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                        $notFoundCount++;
-                        $notFoundIps[] = $ip . '(格式错误)';
-                        continue;
-                    }
-                    
-                    $result = Db::name('system_new_ip_address_management')
-                        ->where('ip_address', $ip)
-                        ->update([
-                            'hkip' => $newHkip ?? '',
-                            'updated_at' => date('Y-m-d H:i:s')
-                        ]);
-                    
-                    if ($result) {
-                        $updateCount++;
-                        Log::info("IP hkip updated: {$ip} -> {$newHkip}");
-                    } else {
-                        $notFoundCount++;
-                        $notFoundIps[] = $ip;
-                        Log::info("IP not found: {$ip}");
-                    }
-                }
-                
-                // 返回结果
-                $message = "修改完成！成功更新: {$updateCount} 条";
-                if ($notFoundCount > 0) {
-                    $message .= "，未找到: {$notFoundCount} 条";
-                    if (count($notFoundIps) <= 5) {
-                        $message .= "：" . implode(', ', $notFoundIps);
-                    }
-                }
-                
-                Log::info("Batch update hkip result: {$message}");
-                
                 return json(['code' => 1, 'info' => $message]);
                 
             } catch (\Exception $e) {
-                Log::error('Exception in batchUpdateHkip method: ' . $e->getMessage());
+                Log::error('Exception in batchUpdate method: ' . $e->getMessage());
                 return json(['code' => 0, 'info' => '修改失败: ' . $e->getMessage()]);
             }
         }

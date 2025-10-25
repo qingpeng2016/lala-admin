@@ -8,11 +8,8 @@
     <button class="layui-btn layui-btn-sm layui-btn-danger" onclick="batchDeleteByRange()" style="margin: 0;">
         <i class="layui-icon">&#xe640;</i> 批量删除
     </button>
-    <button class="layui-btn layui-btn-sm layui-btn-warm" onclick="batchUpdateStatus()" style="margin: 0;">
-        <i class="layui-icon">&#xe642;</i> 批量修改状态
-    </button>
-    <button class="layui-btn layui-btn-sm" onclick="batchUpdateHkip()" style="background-color: #FFB800; border-color: #FFB800; margin: 0;">
-        <i class="layui-icon">&#xe642;</i> 批量修改IP
+    <button class="layui-btn layui-btn-sm layui-btn-warm" onclick="batchUpdate()" style="margin: 0;">
+        <i class="layui-icon">&#xe642;</i> 批量修改
     </button>
 </div>
 {/block}
@@ -253,113 +250,21 @@ layui.use(['layer'], function(){
         });
     };
     
-    // 批量修改香港机器IP功能
-    window.batchUpdateHkip = function() {
+    // 批量修改功能（状态和香港机器IP）
+    window.batchUpdate = function() {
         layer.open({
             type: 1,
-            title: '批量修改香港机器IP',
-            area: ['500px', '350px'],
+            title: '批量修改IP',
+            area: ['550px', '480px'],
             content: '<div style="padding: 20px;">' +
                 '<div style="margin-bottom: 15px;">' +
-                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">IP地址列表：</label>' +
-                '<textarea id="ip_list_hkip" placeholder="请输入IP地址列表，每行一个IP地址&#10;例如：&#10;120.233.42.214&#10;120.233.42.215&#10;120.233.42.216" style="width: 100%; height: 120px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>' +
-                '</div>' +
-                '<div style="margin-bottom: 15px;">' +
-                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">香港机器IP：</label>' +
-                '<input type="text" id="new_hkip" placeholder="请输入香港机器IP" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">' +
-                '</div>' +
-                '<div style="color: #666; font-size: 12px; margin-top: 10px;">' +
-                '将批量修改指定IP地址的香港机器IP（可留空以清空）' +
-                '</div>' +
-                '</div>',
-            btn: ['确定修改', '取消'],
-            yes: function(index, layero) {
-                var ipList = $('#ip_list_hkip').val().trim();
-                var newHkip = $('#new_hkip').val().trim();
-                
-                if (!ipList) {
-                    layer.msg('请输入IP地址列表', {icon: 2});
-                    return false;
-                }
-                
-                // 解析IP列表
-                var ips = ipList.split('\n').map(function(ip) {
-                    return ip.trim();
-                }).filter(function(ip) {
-                    return ip.length > 0;
-                });
-                
-                if (ips.length === 0) {
-                    layer.msg('请输入有效的IP地址', {icon: 2});
-                    return false;
-                }
-                
-                // 验证IP格式
-                var ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
-                var invalidIps = [];
-                for (var i = 0; i < ips.length; i++) {
-                    if (!ipRegex.test(ips[i])) {
-                        invalidIps.push(ips[i]);
-                    }
-                }
-                
-                if (invalidIps.length > 0) {
-                    layer.msg('以下IP地址格式不正确：' + invalidIps.join(', '), {icon: 2});
-                    return false;
-                }
-                
-                // 确认修改
-                var confirmMsg = '确定要修改 ' + ips.length + ' 个IP地址的香港机器IP吗？';
-                if (newHkip) {
-                    confirmMsg = '确定要将 ' + ips.length + ' 个IP地址的香港机器IP修改为 "' + newHkip + '" 吗？';
-                } else {
-                    confirmMsg = '确定要清空 ' + ips.length + ' 个IP地址的香港机器IP吗？';
-                }
-                
-                layer.confirm(confirmMsg, {
-                    icon: 3,
-                    title: '确认修改'
-                }, function(confirmIndex) {
-                    // 执行修改
-                    $.post('{:url("batchUpdateHkip")}', {
-                        ip_list: ips.join(','),
-                        new_hkip: newHkip
-                    }, function(res) {
-                        layer.close(confirmIndex);
-                        layer.close(index);
-                        
-                        if (res.code === 1) {
-                            layer.msg(res.info, {icon: 1, time: 3000}, function() {
-                                // 刷新页面
-                                location.reload();
-                            });
-                        } else {
-                            layer.msg(res.info || '修改失败', {icon: 2});
-                        }
-                    }).fail(function() {
-                        layer.close(confirmIndex);
-                        layer.close(index);
-                        layer.msg('修改失败，请重试', {icon: 2});
-                    });
-                });
-            }
-        });
-    };
-    
-    // 批量修改状态功能
-    window.batchUpdateStatus = function() {
-        layer.open({
-            type: 1,
-            title: '批量修改IP状态',
-            area: ['500px', '400px'],
-            content: '<div style="padding: 20px;">' +
-                '<div style="margin-bottom: 15px;">' +
-                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">IP地址列表：</label>' +
-                '<textarea id="ip_list" placeholder="请输入IP地址列表，每行一个IP地址&#10;例如：&#10;120.233.42.214&#10;120.233.42.215&#10;120.233.42.216" style="width: 100%; height: 150px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>' +
+                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">IP地址列表：<span style="color: red;">*</span></label>' +
+                '<textarea id="ip_list_batch" placeholder="请输入IP地址列表，每行一个IP地址&#10;例如：&#10;120.233.42.214&#10;120.233.42.215&#10;120.233.42.216" style="width: 100%; height: 120px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>' +
                 '</div>' +
                 '<div style="margin-bottom: 15px;">' +
                 '<label style="display: block; margin-bottom: 5px; font-weight: bold;">修改状态为：</label>' +
-                '<select id="new_status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">' +
+                '<select id="new_status_batch" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">' +
+                '<option value="">不修改</option>' +
                 '<option value="unused">未使用</option>' +
                 '<option value="used">已使用</option>' +
                 '<option value="reported">通报</option>' +
@@ -367,17 +272,29 @@ layui.use(['layer'], function(){
                 '<option value="unknown">未知</option>' +
                 '</select>' +
                 '</div>' +
+                '<div style="margin-bottom: 15px;">' +
+                '<label style="display: block; margin-bottom: 5px; font-weight: bold;">香港机器IP：</label>' +
+                '<input type="text" id="new_hkip_batch" placeholder="留空表示不修改香港机器IP" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">' +
+                '</div>' +
                 '<div style="color: #666; font-size: 12px; margin-top: 10px;">' +
-                '将批量修改指定IP地址的状态' +
+                '提示：至少选择修改状态或香港机器IP中的一项<br>' +
+                '香港机器IP输入空值可以清空该字段' +
                 '</div>' +
                 '</div>',
             btn: ['确定修改', '取消'],
             yes: function(index, layero) {
-                var ipList = $('#ip_list').val().trim();
-                var newStatus = $('#new_status').val();
+                var ipList = $('#ip_list_batch').val().trim();
+                var newStatus = $('#new_status_batch').val();
+                var newHkip = $('#new_hkip_batch').val();
                 
                 if (!ipList) {
                     layer.msg('请输入IP地址列表', {icon: 2});
+                    return false;
+                }
+                
+                // 检查是否至少选择了一个要修改的字段
+                if (!newStatus && newHkip === '') {
+                    layer.msg('请至少选择一个要修改的字段', {icon: 2});
                     return false;
                 }
                 
@@ -407,15 +324,26 @@ layui.use(['layer'], function(){
                     return false;
                 }
                 
-                // 确认修改
-                layer.confirm('确定要修改 ' + ips.length + ' 个IP地址的状态为"' + $('#new_status option:selected').text() + '"吗？', {
+                // 构建确认消息
+                var confirmMsg = '确定要修改 ' + ips.length + ' 个IP地址吗？<br><br>';
+                var changes = [];
+                if (newStatus) {
+                    changes.push('状态 → ' + $('#new_status_batch option:selected').text());
+                }
+                if (newHkip !== '') {
+                    changes.push('香港机器IP → ' + (newHkip ? newHkip : '清空'));
+                }
+                confirmMsg += '修改内容：' + changes.join('，');
+                
+                layer.confirm(confirmMsg, {
                     icon: 3,
                     title: '确认修改'
                 }, function(confirmIndex) {
                     // 执行修改
-                    $.post('{:url("batchUpdateStatus")}', {
+                    $.post('{:url("batchUpdate")}', {
                         ip_list: ips.join(','),
-                        new_status: newStatus
+                        new_status: newStatus,
+                        new_hkip: newHkip
                     }, function(res) {
                         layer.close(confirmIndex);
                         layer.close(index);
