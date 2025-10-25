@@ -35,9 +35,6 @@ class UserTrials extends Controller
         if (isset($get['status']) && $get['status'] !== '') {
             $query->where('status', $get['status']);
         }
-        if (isset($get['hkip']) && $get['hkip'] !== '') {
-            $query->where('hkip', 'like', "%{$get['hkip']}%");
-        }
         if (isset($get['trial_start']) && $get['trial_start'] !== '') {
             $query->where('trial_start', '>=', $get['trial_start']);
         }
@@ -58,7 +55,6 @@ class UserTrials extends Controller
         foreach ($list as &$item) {
             $item['user_id'] = $item['user_id'] ?? 0;
             $item['product_name'] = $item['product_name'] ?? '';
-            $item['hkip'] = $item['hkip'] ?? '';
             $item['trial_start'] = $item['trial_start'] ?? '';
             $item['trial_end'] = $item['trial_end'] ?? '';
             $item['status'] = $item['status'] ?? 'active';
@@ -98,7 +94,6 @@ class UserTrials extends Controller
             $validate = \think\facade\Validate::rule([
                 'user_id' => 'require|integer|gt:0',
                 'product_name' => 'max:128',
-                'hkip' => 'max:255',
                 'trial_start' => 'require|date',
                 'trial_end' => 'date',
                 'status' => 'in:active,ended,canceled',
@@ -108,7 +103,6 @@ class UserTrials extends Controller
                 'user_id.integer' => '用户ID必须是整数',
                 'user_id.gt' => '用户ID必须大于0',
                 'product_name.max' => '产品名称最多128个字符',
-                'hkip.max' => '香港机器IP最多255个字符',
                 'trial_start.require' => '试用开始时间不能为空',
                 'trial_start.date' => '试用开始时间格式不正确',
                 'trial_end.date' => '试用结束时间格式不正确',
@@ -160,7 +154,6 @@ class UserTrials extends Controller
                 'id' => 'require|integer|gt:0',
                 'user_id' => 'require|integer|gt:0',
                 'product_name' => 'max:128',
-                'hkip' => 'max:255',
                 'trial_start' => 'require|date',
                 'trial_end' => 'date',
                 'status' => 'in:active,ended,canceled',
@@ -173,7 +166,6 @@ class UserTrials extends Controller
                 'user_id.integer' => '用户ID必须是整数',
                 'user_id.gt' => '用户ID必须大于0',
                 'product_name.max' => '产品名称最多128个字符',
-                'hkip.max' => '香港机器IP最多255个字符',
                 'trial_start.require' => '试用开始时间不能为空',
                 'trial_start.date' => '试用开始时间格式不正确',
                 'trial_end.date' => '试用结束时间格式不正确',
@@ -190,7 +182,6 @@ class UserTrials extends Controller
                 $updateData = [
                     'user_id' => $data['user_id'],
                     'product_name' => $data['product_name'],
-                    'hkip' => $data['hkip'] ?? '',
                     'trial_start' => $data['trial_start'],
                     'trial_end' => $data['trial_end'],
                     'status' => $data['status'],
@@ -256,45 +247,6 @@ class UserTrials extends Controller
             }
         } catch (\Exception $e) {
             return $this->error('删除失败: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * 批量修改香港机器IP
-     * @auth true
-     */
-    public function batchUpdate()
-    {
-        $data = $this->request->post();
-        
-        // 验证数据
-        if (empty($data['ids'])) {
-            return json(['code' => 0, 'info' => '请选择要修改的记录']);
-        }
-        
-        if (!isset($data['hkip'])) {
-            return json(['code' => 0, 'info' => '请输入香港机器IP']);
-        }
-        
-        try {
-            // 处理ID数组
-            $ids = is_array($data['ids']) ? $data['ids'] : explode(',', $data['ids']);
-            
-            // 批量更新
-            $result = Db::name('system_new_user_trials')
-                ->whereIn('id', $ids)
-                ->update([
-                    'hkip' => $data['hkip'],
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]);
-            
-            if ($result !== false) {
-                return json(['code' => 1, 'info' => "成功更新 {$result} 条记录"]);
-            } else {
-                return json(['code' => 0, 'info' => '批量更新失败']);
-            }
-        } catch (\Exception $e) {
-            return json(['code' => 0, 'info' => '批量更新失败: ' . $e->getMessage()]);
         }
     }
 

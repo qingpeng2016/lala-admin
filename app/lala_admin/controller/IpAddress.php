@@ -39,6 +39,10 @@ class IpAddress extends Controller
             $query->where('ip_address', 'like', "%{$get['ip_address']}%");
             $this->app->log->info('Added ip_address condition: ' . $get['ip_address']);
         }
+        if (isset($get['hkip']) && $get['hkip'] !== '') {
+            $query->where('hkip', 'like', "%{$get['hkip']}%");
+            $this->app->log->info('Added hkip condition: ' . $get['hkip']);
+        }
         if (isset($get['upstream_provider']) && $get['upstream_provider'] !== '') {
             $query->where('upstream_provider', $get['upstream_provider']);
             $this->app->log->info('Added upstream_provider condition: ' . $get['upstream_provider']);
@@ -88,6 +92,7 @@ class IpAddress extends Controller
             $item['region'] = $item['region'] ?? '';
             $item['network_type'] = $item['network_type'] ?? '';
             $item['ip_address'] = $item['ip_address'] ?? '';
+            $item['hkip'] = $item['hkip'] ?? '';
             $item['status'] = $item['status'] ?? 'unused';
             
             // 处理时间
@@ -144,6 +149,7 @@ class IpAddress extends Controller
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
                 'ip_address_start' => 'require|max:50',
+                'hkip' => 'max:255',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
                 'upstream_provider.require' => '所属上游不能为空',
@@ -155,6 +161,7 @@ class IpAddress extends Controller
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
                 'ip_address_start.require' => '起始IP地址不能为空',
                 'ip_address_start.max' => 'IP地址最多50个字符',
+                'hkip.max' => '香港机器IP最多255个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
             ]);
             
@@ -201,6 +208,7 @@ class IpAddress extends Controller
                         'region' => $data['region'],
                         'network_type' => $data['network_type'],
                         'ip_address' => $ip,
+                        'hkip' => $data['hkip'] ?? '',
                         'status' => $data['status'] ?? 'unused',
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s')
@@ -269,6 +277,7 @@ class IpAddress extends Controller
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
                 'ip_address_start' => 'require|max:50',
+                'hkip' => 'max:255',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
                 'id.require' => 'ID不能为空',
@@ -283,6 +292,7 @@ class IpAddress extends Controller
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
                 'ip_address_start.require' => '起始IP地址不能为空',
                 'ip_address_start.max' => 'IP地址最多50个字符',
+                'hkip.max' => '香港机器IP最多255个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
             ]);
             
@@ -324,6 +334,7 @@ class IpAddress extends Controller
                         'region' => $data['region'],
                         'network_type' => $data['network_type'],
                         'ip_address' => $ipAddress,
+                        'hkip' => $data['hkip'] ?? '',
                         'status' => $data['status'],
                         'updated_at' => date('Y-m-d H:i:s')
                     ];
@@ -512,6 +523,7 @@ class IpAddress extends Controller
                         'region' => $regionCode,
                         'network_type' => $networkTypeCode,
                         'ip_address' => $ipAddress,
+                        'hkip' => '', // 默认为空
                         'status' => 'unused', // 默认为未使用
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s')
@@ -725,6 +737,86 @@ class IpAddress extends Controller
         }
         
         return $this->error('请求方式错误');
+    }
+
+    /**
+     * 批量修改香港机器IP
+     * @auth true
+     */
+    public function batchUpdateHkip()
+    {
+        Log::info('IpAddress batchUpdateHkip method called');
+        
+        if ($this->request->isPost()) {
+            $ipList = $this->request->post('ip_list');
+            $newHkip = $this->request->post('new_hkip');
+            
+            if (empty($ipList)) {
+                return json(['code' => 0, 'info' => 'IP列表不能为空']);
+            }
+            
+            try {
+                // 解析IP列表
+                $ips = explode(',', $ipList);
+                $ips = array_map('trim', $ips);
+                $ips = array_filter($ips); // 移除空值
+                
+                if (empty($ips)) {
+                    return json(['code' => 0, 'info' => 'IP列表为空']);
+                }
+                
+                Log::info('Batch update hkip - IPs: ' . json_encode($ips) . ', HKIP: ' . $newHkip);
+                
+                $updateCount = 0;
+                $notFoundCount = 0;
+                $notFoundIps = [];
+                
+                // 批量更新香港机器IP
+                foreach ($ips as $ip) {
+                    // 验证IP格式
+                    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+                        $notFoundCount++;
+                        $notFoundIps[] = $ip . '(格式错误)';
+                        continue;
+                    }
+                    
+                    $result = Db::name('system_new_ip_address_management')
+                        ->where('ip_address', $ip)
+                        ->update([
+                            'hkip' => $newHkip ?? '',
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ]);
+                    
+                    if ($result) {
+                        $updateCount++;
+                        Log::info("IP hkip updated: {$ip} -> {$newHkip}");
+                    } else {
+                        $notFoundCount++;
+                        $notFoundIps[] = $ip;
+                        Log::info("IP not found: {$ip}");
+                    }
+                }
+                
+                // 返回结果
+                $message = "修改完成！成功更新: {$updateCount} 条";
+                if ($notFoundCount > 0) {
+                    $message .= "，未找到: {$notFoundCount} 条";
+                    if (count($notFoundIps) <= 5) {
+                        $message .= "：" . implode(', ', $notFoundIps);
+                    }
+                }
+                
+                Log::info("Batch update hkip result: {$message}");
+                
+                return json(['code' => 1, 'info' => $message]);
+                
+            } catch (\Exception $e) {
+                Log::error('Exception in batchUpdateHkip method: ' . $e->getMessage());
+                return json(['code' => 0, 'info' => '修改失败: ' . $e->getMessage()]);
+            }
+        }
+        
+        return json(['code' => 0, 'info' => '请求方式错误']);
     }
 
     /**
