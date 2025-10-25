@@ -6,12 +6,20 @@
 {block name="content"}
 <div class="think-box-shadow table-block">
     {include file="user_trials/index_search"}
+    <div class="layui-form-item layui-inline" style="margin-bottom: 10px;">
+        <button class="layui-btn layui-btn-sm layui-btn-warm" id="batch-update-btn">
+            <i class="layui-icon">&#xe63c;</i> 批量修改IP
+        </button>
+    </div>
+    
     <table class="layui-table margin-top-10" lay-skin="line">
         <thead>
         <tr>
+            <th style="width: 50px;"><input type="checkbox" lay-skin="primary" lay-filter="checkAll"></th>
             <th style="width: 60px;">ID</th>
             <th style="width: 100px;">用户ID</th>
             <th style="width: 120px;">产品名称</th>
+            <th style="width: 150px;">香港机器IP</th>
             <th style="width: 150px;">试用开始时间</th>
             <th style="width: 150px;">试用结束时间</th>
             <th style="width: 100px;">状态</th>
@@ -22,9 +30,11 @@
         <tbody>
         {foreach $list as $key=>$vo}
         <tr>
+            <td><input type="checkbox" name="ids[]" value="{$vo.id}" lay-skin="primary"></td>
             <td>{$vo.id}</td>
             <td>{$vo.user_id}</td>
             <td>{$vo.product_name}</td>
+            <td>{$vo.hkip|default='-'}</td>
             <td>{$vo.trial_start}</td>
             <td>{$vo.trial_end|default='-'}</td>
             <td>
@@ -65,8 +75,67 @@
 
 {block name="script"}
 <script>
-layui.use(['layer'], function(){
+layui.use(['layer', 'form'], function(){
     var layer = layui.layer;
+    var form = layui.form;
+    
+    // 全选/取消全选
+    form.on('checkbox(checkAll)', function(data){
+        var checked = data.elem.checked;
+        $('input[name="ids[]"]').prop('checked', checked);
+        form.render('checkbox');
+    });
+    
+    // 批量修改IP按钮点击事件
+    $('#batch-update-btn').click(function(){
+        var checkedIds = [];
+        $('input[name="ids[]"]:checked').each(function(){
+            checkedIds.push($(this).val());
+        });
+        
+        if(checkedIds.length === 0){
+            layer.msg('请至少选择一条记录', {icon: 2});
+            return false;
+        }
+        
+        // 弹出输入框
+        layer.prompt({
+            title: '批量修改香港机器IP（已选择 ' + checkedIds.length + ' 条记录）',
+            formType: 0,
+            value: '',
+            area: ['400px', '150px']
+        }, function(value, index, elem){
+            if(value === ''){
+                layer.msg('请输入香港机器IP', {icon: 2});
+                return false;
+            }
+            
+            // 发送AJAX请求
+            $.ajax({
+                url: '{:url("batchUpdate")}',
+                type: 'POST',
+                data: {
+                    ids: checkedIds,
+                    hkip: value
+                },
+                dataType: 'json',
+                success: function(res){
+                    if(res.code === 1){
+                        layer.msg(res.info, {icon: 1, time: 2000}, function(){
+                            location.reload();
+                        });
+                    } else {
+                        layer.msg(res.info || '操作失败', {icon: 2});
+                    }
+                },
+                error: function(){
+                    layer.msg('网络错误，请稍后重试', {icon: 2});
+                }
+            });
+            
+            layer.close(index);
+        });
+    });
     
     // 页面加载完成后的初始化
     layer.msg('试用管理页面加载完成', {icon: 1, time: 2000});

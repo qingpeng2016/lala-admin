@@ -19,6 +19,13 @@
         </div>
         
         <div class="layui-form-item">
+            <label class="layui-form-label">香港机器IP</label>
+            <div class="layui-input-block">
+                <input name="hkip" value='{$vo.hkip|default=""}' placeholder="请输入香港机器IP" class="layui-input" maxlength="255">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
             <label class="layui-form-label">试用开始时间 <span style="color: red;">*</span></label>
             <div class="layui-input-block">
                 <input name="trial_start" value='{$vo.trial_start|default=""}' required placeholder="请输入试用开始时间" class="layui-input" type="datetime-local">
