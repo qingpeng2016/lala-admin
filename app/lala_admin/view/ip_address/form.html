@@ -1,32 +1,81 @@
 <form class="layui-form layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
     <div class="layui-card-body">
 
+        {if !isset($vo.id)}
+        <!-- 添加模式显示两种输入方式 -->
         <div class="layui-form-item">
-            <label class="layui-form-label">起始IP <span style="color: red;">*</span></label>
+            <label class="layui-form-label">输入方式</label>
             <div class="layui-input-block">
-                <input name="ip_address_start" value='{$vo.ip_address|default=""}' required placeholder="请输入起始IP地址，如：120.233.42.214" class="layui-input" maxlength="50">
+                <input type="radio" name="input_type" value="range" title="IP范围" checked lay-filter="input_type">
+                <input type="radio" name="input_type" value="list" title="IP列表" lay-filter="input_type">
             </div>
         </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">结束IP</label>
-            <div class="layui-input-block">
-                <input name="ip_address_end" placeholder="请输入结束IP地址（可选），如：120.233.42.216" class="layui-input" maxlength="50">
-                <div class="layui-form-mid layui-word-aux">
-                    留空则只添加起始IP，填写则批量添加起始到结束之间的所有IP（最多1000个）
+        
+        <!-- IP范围输入方式 -->
+        <div id="range_input" style="display: block;">
+            <div class="layui-form-item">
+                <label class="layui-form-label">起始IP <span style="color: red;">*</span></label>
+                <div class="layui-input-block">
+                    <input name="ip_address_start" id="ip_address_start" placeholder="请输入起始IP地址，如：120.233.42.214" class="layui-input" maxlength="50">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">结束IP</label>
+                <div class="layui-input-block">
+                    <input name="ip_address_end" id="ip_address_end" placeholder="请输入结束IP地址（可选），如：120.233.42.216" class="layui-input" maxlength="50">
+                    <div class="layui-form-mid layui-word-aux">
+                        留空则只添加起始IP，填写则批量添加起始到结束之间的所有IP（最多1000个）
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <blockquote class="layui-elem-quote" style="border-left-color: #009688;">
+                        <i class="layui-icon" style="color: #009688;">&#xe702;</i> 
+                        <strong>批量添加示例：</strong><br>
+                        起始IP：120.233.42.214<br>
+                        结束IP：120.233.42.216<br>
+                        将会添加：120.233.42.214、120.233.42.215、120.233.42.216（共3个IP）
+                    </blockquote>
                 </div>
             </div>
         </div>
-        <div class="layui-form-item">
-            <div class="layui-input-block">
-                <blockquote class="layui-elem-quote" style="border-left-color: #009688;">
-                    <i class="layui-icon" style="color: #009688;">&#xe702;</i> 
-                    <strong>批量添加示例：</strong><br>
-                    起始IP：120.233.42.214<br>
-                    结束IP：120.233.42.216<br>
-                    将会添加：120.233.42.214、120.233.42.215、120.233.42.216（共3个IP）
-                </blockquote>
+        
+        <!-- IP列表输入方式 -->
+        <div id="list_input" style="display: none;">
+            <div class="layui-form-item">
+                <label class="layui-form-label">IP地址列表 <span style="color: red;">*</span></label>
+                <div class="layui-input-block">
+                    <textarea name="ip_address_list" id="ip_address_list" placeholder="请输入IP地址列表，每行一个IP地址&#10;例如：&#10;120.233.42.214&#10;120.233.42.215&#10;120.233.42.216" class="layui-textarea" rows="8" style="resize: vertical;"></textarea>
+                    <div class="layui-form-mid layui-word-aux">
+                        每行输入一个IP地址，最多支持1000个IP
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <blockquote class="layui-elem-quote" style="border-left-color: #FFB800;">
+                        <i class="layui-icon" style="color: #FFB800;">&#xe702;</i> 
+                        <strong>注意事项：</strong><br>
+                        1. 每行一个IP地址<br>
+                        2. 系统会自动过滤重复IP和无效IP<br>
+                        3. 已存在的IP会自动跳过
+                    </blockquote>
+                </div>
             </div>
         </div>
+        {else}
+        <!-- 编辑模式只显示单个IP输入 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">IP地址 <span style="color: red;">*</span></label>
+            <div class="layui-input-block">
+                <input name="ip_address_start" value='{$vo.ip_address|default=""}' required placeholder="请输入IP地址，如：120.233.42.214" class="layui-input" maxlength="50">
+                <div class="layui-form-mid layui-word-aux">
+                    编辑模式下只能修改单个IP地址
+                </div>
+            </div>
+        </div>
+        {/if}
         <div class="layui-form-item">
             <label class="layui-form-label">所属上游 <span style="color: red;">*</span></label>
             <div class="layui-input-block">
@@ -99,9 +148,43 @@
 layui.use(['form'], function(){
     var form = layui.form;
     
+    // 输入方式切换
+    form.on('radio(input_type)', function(data){
+        var inputType = data.value;
+        if (inputType === 'range') {
+            $('#range_input').show();
+            $('#list_input').hide();
+            // 清空列表输入
+            $('#ip_address_list').val('');
+        } else {
+            $('#range_input').hide();
+            $('#list_input').show();
+            // 清空范围输入
+            $('#ip_address_start').val('');
+            $('#ip_address_end').val('');
+        }
+    });
+    
     // 表单提交监听
     form.on('submit(*)', function(data) {
         console.log('Form data:', data.field);
+        
+        // 添加模式下验证输入
+        if (!data.field.id) {
+            var inputType = data.field.input_type;
+            if (inputType === 'range') {
+                if (!data.field.ip_address_start || data.field.ip_address_start.trim() === '') {
+                    layer.msg('请输入起始IP地址', {icon: 2});
+                    return false;
+                }
+            } else if (inputType === 'list') {
+                if (!data.field.ip_address_list || data.field.ip_address_list.trim() === '') {
+                    layer.msg('请输入IP地址列表', {icon: 2});
+                    return false;
+                }
+            }
+        }
+        
         return true;
     });
 });

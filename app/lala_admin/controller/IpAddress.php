@@ -148,7 +148,6 @@ class IpAddress extends Controller
                 'parent_machine' => 'max:100',
                 'region' => 'require|in:guangzhou,shenzhen,xiamen,hongkong',
                 'network_type' => 'require|in:telecom,mobile,unicom,bgp,hk',
-                'ip_address_start' => 'require|max:50',
                 'hkip' => 'max:255',
                 'status' => 'in:unused,used,reported,abnormal,unknown'
             ])->message([
@@ -159,8 +158,6 @@ class IpAddress extends Controller
                 'region.in' => '所属地区必须是guangzhou、shenzhen、xiamen或hongkong',
                 'network_type.require' => '网络类型不能为空',
                 'network_type.in' => '网络类型必须是telecom、mobile、unicom、bgp或hk',
-                'ip_address_start.require' => '起始IP地址不能为空',
-                'ip_address_start.max' => 'IP地址最多50个字符',
                 'hkip.max' => '香港机器IP最多255个字符',
                 'status.in' => '状态必须是unused、used、reported、abnormal或unknown'
             ]);
@@ -173,20 +170,77 @@ class IpAddress extends Controller
             }
             
             try {
-                // 获取IP地址范围
-                $ipStart = trim($data['ip_address_start']);
-                $ipEnd = trim($data['ip_address_end'] ?? '');
+                // 判断输入方式：IP范围 或 IP列表
+                $inputType = $data['input_type'] ?? 'range';
+                $ipList = [];
                 
-                // 生成IP列表
-                $ipList = $this->generateIpList($ipStart, $ipEnd);
-                
-                if (empty($ipList)) {
-                    return $this->error('IP地址格式错误');
+                if ($inputType === 'list' && !empty($data['ip_address_list'])) {
+                    // 方式2：IP列表
+                    Log::info('Using IP list input method');
+                    $ipListText = trim($data['ip_address_list']);
+                    
+                    // 按行分割IP列表
+                    $ips = explode("\n", $ipListText);
+                    $ips = array_map('trim', $ips);
+                    $ips = array_filter($ips); // 移除空行
+                    
+                    // 验证IP格式并去重
+                    $validIps = [];
+                    $invalidIps = [];
+                    foreach ($ips as $ip) {
+                        if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                            $validIps[] = $ip;
+                        } else {
+                            $invalidIps[] = $ip;
+                        }
+                    }
+                    
+                    // 去重
+                    $ipList = array_unique($validIps);
+                    
+                    if (!empty($invalidIps)) {
+                        $invalidCount = count($invalidIps);
+                        Log::warning("Invalid IPs found: " . implode(', ', array_slice($invalidIps, 0, 5)));
+                    }
+                    
+                    if (empty($ipList)) {
+                        return $this->error('没有有效的IP地址');
+                    }
+                    
+                    // 限制最多1000个IP
+                    if (count($ipList) > 1000) {
+                        return $this->error('IP列表最多支持1000个IP地址，当前有效IP数量：' . count($ipList));
+                    }
+                    
+                    Log::info("IP list parsed: total=" . count($ips) . ", valid=" . count($ipList) . ", invalid=" . count($invalidIps));
+                    
+                } else {
+                    // 方式1：IP范围
+                    Log::info('Using IP range input method');
+                    $ipStart = trim($data['ip_address_start'] ?? '');
+                    $ipEnd = trim($data['ip_address_end'] ?? '');
+                    
+                    if (empty($ipStart)) {
+                        return $this->error('起始IP地址不能为空');
+                    }
+                    
+                    // 生成IP列表
+                    $ipList = $this->generateIpList($ipStart, $ipEnd);
+                    
+                    if (empty($ipList)) {
+                        return $this->error('IP地址格式错误');
+                    }
                 }
                 
                 $successCount = 0;
                 $skipCount = 0;
                 $skippedIps = [];
+                $invalidCount = 0;
+                
+                // 如果是IP列表方式，记录无效IP数量
+                if ($inputType === 'list' && isset($invalidIps)) {
+                    $invalidCount = count($invalidIps);
+                }
                 
                 // 批量插入IP
                 foreach ($ipList as $ip) {
@@ -222,7 +276,7 @@ class IpAddress extends Controller
                     }
                 }
                 
-                Log::info("Batch insert result: success={$successCount}, skip={$skipCount}");
+                Log::info("Batch insert result: success={$successCount}, skip={$skipCount}, invalid={$invalidCount}");
                 
                 // 返回结果
                 $message = "添加完成！成功: {$successCount} 条";
@@ -231,6 +285,9 @@ class IpAddress extends Controller
                     if (count($skippedIps) <= 5) {
                         $message .= "：" . implode(', ', $skippedIps);
                     }
+                }
+                if ($invalidCount > 0) {
+                    $message .= "，无效IP: {$invalidCount} 条";
                 }
                 
                 return json(['code' => 1, 'info' => $message, 'url' => '']);
